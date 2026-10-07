@@ -14,7 +14,7 @@
     <body class="min-h-screen bg-background font-sans text-foreground antialiased">
         <div class="flex min-h-screen flex-col lg:flex-row">
             {{-- Left navigation panel (desktop) --}}
-            <aside class="hidden w-64 shrink-0 flex-col border-r border-border bg-background-accent lg:flex">
+            <aside class="hidden w-64 shrink-0 flex-col border-r border-border bg-background-accent lg:sticky lg:top-0 lg:flex lg:h-screen lg:overflow-y-auto">
                 <a href="{{ route('home') }}" class="flex items-center gap-2 px-5 py-5">
                     <x-lucide-music class="h-7 w-7 text-primary-accent" />
                     <span class="text-lg font-bold tracking-tight text-foreground">{{ config('app.name', 'mailist DX') }}</span>
@@ -31,7 +31,7 @@
                         <x-nav-link :href="route('login')" icon="log-in" label="Login" :active="request()->routeIs('login')" />
                     @endif
 
-                    <x-nav-link :href="route('list')" icon="layout-list" label="List" :active="request()->routeIs('list')" emphasized />
+                    <x-nav-link :href="route('list')" icon="layout-list" label="List" :active="request()->routeIs('list')" variant="emphasized" class="mt-auto self-start" />
                 </nav>
             </aside>
 
@@ -62,7 +62,7 @@
                 </header>
 
                 {{-- Content --}}
-                <main class="flex-1 bg-background-content px-4 py-6 pb-24 sm:px-6 lg:pb-6">
+                <main class="flex-1 bg-background-content px-4 py-6 pb-28 sm:px-6 lg:pb-6">
                     <div class="mx-auto w-full max-w-5xl">
                         @yield('content')
                     </div>
@@ -72,16 +72,16 @@
 
         {{-- Bottom navigation bar (mobile) --}}
         <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background-accent lg:hidden">
-            <div class="flex items-stretch justify-around px-2 py-2">
-                <x-nav-link :href="route('home')" icon="home" label="Home" :active="request()->routeIs('home')" class="flex-col gap-1 px-3 py-1 text-xs" />
-                <x-nav-link :href="route('search')" icon="search" label="Search" :active="request()->routeIs('search')" class="flex-col gap-1 px-3 py-1 text-xs" />
-                <x-nav-link :href="route('list')" icon="layout-list" label="List" :active="request()->routeIs('list')" emphasized class="flex-col gap-1 px-3 py-1 text-xs" />
-                <x-nav-link :href="route('feed')" icon="rss" label="Feed" :active="request()->routeIs('feed')" class="flex-col gap-1 px-3 py-1 text-xs" />
+            <div class="flex items-center justify-around px-2 py-2">
+                <x-nav-link :href="route('home')" icon="home" label="Home" :active="request()->routeIs('home')" variant="compact" />
+                <x-nav-link :href="route('search')" icon="search" label="Search" :active="request()->routeIs('search')" variant="compact" />
+                <x-nav-link :href="route('list')" icon="layout-list" label="List" :active="request()->routeIs('list')" variant="circle" class="-mt-6 translate-y-6" />
+                <x-nav-link :href="route('feed')" icon="rss" label="Feed" :active="request()->routeIs('feed')" variant="compact" />
 
                 @if ($currentUser)
-                    <x-nav-link :href="route('profile')" icon="user" label="Profile" :active="request()->routeIs('profile')" class="flex-col gap-1 px-3 py-1 text-xs" />
+                    <x-nav-link :href="route('profile')" icon="user" label="Profile" :active="request()->routeIs('profile')" variant="compact" />
                 @else
-                    <x-nav-link :href="route('login')" icon="log-in" label="Login" :active="request()->routeIs('login')" class="flex-col gap-1 px-3 py-1 text-xs" />
+                    <x-nav-link :href="route('login')" icon="log-in" label="Login" :active="request()->routeIs('login')" variant="compact" />
                 @endif
             </div>
         </nav>
