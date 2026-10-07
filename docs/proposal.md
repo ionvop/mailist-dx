@@ -4,6 +4,10 @@ We're working on a chart sharing platform and collaborative tool for the rhythm 
 
 ## Layouts
 
+Each navigation tabs will have an icon associated with it.
+
+Please use `mallardduck/blade-lucide-icons` for the icons.
+
 Please refer to `old/astrodx/` for the design, theme and colors, but no need to match its layout.
 
 ### Desktop
