@@ -75,7 +75,7 @@
             <div class="flex items-center justify-around px-2 py-2">
                 <x-nav-link :href="route('home')" icon="home" label="Home" :active="request()->routeIs('home')" variant="compact" />
                 <x-nav-link :href="route('search')" icon="search" label="Search" :active="request()->routeIs('search')" variant="compact" />
-                <x-nav-link :href="route('list')" icon="layout-list" label="List" :active="request()->routeIs('list')" variant="circle" class="-mt-6 translate-y-6" />
+                <x-nav-link :href="route('list')" icon="layout-list" label="List" :active="request()->routeIs('list')" variant="circle" class="-mt-6 translate-y-3" />
                 <x-nav-link :href="route('feed')" icon="rss" label="Feed" :active="request()->routeIs('feed')" variant="compact" />
 
                 @if ($currentUser)
