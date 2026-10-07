@@ -2,8 +2,207 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+
+/* === Custom Fonts ===
+THICCCBOI is used for general english text.
+RenoMono is used for monospace text, mainly found in leaderboards and documentation.
+*/
+
+@font-face {
+    font-family: 'THICCCBOI';
+    font-style: normal;
+    font-weight: 100;
+    font-display: swap;
+    src: url('/fonts/thicccboi/thin.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'THICCCBOI';
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url('/fonts/thicccboi/light.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'THICCCBOI';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/thicccboi/regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'THICCCBOI';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/fonts/thicccboi/medium.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'THICCCBOI';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/fonts/thicccboi/semibold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'THICCCBOI';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/fonts/thicccboi/bold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'THICCCBOI';
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url('/fonts/thicccboi/extrabold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'THICCCBOI';
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url('/fonts/thicccboi/black.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'THICCCBOI';
+    font-style: normal;
+    font-weight: 950;
+    font-display: swap;
+    src: url('/fonts/thicccboi/heavy.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'RenoMono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/renomono/RenoMono.woff2') format('woff2');
+}
+
+/* === Theme ===
+Ported from the AstroDX dark palette. This shell is dark-only, so the tokens are
+declared once rather than behind a `.dark` class.
+*/
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'THICCCBOI', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-mono: 'RenoMono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --color-background: hsl(210 100% 4%);
+    --color-background-accent: hsl(210 41% 9%);
+    --color-background-content: hsl(220 41% 10%);
+
+    --color-foreground: hsl(210 40% 98%);
+    --color-foreground-accent: hsl(221 30% 72%);
+
+    --color-muted: hsl(217.2 32.6% 17.5%);
+    --color-muted-foreground: hsl(215 20.2% 65.1%);
+
+    --color-popover: hsl(222.2 84% 4.9%);
+    --color-popover-foreground: hsl(210 40% 98%);
+
+    --color-card: hsl(222.2 84% 4.9%);
+    --color-card-foreground: hsl(210 40% 98%);
+
+    --color-border: hsl(217.2 32.6% 17.5%);
+    --color-input: hsl(217.2 32.6% 17.5%);
+
+    --color-primary: hsl(216 100% 37%);
+    --color-primary-accent: hsl(202 100% 42%);
+    --color-primary-foreground: hsl(210 40% 98%);
+
+    --color-secondary: hsl(217.2 32.6% 17.5%);
+    --color-secondary-foreground: hsl(210 40% 98%);
+
+    --color-accent: hsl(217.2 32.6% 17.5%);
+    --color-accent-foreground: hsl(210 40% 98%);
+
+    --color-warning: hsl(45 93% 47%);
+    --color-warning-foreground: hsl(222.2 47.4% 11.2%);
+
+    --color-destructive: hsl(0 65% 56%);
+    --color-destructive-foreground: hsl(210 40% 98%);
+
+    --color-ring: hsl(212.7 26.8% 83.9%);
+
+    --color-difficulty-easy: hsl(208 100% 50%);
+    --color-difficulty-basic: hsl(141 100% 38%);
+    --color-difficulty-advanced: hsl(39 100% 42%);
+    --color-difficulty-expert: hsl(4 95% 35%);
+    --color-difficulty-master: hsl(275 100% 46%);
+    --color-difficulty-remaster: hsl(286 33% 64%);
+    --color-difficulty-utage: hsl(298 100% 16%);
+    --color-difficulty-custom: hsl(210 40% 98%);
+
+    --radius-lg: 0.5rem;
+    --radius-md: calc(0.5rem - 2px);
+    --radius-sm: calc(0.5rem - 4px);
+
+    --breakpoint-xs: 480px;
+}
+
+@layer base {
+    * {
+        border-color: var(--color-border);
+    }
+
+    body {
+        background-color: var(--color-background);
+        color: var(--color-foreground);
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+/* Shortcut bg class for vertical gradient */
+@utility bg-background-gradient {
+    background-image: linear-gradient(
+        to bottom,
+        var(--color-background-accent),
+        var(--color-background)
+    );
+}
+
+/* Shortcut bg class for primary CTA buttons */
+@utility bg-primary-gradient {
+    background-image: linear-gradient(
+        to bottom,
+        var(--color-primary-accent),
+        var(--color-primary)
+    );
+}
+
+/* "Pop-out" border */
+@utility bg-dark-popout {
+    border: 2px solid transparent;
+    background:
+        padding-box linear-gradient(var(--color-background), var(--color-background)),
+        border-box linear-gradient(var(--color-gray-700), var(--color-background));
+}
+
+/* "Pop-in" border */
+@utility bg-dark-popin {
+    border: 2px solid transparent;
+    background:
+        padding-box linear-gradient(var(--color-background), var(--color-background)),
+        border-box linear-gradient(var(--color-background), var(--color-gray-700));
+}
+
+input[type='file']::file-selector-button {
+    display: none;
 }
