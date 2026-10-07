@@ -90,7 +90,7 @@ There are only two login methods:
 - Get login code by email
 - Login with Google
 
-Please refer to `old/login/` for reference on how this will be implemented.
+Please refer to `old/saucepls/` for reference on how this will be implemented.
 
 ### Upload chart
 
@@ -98,10 +98,48 @@ This is where the user uploads their chart:
 
 - Upload `.zip` or `.adx` (still a zip file)
     - Find `maidata.txt` and use that as the working directory for the following files
-    - Find `image/*` with filename `bg` (e.g. `bg.jpg`) within the directory and set that as the chart BG
+    - Find `image/*` with filename `bg` (e.g. `bg.jpg`) within the directory and set that as the chart BG (chart jacket/song cover/track art)
     - Find `audio/*` with filename `track` (e.g. `track.mp3`) and set that as the chart track
     - Find `video/*` with filename `pv` (e.g. `pv.mp4`) and set that as the chart PV
     - Parse the `maidata.txt` to retrieve chart details such as its title, artist, note designer, etc.
 - Individual components such as the chart BG, track, and PV can still be manually set or updated.
 - Markdown-supported description for the chart.
 - Checkbox on whether to set this chart as private or not.
+
+Please refer to `old/astrodx-web/` for reference on how this will be implemented.
+
+### Chart details
+
+This is the page that opens when checking on a chart. It will have the following navigation tabs:
+
+- Details
+    - Two columns
+    - Left column: Difficulty listings. Clicking on a difficulty will redirect the user to the difficulty page
+    - Right column: Chart details such as the chart BG, title, artist, etc. And a preview of the track
+- Comments
+- Settings
+    - Only accessible to owner
+        - Add/remove edit access to other users
+        - Set chart status (WIP/For Review/Completed/Approved)
+        - Private/unprivate
+        - Delete
+    - Only accessible to staff
+        - Approve
+        - Delete
+
+### Chart difficulty page
+
+The is the page that opens when checking on a chart difficulty. It will have the following navigation tabs:
+
+- Code
+    - Two columns
+    - Left column: Textarea containing the simai code that makes up the chart, edits can only be saved by those with edit access.
+    - Right column: Chart preview
+- Improvements
+    - Other users can select line(s) from the simai code for context and suggests improvements (e.g. ln 45-47 The note placements here doen't match with the song. I suggest `1,2,3,,8,7,6,`)
+    - The editors can either reject the suggestion with a reason or mark the suggestion as resolved by selecting the lines that were changed in the new version (there will be a diff visualizer for the suggester's selected lines and the editor's selected lines) and a remark
+- Comments
+- History
+    - Everytime a change is saved, the system saves a snapshot of the change.
+    - There will be a diff visualizer for the snapshot and the snapshot before it.
+    - Each snapshot will have a "Restore to this state" button which will revert the code back into this snapshot (this will be treated as an edit instead of removing history)
