@@ -4,6 +4,8 @@ We're working on a chart sharing platform and collaborative tool for the rhythm 
 
 ## Layouts
 
+Please refer to `old/astrodx/` for the design, theme and colors, but no need to match its layout.
+
 ### Desktop
 
 The desktop view will have the following layout:
