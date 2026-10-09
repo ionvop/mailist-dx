@@ -11,7 +11,7 @@
         @endif
 
         @if ($currentUser)
-            <div class="rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8"
+            <div class="card card-border bg-base-200/40 p-6 sm:p-8"
                 x-data="profileForm(@js($currentUser->username))">
                 <h2 class="text-lg font-bold text-foreground">Profile</h2>
                 <p class="mt-1 text-sm text-foreground-accent">Your avatar, username, and markdown-supported bio.</p>
@@ -69,13 +69,13 @@
                             minlength="3"
                             maxlength="30"
                             autocomplete="username"
-                            class="mt-1.5 w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground-accent/60 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 {{ $errors->has('username') ? 'border-destructive focus:border-destructive focus:ring-destructive/40' : 'border-border focus:border-primary-accent focus:ring-primary-accent/40' }}"
+                            class="input mt-1.5 w-full text-sm disabled:cursor-not-allowed disabled:opacity-50 {{ $errors->has('username') ? 'input-error' : '' }}"
                         >
 
                         <p class="mt-1 text-xs text-foreground-accent">Letters, numbers, hyphens, and underscores only.</p>
 
                         <template x-if="!canChange">
-                            <p class="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-300">
+                            <p class="alert alert-warning mt-2 px-3 py-2 text-xs">
                                 You can change your username again in
                                 <span x-text="remaining" class="font-semibold"></span>.
                             </p>
@@ -100,9 +100,9 @@
 
                 {{-- Username change confirmation modal --}}
                 <div x-show="showConfirm" x-cloak x-transition.opacity
-                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+                    class="modal modal-open"
                     @keydown.escape.window="cancel()">
-                    <div class="w-full max-w-md rounded-2xl border border-border bg-background p-6 shadow-2xl" @click.outside="cancel()">
+                    <div class="modal-box max-w-md" @click.outside="cancel()">
                         <div class="flex items-start gap-3">
                             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/15">
                                 <x-lucide-alert-triangle class="h-5 w-5 text-amber-400" />
@@ -117,13 +117,11 @@
                             </div>
                         </div>
 
-                        <div class="mt-6 flex items-center justify-end gap-3">
-                            <button type="button" @click="cancel()"
-                                class="inline-flex items-center justify-center rounded-lg border border-border bg-background-accent px-4 py-2.5 text-sm font-semibold text-foreground transition hover:bg-accent">
+                        <div class="modal-action">
+                            <button type="button" @click="cancel()" class="btn btn-outline">
                                 Cancel
                             </button>
-                            <button type="button" @click="confirmSubmit()"
-                                class="inline-flex items-center justify-center rounded-lg bg-primary-gradient px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:brightness-110">
+                            <button type="button" @click="confirmSubmit()" class="btn btn-primary bg-primary-gradient">
                                 Confirm
                             </button>
                         </div>
