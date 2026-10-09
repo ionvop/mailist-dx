@@ -49,6 +49,7 @@
                             <div class="min-w-0 flex-1">
                                 <x-file-input
                                     name="avatar"
+                                    compact
                                     hint="JPEG, PNG, WebP, or GIF. Max 2MB."
                                     @change="const f = $event.target.files[0]; if (f) { preview = URL.createObjectURL(f); }"
                                 />
