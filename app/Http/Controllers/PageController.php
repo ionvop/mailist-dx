@@ -22,9 +22,17 @@ class PageController extends Controller
         return view('pages.feed');
     }
 
-    public function list(): View
+    public function list(Request $request): View
     {
-        return view('pages.list');
+        $charts = $request->user()
+            ?->charts()
+            ->withCount('difficulties')
+            ->latest()
+            ->get() ?? collect();
+
+        return view('pages.list', [
+            'charts' => $charts,
+        ]);
     }
 
     public function profile(): View
