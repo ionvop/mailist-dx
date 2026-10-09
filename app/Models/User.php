@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 #[Fillable(['username', 'email', 'avatar_path', 'bio', 'username_changed_at'])]
 #[Hidden(['remember_token'])]
@@ -45,6 +46,24 @@ class User extends Authenticatable
     {
         return Attribute::get(
             fn (): ?string => $this->avatar_path ? Storage::disk('public')->url($this->avatar_path) : null,
+        );
+    }
+
+    /**
+     * The user's biography rendered from Markdown, or null when none is set.
+     *
+     * Raw HTML is stripped and unsafe links are disallowed to keep the
+     * rendered output safe to display without escaping.
+     */
+    protected function bioHtml(): Attribute
+    {
+        return Attribute::get(
+            fn (): ?string => filled($this->bio)
+                ? Str::markdown($this->bio, [
+                    'html_input' => 'strip',
+                    'allow_unsafe_links' => false,
+                ])
+                : null,
         );
     }
 
