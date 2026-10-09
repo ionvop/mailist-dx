@@ -6,7 +6,7 @@
     <div class="mx-auto w-full max-w-md">
         <x-page-header title="Check your email" subtitle="Enter the 6-digit code we sent you to finish signing in." />
 
-        <div class="rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8">
+        <div class="card card-border bg-base-200/40 p-6 sm:p-8">
             <p class="mb-4 text-sm text-foreground-accent">
                 We sent a code to <span class="font-medium text-foreground">{{ $email }}</span>.
             </p>
