@@ -31,11 +31,6 @@ class PageController extends Controller
         return view('pages.profile');
     }
 
-    public function login(): View
-    {
-        return view('pages.login');
-    }
-
     public function settings(): View
     {
         return view('pages.settings');
