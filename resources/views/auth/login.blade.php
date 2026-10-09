@@ -6,7 +6,7 @@
     <div class="mx-auto w-full max-w-md">
         <x-page-header title="Log in" subtitle="Sign in to mailist DX with your email or Google account." />
 
-        <div class="rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8">
+        <div class="card card-border bg-base-200/40 p-6 sm:p-8">
             @if (session('status'))
                 <x-alert class="mb-4">{{ session('status') }}</x-alert>
             @endif
@@ -37,11 +37,7 @@
                 <x-button type="submit">Send me a login code</x-button>
             </form>
 
-            <div class="my-6 flex items-center gap-3">
-                <div class="h-px flex-1 bg-border"></div>
-                <span class="text-xs uppercase tracking-wide text-foreground-accent">or</span>
-                <div class="h-px flex-1 bg-border"></div>
-            </div>
+            <div class="divider my-6 text-xs uppercase tracking-wide text-foreground-accent">or</div>
 
             <x-button :href="route('auth.google.redirect')" variant="secondary">
                 <x-lucide-chrome class="h-5 w-5" />
