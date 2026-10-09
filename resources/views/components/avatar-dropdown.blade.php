@@ -61,7 +61,7 @@
 
         <div class="border-t border-border p-1.5">
             @if ($user)
-                <form method="POST" action="{{ route('dev.auth.toggle') }}">
+                <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" role="menuitem" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-destructive transition hover:bg-destructive/10">
                         <x-lucide-log-out class="h-4 w-4" />
