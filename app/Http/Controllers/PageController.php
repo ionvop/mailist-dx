@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 
 class PageController extends Controller
 {
@@ -31,9 +32,14 @@ class PageController extends Controller
         return view('pages.profile');
     }
 
-    public function settings(): View
+    public function settings(Request $request): View
     {
-        return view('pages.settings');
+        $user = $request->user();
+
+        return view('pages.settings', [
+            'canChangeUsername' => $user?->canChangeUsername() ?? false,
+            'usernameAvailableAt' => $user?->usernameChangeAvailableAt()->toIso8601String(),
+        ]);
     }
 
     public function notifications(): View
