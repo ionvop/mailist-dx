@@ -1,5 +1,61 @@
 @import 'tailwindcss';
 
+@plugin "daisyui" {
+    themes: false;
+}
+
+/* === DaisyUI theme ===
+Maps DaisyUI's semantic tokens onto the AstroDX palette declared in @theme below.
+Values intentionally mirror the --color-* tokens so the two systems agree even
+though they share names (e.g. --color-primary, --color-accent).
+*/
+@plugin "daisyui/theme" {
+    name: 'mailist';
+    default: true;
+    prefersdark: true;
+    color-scheme: dark;
+
+    --color-base-100: hsl(210 100% 4%);
+    --color-base-200: hsl(210 41% 9%);
+    --color-base-300: hsl(220 41% 10%);
+    --color-base-content: hsl(210 40% 98%);
+
+    --color-primary: hsl(216 100% 37%);
+    --color-primary-content: hsl(210 40% 98%);
+
+    --color-secondary: hsl(217.2 32.6% 17.5%);
+    --color-secondary-content: hsl(210 40% 98%);
+
+    --color-accent: hsl(217.2 32.6% 17.5%);
+    --color-accent-content: hsl(210 40% 98%);
+
+    --color-neutral: hsl(217.2 32.6% 17.5%);
+    --color-neutral-content: hsl(210 40% 98%);
+
+    --color-info: hsl(202 100% 42%);
+    --color-info-content: hsl(210 40% 98%);
+
+    --color-success: hsl(202 100% 42%);
+    --color-success-content: hsl(210 40% 98%);
+
+    --color-warning: hsl(45 93% 47%);
+    --color-warning-content: hsl(222.2 47.4% 11.2%);
+
+    --color-error: hsl(0 65% 56%);
+    --color-error-content: hsl(210 40% 98%);
+
+    --radius-selector: calc(0.5rem - 4px);
+    --radius-field: calc(0.5rem - 2px);
+    --radius-box: 0.5rem;
+
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+
+    --border: 2px;
+    --depth: 0;
+    --noise: 0;
+}
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../views/**/*.blade.php';
