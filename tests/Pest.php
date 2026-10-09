@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 /*
@@ -47,4 +48,61 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Build an in-memory `.zip` chart package from a map of entry name to contents.
+ *
+ * @param  array<string, string>  $files
+ */
+function chartPackageZip(array $files): UploadedFile
+{
+    $path = tempnam(sys_get_temp_dir(), 'chart').'.zip';
+
+    $zip = new ZipArchive;
+    $zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+    foreach ($files as $name => $contents) {
+        $zip->addFromString($name, $contents);
+    }
+
+    $zip->close();
+
+    return new UploadedFile($path, 'chart.zip', 'application/zip', null, true);
+}
+
+/**
+ * Generate a small JPEG image as raw bytes.
+ */
+function fakeJpegBytes(int $size = 16): string
+{
+    $image = imagecreatetruecolor($size, $size);
+    imagefill($image, 0, 0, imagecolorallocate($image, 120, 40, 200));
+
+    ob_start();
+    imagejpeg($image);
+    $bytes = (string) ob_get_clean();
+
+    imagedestroy($image);
+
+    return $bytes;
+}
+
+/**
+ * A minimal valid maidata file with two difficulties.
+ */
+function sampleMaidata(): string
+{
+    return implode("\n", [
+        '&title=Test Song',
+        '&artist=Test Artist',
+        '&wholebpm=180',
+        '&des=Test Charter',
+        '&tags=tag1, tag2',
+        '&inote_4=(180){4}1,2,3,4,',
+        '&lv_4=12',
+        '&inote_5=(180){4}1,2,3,4,5,',
+        '&lv_5=14+',
+        '&des_5=Master Charter',
+    ]);
 }
