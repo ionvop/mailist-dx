@@ -25,10 +25,8 @@
         @if ($placeholder) placeholder="{{ $placeholder }}" @endif
         @if ($required) required @endif
         {{ $attributes->except(['class', 'id'])->class([
-            'w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground-accent/60 outline-none transition focus:ring-2',
-            $hasError
-                ? 'border-destructive focus:border-destructive focus:ring-destructive/40'
-                : 'border-border focus:border-primary-accent focus:ring-primary-accent/40',
+            'textarea w-full text-sm',
+            $hasError ? 'textarea-error' : '',
         ]) }}
     >{{ old($name, $value) }}</textarea>
 
