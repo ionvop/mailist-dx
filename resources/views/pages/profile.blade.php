@@ -20,7 +20,14 @@
             </div>
         </div>
 
-        <x-placeholder title="Bio" description="Markdown-supported biography." icon="file-text" height="h-32" />
+        @if ($currentUser?->bioHtml)
+            <div class="rounded-2xl border border-border bg-background-accent/40 p-6">
+                <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-foreground-accent">Bio</h2>
+                <div class="bio-content text-sm text-foreground">{!! $currentUser->bioHtml !!}</div>
+            </div>
+        @else
+            <x-placeholder title="Bio" description="Markdown-supported biography." icon="file-text" height="h-32" />
+        @endif
 
         <div class="grid gap-4 sm:grid-cols-2">
             <x-placeholder title="Charts uploaded" description="Charts this user has published." icon="upload" />
