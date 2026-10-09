@@ -203,10 +203,6 @@ declared once rather than behind a `.dark` class.
         border-box linear-gradient(var(--color-background), var(--color-gray-700));
 }
 
-input[type='file']::file-selector-button {
-    display: none;
-}
-
 /* === Markdown content ===
 Scoped typography for rendered Markdown (e.g. the profile bio). Kept minimal
 and token-driven so it matches the dark shell without a typography plugin.
