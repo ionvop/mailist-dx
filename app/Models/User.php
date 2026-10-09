@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -37,6 +38,16 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'username_changed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The charts uploaded by the user.
+     *
+     * @return HasMany<Chart, $this>
+     */
+    public function charts(): HasMany
+    {
+        return $this->hasMany(Chart::class, 'uploader_id');
     }
 
     /**
