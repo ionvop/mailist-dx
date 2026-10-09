@@ -1,6 +1,9 @@
 <?php
 
-use App\Support\DevAuth;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
 
 test('every navigation page renders for a guest', function (string $route) {
     $this->get(route($route))->assertOk();
@@ -16,7 +19,7 @@ test('every navigation page renders for a guest', function (string $route) {
 ]);
 
 test('every navigation page renders for a signed-in user', function (string $route) {
-    DevAuth::toggle();
+    $this->actingAs(User::factory()->create());
 
     $this->get(route($route))->assertOk();
 })->with([
@@ -25,10 +28,15 @@ test('every navigation page renders for a signed-in user', function (string $rou
     'feed',
     'list',
     'profile',
-    'login',
     'settings',
     'notifications',
 ]);
+
+test('the login page redirects a signed-in user', function () {
+    $this->actingAs(User::factory()->create());
+
+    $this->get(route('login'))->assertRedirect();
+});
 
 test('the guest chrome links to login', function () {
     $this->get(route('home'))
@@ -38,21 +46,9 @@ test('the guest chrome links to login', function () {
 });
 
 test('the signed-in chrome links to the profile', function () {
-    DevAuth::toggle();
+    $this->actingAs(User::factory()->create());
 
     $this->get(route('home'))
         ->assertOk()
         ->assertSee(route('profile'), escape: false);
-});
-
-test('the dev auth toggle flips the auth state', function () {
-    expect(DevAuth::check())->toBeFalse();
-
-    $this->post(route('dev.auth.toggle'))->assertRedirect();
-
-    expect(DevAuth::check())->toBeTrue();
-
-    $this->post(route('dev.auth.toggle'))->assertRedirect();
-
-    expect(DevAuth::check())->toBeFalse();
 });
