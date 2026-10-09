@@ -5,12 +5,12 @@
 ])
 
 @php
-    $base = 'btn w-full gap-2 text-sm font-semibold';
+    $base = 'inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition';
 
     $variants = [
-        'primary' => 'btn-primary bg-primary-gradient shadow-lg shadow-primary/20',
-        'secondary' => 'btn-outline border-border bg-background-accent text-foreground hover:border-border hover:bg-accent',
-        'ghost' => 'btn-ghost text-foreground-accent hover:bg-accent hover:text-foreground',
+        'primary' => 'bg-primary-gradient text-primary-foreground shadow-lg shadow-primary/20 hover:brightness-110',
+        'secondary' => 'border border-border bg-background-accent text-foreground hover:bg-accent',
+        'ghost' => 'text-foreground-accent hover:bg-accent hover:text-foreground',
     ];
 
     $classes = [$base, $variants[$variant] ?? $variants['primary']];

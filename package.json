@@ -17,7 +17,6 @@
         "@laravel/multiplex": "^0.4.1"
     },
     "dependencies": {
-        "alpinejs": "^3.17.4",
-        "daisyui": "^5.7.47"
+        "alpinejs": "^3.17.4"
     }
 }

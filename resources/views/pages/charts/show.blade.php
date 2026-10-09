@@ -19,20 +19,20 @@
 
         <div class="flex items-center gap-2">
             @if ($chart->is_private)
-                <span class="badge badge-outline gap-1 text-xs font-semibold text-foreground-accent">
+                <span class="inline-flex items-center gap-1 rounded-full border border-border bg-background-accent px-3 py-1 text-xs font-semibold text-foreground-accent">
                     <x-lucide-lock class="h-3.5 w-3.5" /> Private
                 </span>
             @endif
-            <span class="badge badge-outline text-xs font-semibold text-foreground-accent">
+            <span class="inline-flex items-center rounded-full border border-border bg-background-accent px-3 py-1 text-xs font-semibold text-foreground-accent">
                 {{ $chart->status->label() }}
             </span>
         </div>
     </div>
 
     {{-- Tabs --}}
-    <div role="tablist" class="tabs tabs-border mb-6">
+    <div class="mb-6 flex gap-1 border-b border-border">
         @foreach ($tabs as $tab)
-            <span role="tab" class="tab text-sm font-semibold {{ $tab['active'] ? 'tab-active' : '' }}">
+            <span class="border-b-2 px-4 py-2 text-sm font-semibold {{ $tab['active'] ? 'border-primary-accent text-foreground' : 'border-transparent text-foreground-accent' }}">
                 {{ $tab['label'] }}
             </span>
         @endforeach
@@ -45,26 +45,24 @@
 
             @forelse ($chart->difficulties as $difficulty)
                 <div
-                    class="card card-border bg-base-200/40"
+                    class="flex items-center justify-between gap-3 rounded-xl border border-border bg-background-accent/40 p-4"
                     style="--difficulty-color: var(--color-difficulty-{{ $difficulty->difficulty->value }})"
                 >
-                    <div class="card-body flex-row items-center justify-between gap-3 p-4">
-                        <div class="flex items-center gap-3">
-                            <span class="h-8 w-1.5 rounded-full bg-[var(--difficulty-color)]"></span>
-                            <div>
-                                <p class="text-sm font-bold text-foreground">{{ $difficulty->displayName() }}</p>
-                                @if ($difficulty->charter)
-                                    <p class="text-xs text-foreground-accent">Chart by {{ $difficulty->charter }}</p>
-                                @endif
-                            </div>
+                    <div class="flex items-center gap-3">
+                        <span class="h-8 w-1.5 rounded-full bg-[var(--difficulty-color)]"></span>
+                        <div>
+                            <p class="text-sm font-bold text-foreground">{{ $difficulty->displayName() }}</p>
+                            @if ($difficulty->charter)
+                                <p class="text-xs text-foreground-accent">Chart by {{ $difficulty->charter }}</p>
+                            @endif
                         </div>
-
-                        @if ($difficulty->difficulty_value)
-                            <span class="badge border-0 bg-[var(--difficulty-color)] px-2.5 py-1 text-sm font-bold text-background">
-                                {{ $difficulty->difficulty_value }}
-                            </span>
-                        @endif
                     </div>
+
+                    @if ($difficulty->difficulty_value)
+                        <span class="rounded-lg bg-[var(--difficulty-color)] px-2.5 py-1 text-sm font-bold text-background">
+                            {{ $difficulty->difficulty_value }}
+                        </span>
+                    @endif
                 </div>
             @empty
                 <x-placeholder title="No difficulties" description="This chart has no difficulties." icon="music" height="h-32" />
@@ -73,7 +71,7 @@
 
         {{-- Details --}}
         <div class="space-y-6">
-            <div class="card card-border overflow-hidden bg-base-200/40">
+            <div class="overflow-hidden rounded-2xl border border-border bg-background-accent/40">
                 @if ($chart->art_path)
                     <img src="{{ route('charts.files', [$chart, 'art']) }}" alt="{{ $chart->title }} cover"
                         class="aspect-square w-full max-w-sm object-cover">
@@ -106,7 +104,7 @@
             @if ($chart->tags)
                 <div class="flex flex-wrap gap-2">
                     @foreach ($chart->tags as $tag)
-                        <span class="badge badge-outline text-xs text-foreground-accent">{{ $tag }}</span>
+                        <span class="rounded-full border border-border bg-background-accent px-3 py-1 text-xs text-foreground-accent">{{ $tag }}</span>
                     @endforeach
                 </div>
             @endif

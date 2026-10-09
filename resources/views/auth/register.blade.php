@@ -6,7 +6,7 @@
     <div class="mx-auto w-full max-w-md">
         <x-page-header title="Almost there" subtitle="Pick a username to finish creating your account." />
 
-        <div class="card card-border bg-base-200/40 p-6 sm:p-8">
+        <div class="rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8">
             <p class="mb-4 text-sm text-foreground-accent">
                 Your email <span class="font-medium text-foreground">{{ $email }}</span> is verified.
             </p>

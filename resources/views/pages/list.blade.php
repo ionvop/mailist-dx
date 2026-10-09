@@ -14,7 +14,7 @@
             <x-placeholder title="Filters" description="Owned, shared with me, and status filters." icon="filter" height="h-20" class="flex-1" />
 
             <a href="{{ route('charts.upload') }}"
-                class="card card-border flex h-20 flex-1 flex-col items-center justify-center gap-2 border-dashed border-primary-accent/40 bg-primary/10 p-6 text-center transition hover:border-primary-accent hover:bg-primary/20">
+                class="flex h-20 flex-1 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-primary-accent/40 bg-primary/10 p-6 text-center transition hover:border-primary-accent hover:bg-primary/20">
                 <x-lucide-upload class="h-6 w-6 text-primary-accent" />
                 <p class="text-sm font-semibold text-foreground">Upload chart</p>
                 <p class="max-w-md text-xs text-foreground-accent">Upload a .zip or .adx chart package.</p>
@@ -27,8 +27,8 @@
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($charts as $chart)
                     <a href="{{ route('charts.show', $chart) }}"
-                        class="card card-border group overflow-hidden bg-base-200/40 transition hover:border-primary-accent/50">
-                        <figure class="aspect-square w-full overflow-hidden bg-background">
+                        class="group overflow-hidden rounded-2xl border border-border bg-background-accent/40 transition hover:border-primary-accent/50">
+                        <div class="aspect-square w-full overflow-hidden bg-background">
                             @if ($chart->art_path)
                                 <img src="{{ route('charts.files', [$chart, 'art']) }}" alt="{{ $chart->title }} cover"
                                     class="h-full w-full object-cover transition group-hover:scale-105">
@@ -37,9 +37,9 @@
                                     <x-lucide-image class="h-8 w-8 text-foreground-accent" />
                                 </div>
                             @endif
-                        </figure>
+                        </div>
 
-                        <div class="card-body gap-1 p-4">
+                        <div class="space-y-1 p-4">
                             <div class="flex items-start justify-between gap-2">
                                 <p class="truncate text-sm font-bold text-foreground">{{ $chart->title }}</p>
                                 @if ($chart->is_private)

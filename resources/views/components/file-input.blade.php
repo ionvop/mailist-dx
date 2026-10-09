@@ -23,8 +23,8 @@
         accept="{{ $accept }}"
         @if ($required) required @endif
         {{ $attributes->except(['class', 'id'])->class([
-            'file-input w-full text-sm',
-            $hasError ? 'file-input-error' : '',
+            'block w-full text-sm text-foreground-accent file:mr-3 file:rounded-lg file:border-0 file:bg-primary/20 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-accent hover:file:bg-primary/30',
+            $hasError ? 'text-destructive' : '',
         ]) }}
     >
 

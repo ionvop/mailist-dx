@@ -21,7 +21,7 @@
         @endif
 
         <form method="POST" action="{{ route('charts.store') }}" enctype="multipart/form-data"
-            class="card card-border space-y-6 bg-base-200/40 p-6 sm:p-8">
+            class="space-y-6 rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8">
             @csrf
 
             {{-- Chart package --}}
@@ -89,7 +89,7 @@
                         name="is_private"
                         value="1"
                         @checked(old('is_private'))
-                        class="checkbox checkbox-primary"
+                        class="h-4 w-4 rounded border-border bg-background text-primary-accent focus:ring-primary-accent/40"
                     >
                     <span class="text-sm text-foreground">
                         Keep this chart private

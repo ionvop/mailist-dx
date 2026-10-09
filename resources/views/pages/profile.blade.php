@@ -6,7 +6,7 @@
     <x-page-header title="Profile" subtitle="Your public presence on mailist DX." />
 
     <div class="space-y-6">
-        <div class="card card-border flex flex-col gap-4 bg-base-200/40 p-6 sm:flex-row sm:items-center">
+        <div class="flex flex-col gap-4 rounded-2xl border border-border bg-background-accent/40 p-6 sm:flex-row sm:items-center">
             <x-avatar :user="$currentUser" class="h-20 w-20 text-2xl" />
 
             <div class="min-w-0 flex-1">
@@ -21,7 +21,7 @@
         </div>
 
         @if ($currentUser?->bioHtml)
-            <div class="card card-border bg-base-200/40 p-6">
+            <div class="rounded-2xl border border-border bg-background-accent/40 p-6">
                 <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-foreground-accent">Bio</h2>
                 <div class="bio-content text-sm text-foreground">{!! $currentUser->bioHtml !!}</div>
             </div>
