@@ -4,6 +4,9 @@ use App\Http\Controllers\Auth\EmailLoginController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Charts\ChartController;
+use App\Http\Controllers\Charts\ChartFileController;
+use App\Http\Controllers\Charts\ChartUploadController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Settings\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -43,4 +46,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', LogoutController::class)->name('logout');
 
     Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('settings.profile.update');
+
+    Route::get('/charts/upload', [ChartUploadController::class, 'create'])->name('charts.upload');
+    Route::post('/charts', [ChartUploadController::class, 'store'])->name('charts.store');
+    Route::get('/charts/{chart}', [ChartController::class, 'show'])->name('charts.show');
+    Route::get('/charts/{chart}/files/{type}', [ChartFileController::class, 'show'])->name('charts.files');
 });
