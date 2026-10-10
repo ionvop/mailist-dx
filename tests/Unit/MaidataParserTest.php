@@ -8,6 +8,7 @@ test('it parses level metadata and difficulties', function () {
 
     expect($parsed->title)->toBe('Test Song')
         ->and($parsed->artist)->toBe('Test Artist')
+        ->and($parsed->noteDesigner)->toBe('Test Charter')
         ->and($parsed->audioBpm)->toBe('180')
         ->and($parsed->tags)->toBe(['tag1', 'tag2'])
         ->and($parsed->charts)->toHaveCount(2)
