@@ -93,6 +93,69 @@ class MaidataSerializer
     }
 
     /**
+     * Replace the `&inote_#` chart body for the given index.
+     *
+     * Unlike {@see replaceHeaderValues()}, this supports multi-line chart code,
+     * which is written verbatim (normalised to the file's line endings). An
+     * existing body is replaced in place together with any continuation lines,
+     * and a missing index is appended to the header block. The original UTF-8
+     * BOM and line-ending style are preserved.
+     */
+    public function replaceChartCode(string $contents, string $index, string $code): string
+    {
+        $hasBom = str_starts_with($contents, "\xEF\xBB\xBF");
+
+        if ($hasBom) {
+            $contents = substr($contents, 3);
+        }
+
+        $eol = str_contains($contents, "\r\n") ? "\r\n" : "\n";
+        $lines = explode("\n", str_replace(["\r\n", "\r"], "\n", $contents));
+
+        $body = implode($eol, explode("\n", str_replace(["\r\n", "\r"], "\n", $code)));
+
+        $pattern = '/^&inote_'.preg_quote($index, '/').'=(.*)$/s';
+
+        $output = [];
+        $insertAt = null;
+        $replaced = false;
+        $skipContinuation = false;
+
+        foreach ($lines as $line) {
+            if ($insertAt === null && preg_match('/^&inote_[0-9]+=/', $line) === 1) {
+                $insertAt = count($output);
+            }
+
+            if ($skipContinuation) {
+                if (preg_match('/^&[A-Za-z0-9_]+=/', $line) === 1) {
+                    $skipContinuation = false;
+                } else {
+                    continue;
+                }
+            }
+
+            if (preg_match($pattern, $line) === 1) {
+                $output[] = "&inote_{$index}={$body}";
+                $replaced = true;
+                $skipContinuation = true;
+
+                continue;
+            }
+
+            $output[] = $line;
+        }
+
+        if (! $replaced) {
+            $insertAt ??= count($output);
+            array_splice($output, $insertAt, 0, ["&inote_{$index}={$body}"]);
+        }
+
+        $result = implode($eol, $output);
+
+        return $hasBom ? "\xEF\xBB\xBF".$result : $result;
+    }
+
+    /**
      * Normalise a header value so it cannot break out onto a new line.
      */
     private function sanitize(string $value): string
