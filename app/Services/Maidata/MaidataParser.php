@@ -55,13 +55,16 @@ class MaidataParser
             $logs->error('&illus_link is not a valid URL.');
         }
 
+        // The level-wide note designer, used as the fallback charter for each chart.
+        $noteDesigner = $pairs['des'] ?? null;
+
         $tags = [];
         $tagsString = $this->extract($pairs, 'tags', 'Chart tags', self::MAX_TEXT_LENGTH, $logs->infos);
         if ($tagsString !== null) {
             $tags = array_values(array_filter(array_map('trim', explode(',', $tagsString))));
         }
 
-        $charts = $this->parseCharts($pairs, $logs);
+        $charts = $this->parseCharts($pairs, $noteDesigner, $logs);
 
         if ($charts === []) {
             $logs->error('Level has no charts (&inote_#).');
@@ -75,6 +78,7 @@ class MaidataParser
             artistLink: $artistLink,
             illustrator: $this->extract($pairs, 'illus', 'Illustrator name', self::MAX_TEXT_LENGTH, $logs->infos),
             illustratorLink: $illustratorLink,
+            noteDesigner: $noteDesigner,
             audioBpm: $this->extract($pairs, 'wholebpm', 'BPM', 50, $logs->infos),
             info: $this->extract($pairs, 'freemsg', 'Level info', self::MAX_LONG_TEXT_LENGTH, $logs->warnings),
             tags: $tags,
@@ -91,10 +95,9 @@ class MaidataParser
      * @param  array<string, string>  $pairs
      * @return list<ParsedChart>
      */
-    private function parseCharts(array $pairs, ParseLogs $logs): array
+    private function parseCharts(array $pairs, ?string $levelCharter, ParseLogs $logs): array
     {
         $charts = [];
-        $levelCharter = $pairs['des'] ?? null;
 
         foreach (self::CHART_INDICES as $index) {
             $code = $pairs["inote_{$index}"] ?? null;
