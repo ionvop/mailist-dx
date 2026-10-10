@@ -51,16 +51,6 @@ class User extends Authenticatable
     }
 
     /**
-     * The comments written by the user.
-     *
-     * @return HasMany<Comment, $this>
-     */
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class);
-    }
-
-    /**
      * Public URL for the user's avatar, or null when none is set.
      */
     protected function avatarUrl(): Attribute

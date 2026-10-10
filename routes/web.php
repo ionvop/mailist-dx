@@ -7,7 +7,6 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Charts\ChartController;
 use App\Http\Controllers\Charts\ChartFileController;
 use App\Http\Controllers\Charts\ChartUploadController;
-use App\Http\Controllers\Charts\CommentController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Settings\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -52,10 +51,4 @@ Route::middleware('auth')->group(function () {
     Route::post('/charts', [ChartUploadController::class, 'store'])->name('charts.store');
     Route::get('/charts/{chart}', [ChartController::class, 'show'])->name('charts.show');
     Route::get('/charts/{chart}/files/{type}', [ChartFileController::class, 'show'])->name('charts.files');
-
-    Route::post('/charts/{chart}/comments', [CommentController::class, 'store'])
-        ->middleware('throttle:10,1')
-        ->name('comments.store');
-    Route::delete('/charts/{chart}/comments/{comment}', [CommentController::class, 'destroy'])
-        ->name('comments.destroy');
 });
