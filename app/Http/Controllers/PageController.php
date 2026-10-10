@@ -27,6 +27,7 @@ class PageController extends Controller
         $charts = $request->user()
             ?->charts()
             ->withCount('difficulties')
+            ->with('difficulties')
             ->latest()
             ->get() ?? collect();
 
