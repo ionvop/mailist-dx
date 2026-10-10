@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Charts\ChartCollaboratorController;
 use App\Http\Controllers\Charts\ChartCommentController;
 use App\Http\Controllers\Charts\ChartController;
+use App\Http\Controllers\Charts\ChartDifficultyController;
 use App\Http\Controllers\Charts\ChartFileController;
 use App\Http\Controllers\Charts\ChartSettingsController;
 use App\Http\Controllers\Charts\ChartUploadController;
@@ -54,6 +55,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/charts', [ChartUploadController::class, 'store'])->name('charts.store');
     Route::get('/charts/{chart}', [ChartController::class, 'show'])->name('charts.show');
     Route::get('/charts/{chart}/files/{type}', [ChartFileController::class, 'show'])->name('charts.files');
+
+    Route::get('/charts/{chart}/difficulties/{difficulty}/{tab?}', [ChartDifficultyController::class, 'show'])
+        ->name('charts.difficulties.show');
+    Route::patch('/charts/{chart}/difficulties/{difficulty}', [ChartDifficultyController::class, 'update'])
+        ->name('charts.difficulties.update');
 
     Route::get('/charts/{chart}/settings', [ChartSettingsController::class, 'edit'])->name('charts.settings');
     Route::patch('/charts/{chart}/settings', [ChartSettingsController::class, 'update'])->name('charts.settings.update');
