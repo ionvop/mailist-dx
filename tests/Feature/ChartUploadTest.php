@@ -46,6 +46,7 @@ test('a user can upload a chart package', function () {
     expect($chart->uploader_id)->toBe($user->id)
         ->and($chart->title)->toBe('Test Song')
         ->and($chart->artist)->toBe('Test Artist')
+        ->and($chart->note_designer)->toBe('Test Charter')
         ->and($chart->difficulties)->toHaveCount(2)
         ->and($chart->difficulties->pluck('difficulty')->all())
         ->toBe([ChartDifficultyName::Expert, ChartDifficultyName::Master]);
