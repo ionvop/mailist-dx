@@ -71,35 +71,37 @@
 
         {{-- Details --}}
         <div class="space-y-6">
-            <div class="overflow-hidden rounded-2xl border border-border bg-background-accent/40">
-                @if ($chart->art_path)
-                    <img src="{{ route('charts.files', [$chart, 'art']) }}" alt="{{ $chart->title }} cover"
-                        class="aspect-square w-full object-cover">
-                @else
-                    <div class="flex aspect-square w-full items-center justify-center bg-background">
-                        <x-lucide-image class="h-10 w-10 text-foreground-accent" />
-                    </div>
-                @endif
-            </div>
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
+                <div class="w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-background-accent/40 sm:w-48">
+                    @if ($chart->art_path)
+                        <img src="{{ route('charts.files', [$chart, 'art']) }}" alt="{{ $chart->title }} cover"
+                            class="aspect-square w-full object-cover">
+                    @else
+                        <div class="flex aspect-square w-full items-center justify-center bg-background">
+                            <x-lucide-image class="h-10 w-10 text-foreground-accent" />
+                        </div>
+                    @endif
+                </div>
 
-            <dl class="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                    <dt class="text-foreground-accent">Artist</dt>
-                    <dd class="font-medium text-foreground">{{ $chart->artist }}</dd>
-                </div>
-                <div>
-                    <dt class="text-foreground-accent">BPM</dt>
-                    <dd class="font-medium text-foreground">{{ $chart->audio_bpm ?: '—' }}</dd>
-                </div>
-                <div>
-                    <dt class="text-foreground-accent">Note design</dt>
-                    <dd class="font-medium text-foreground">{{ $chart->note_designer ?: '—' }}</dd>
-                </div>
-                <div>
-                    <dt class="text-foreground-accent">Uploaded by</dt>
-                    <dd class="font-medium text-foreground">{{ $chart->uploader->username }}</dd>
-                </div>
-            </dl>
+                <dl class="flex-1 space-y-3 text-sm">
+                    <div>
+                        <dt class="text-foreground-accent">Artist</dt>
+                        <dd class="font-medium text-foreground">{{ $chart->artist }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-foreground-accent">BPM</dt>
+                        <dd class="font-medium text-foreground">{{ $chart->audio_bpm ?: '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-foreground-accent">Note design</dt>
+                        <dd class="font-medium text-foreground">{{ $chart->note_designer ?: '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-foreground-accent">Uploaded by</dt>
+                        <dd class="font-medium text-foreground">{{ $chart->uploader->username }}</dd>
+                    </div>
+                </dl>
+            </div>
 
             @if ($chart->tags)
                 <div class="flex flex-wrap gap-2">
