@@ -86,3 +86,51 @@ test('it preserves a byte order mark and line endings', function () {
         ->toContain("&title=New\r\n")
         ->toContain("&artist=Artist\r\n");
 });
+
+test('it replaces a multi-line chart body in place', function () {
+    $contents = implode("\n", [
+        '&title=Song',
+        '&inote_2=(179){1}1,2,3,',
+        '1,2,3,',
+        '&lv_2=5',
+        '&inote_3=4,5,6,',
+        '',
+    ]);
+
+    $result = (new MaidataSerializer)->replaceChartCode($contents, '2', "7,8,9,\n4,5,6,");
+
+    expect($result)
+        ->toContain("&inote_2=7,8,9,\n4,5,6,")
+        ->not->toContain('(179){1}1,2,3,')
+        ->toContain('&lv_2=5')
+        ->toContain('&inote_3=4,5,6,');
+});
+
+test('it appends a chart body when the index is missing', function () {
+    $contents = implode("\n", [
+        '&title=Song',
+        '&inote_2=1,2,3,',
+        '&lv_2=5',
+        '',
+    ]);
+
+    $result = (new MaidataSerializer)->replaceChartCode($contents, '4', '4,5,6,');
+
+    $lines = explode("\n", $result);
+
+    expect($result)->toContain('&inote_4=4,5,6,')
+        ->and(array_search('&inote_4=4,5,6,', $lines, true))
+        ->toBeLessThan(array_search('&inote_2=1,2,3,', $lines, true));
+});
+
+test('it preserves a byte order mark and line endings when replacing chart code', function () {
+    $contents = "\xEF\xBB\xBF&title=Song\r\n&inote_2=1,2,3\r\n&lv_2=5\r\n";
+
+    $result = (new MaidataSerializer)->replaceChartCode($contents, '2', "4,5,6,\r\n7,8,9,");
+
+    expect($result)
+        ->toStartWith("\xEF\xBB\xBF")
+        ->toContain("&inote_2=4,5,6,\r\n7,8,9,"
+        )
+        ->toContain("&lv_2=5\r\n");
+});
