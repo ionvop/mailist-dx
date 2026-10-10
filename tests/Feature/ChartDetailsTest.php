@@ -24,6 +24,16 @@ test('a user can view a public chart', function () {
         ->assertSee('13');
 });
 
+test('the details page shows the note designer', function () {
+    $chart = Chart::factory()->create(['note_designer' => 'Note Designer Name']);
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('charts.show', $chart))
+        ->assertOk()
+        ->assertSee('Note design')
+        ->assertSee('Note Designer Name');
+});
+
 test('the owner can view their private chart', function () {
     $owner = User::factory()->create();
     $chart = Chart::factory()->for($owner, 'uploader')->private()->create();
