@@ -126,7 +126,7 @@ This is the page that opens when checking on a chart. It will have the following
 - Settings
     - Only accessible to owner
         - Add/remove edit access to other users
-        - Set chart status (WIP/For Review/Completed/Approved)
+        - Set chart status (WIP/For Review/Completed)
         - Private/unprivate
         - Delete
     - Only accessible to staff
