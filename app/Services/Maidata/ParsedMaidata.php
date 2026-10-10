@@ -19,6 +19,7 @@ class ParsedMaidata
         public readonly ?string $artistLink,
         public readonly ?string $illustrator,
         public readonly ?string $illustratorLink,
+        public readonly ?string $noteDesigner,
         public readonly ?string $audioBpm,
         public readonly ?string $info,
         public readonly array $tags,
