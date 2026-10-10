@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/charts/{chart}/settings', [ChartSettingsController::class, 'edit'])->name('charts.settings');
     Route::patch('/charts/{chart}/settings', [ChartSettingsController::class, 'update'])->name('charts.settings.update');
+    Route::patch('/charts/{chart}/settings/assets', [ChartSettingsController::class, 'updateAssets'])->name('charts.settings.assets');
     Route::patch('/charts/{chart}/settings/visibility', [ChartSettingsController::class, 'updateVisibility'])->name('charts.settings.visibility');
     Route::delete('/charts/{chart}', [ChartSettingsController::class, 'destroy'])->name('charts.destroy');
 
