@@ -36,7 +36,7 @@
                     :required="true"
                 />
 
-                <x-button type="submit">Create account</x-button>
+                <x-button type="submit" class="w-full">Create account</x-button>
             </form>
         </div>
     </div>
