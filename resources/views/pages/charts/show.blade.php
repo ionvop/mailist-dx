@@ -74,9 +74,9 @@
             <div class="overflow-hidden rounded-2xl border border-border bg-background-accent/40">
                 @if ($chart->art_path)
                     <img src="{{ route('charts.files', [$chart, 'art']) }}" alt="{{ $chart->title }} cover"
-                        class="aspect-square w-full max-w-sm object-cover">
+                        class="aspect-square w-full object-cover">
                 @else
-                    <div class="flex aspect-square w-full max-w-sm items-center justify-center bg-background">
+                    <div class="flex aspect-square w-full items-center justify-center bg-background">
                         <x-lucide-image class="h-10 w-10 text-foreground-accent" />
                     </div>
                 @endif
