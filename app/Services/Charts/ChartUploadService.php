@@ -20,8 +20,7 @@ class ChartUploadService
     public function __construct(
         private readonly MaidataParser $parser,
         private readonly ChartPackageExtractor $extractor,
-        private readonly ChartImageProcessor $imageProcessor,
-        private readonly ChartPackageBuilder $packageBuilder,
+        private readonly ChartAssetService $assets,
     ) {}
 
     /**
@@ -130,59 +129,10 @@ class ChartUploadService
 
         return [
             'maidata_path' => $maidataPath,
-            'art_path' => $this->storeArt($disk, $directory, $art, $extracted->artPath),
-            'track_path' => $this->storeMedia($disk, $directory, 'track', $track, $extracted->trackPath),
-            'pv_path' => $this->storeMedia($disk, $directory, 'pv', $pv, $extracted->pvPath),
+            'art_path' => $this->assets->storeArt($disk, $directory, $art, $extracted->artPath),
+            'track_path' => $this->assets->storeMedia($disk, $directory, 'track', $track, $extracted->trackPath),
+            'pv_path' => $this->assets->storeMedia($disk, $directory, 'pv', $pv, $extracted->pvPath),
         ];
-    }
-
-    /**
-     * Store the chart cover, processing it into a square image when possible.
-     */
-    private function storeArt(
-        Filesystem $disk,
-        string $directory,
-        ?UploadedFile $art,
-        ?string $extractedArt,
-    ): ?string {
-        $source = $art?->getRealPath() ?? $extractedArt;
-
-        if ($source === null) {
-            return null;
-        }
-
-        $destination = "{$directory}/art.jpg";
-        $this->imageProcessor->process($source, $disk->path($destination));
-
-        return $destination;
-    }
-
-    /**
-     * Store a media file, preferring a manual override over the packaged file.
-     */
-    private function storeMedia(
-        Filesystem $disk,
-        string $directory,
-        string $name,
-        ?UploadedFile $override,
-        ?string $extracted,
-    ): ?string {
-        if ($override !== null) {
-            $source = $override->getRealPath();
-            $extension = strtolower($override->getClientOriginalExtension());
-        } elseif ($extracted !== null) {
-            $source = $extracted;
-            $extension = strtolower(pathinfo($extracted, PATHINFO_EXTENSION));
-        } else {
-            return null;
-        }
-
-        $extension = $extension !== '' ? $extension : 'bin';
-        $destination = "{$directory}/{$name}.{$extension}";
-
-        $disk->put($destination, File::get($source));
-
-        return $destination;
     }
 
     /**
@@ -215,27 +165,6 @@ class ChartUploadService
         Chart $chart,
         array $paths,
     ): string {
-        $destination = "{$directory}/download.zip";
-
-        $this->packageBuilder->build(
-            $disk->path($destination),
-            [
-                'maidata.txt' => $paths['maidata_path'] !== null ? $disk->path($paths['maidata_path']) : null,
-                'bg.jpg' => $paths['art_path'] !== null ? $disk->path($paths['art_path']) : null,
-                'track.'.pathinfo((string) $paths['track_path'], PATHINFO_EXTENSION) => $paths['track_path'] !== null ? $disk->path($paths['track_path']) : null,
-                'pv.'.pathinfo((string) $paths['pv_path'], PATHINFO_EXTENSION) => $paths['pv_path'] !== null ? $disk->path($paths['pv_path']) : null,
-            ],
-            [
-                'version' => 'v1',
-                'server' => config('app.url'),
-                'chart_id' => $chart->id,
-                'difficulties' => $chart->difficulties->map(fn ($difficulty) => [
-                    'id' => $difficulty->id,
-                    'chart_index' => $difficulty->chart_index,
-                ])->all(),
-            ],
-        );
-
-        return $destination;
+        return $this->assets->buildDownload($disk, $chart, $paths, "{$directory}/download.zip");
     }
 }
