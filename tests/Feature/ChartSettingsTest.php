@@ -4,6 +4,7 @@ use App\Enums\ChartStatus;
 use App\Models\Chart;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
@@ -29,6 +30,44 @@ function uploadedChart(User $owner): Chart
     return Chart::firstOrFail();
 }
 
+/**
+ * Upload a chart that also has a PV and return it.
+ */
+function uploadedChartWithPv(User $owner): Chart
+{
+    test()->actingAs($owner)->post(route('charts.store'), [
+        'package' => chartPackageZip([
+            'maidata.txt' => sampleMaidata(),
+            'bg.jpg' => fakeJpegBytes(),
+            'track.mp3' => 'fake-audio-bytes',
+            'pv.mp4' => 'fake-video-bytes',
+        ]),
+    ])->assertRedirect();
+
+    return Chart::firstOrFail();
+}
+
+/**
+ * List the entry names contained in a chart's downloadable package.
+ *
+ * @return list<string>
+ */
+function downloadEntries(Chart $chart): array
+{
+    $zip = new ZipArchive;
+    $zip->open(Storage::disk('local')->path($chart->download_path));
+
+    $entries = [];
+
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $entries[] = $zip->getNameIndex($i);
+    }
+
+    $zip->close();
+
+    return $entries;
+}
+
 test('a guest cannot view chart settings', function () {
     $chart = Chart::factory()->create();
 
@@ -51,6 +90,7 @@ test('the owner can view chart settings', function () {
         ->get(route('charts.settings', $chart))
         ->assertOk()
         ->assertSee('Chart details')
+        ->assertSee('Assets')
         ->assertSee('Visibility')
         ->assertSee('Delete chart');
 });
@@ -167,6 +207,126 @@ test('a non-owner cannot update visibility', function () {
     $this->actingAs(User::factory()->create())
         ->patch(route('charts.settings.visibility', $chart), ['status' => ChartStatus::Approved->value])
         ->assertNotFound();
+});
+
+test('the owner cannot set the approved status', function () {
+    $owner = User::factory()->create();
+    $chart = Chart::factory()->for($owner, 'uploader')->create(['status' => ChartStatus::ForReview]);
+
+    $this->actingAs($owner)
+        ->patch(route('charts.settings.visibility', $chart), ['status' => ChartStatus::Approved->value])
+        ->assertSessionHasErrors('status');
+
+    expect($chart->refresh()->status)->toBe(ChartStatus::ForReview);
+});
+
+test('the approved status is not offered on the settings page', function () {
+    $owner = User::factory()->create();
+    $chart = Chart::factory()->for($owner, 'uploader')->create(['status' => ChartStatus::Wip]);
+
+    $this->actingAs($owner)
+        ->get(route('charts.settings', $chart))
+        ->assertOk()
+        ->assertDontSee('value="'.ChartStatus::Approved->value.'"', false);
+});
+
+test('the owner can replace the background, track, and pv', function () {
+    $owner = User::factory()->create();
+    $chart = uploadedChart($owner);
+    $oldTrack = $chart->track_path;
+
+    $this->actingAs($owner)
+        ->patch(route('charts.settings.assets', $chart), [
+            'art' => UploadedFile::fake()->image('new-bg.png', 600, 600),
+            'track' => UploadedFile::fake()->create('new-track.ogg', 100, 'audio/ogg'),
+            'pv' => UploadedFile::fake()->create('new-pv.webm', 100, 'video/webm'),
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('status');
+
+    $chart->refresh();
+
+    expect($chart->art_path)->toBe("charts/{$chart->id}/art.jpg")
+        ->and($chart->track_path)->toBe("charts/{$chart->id}/track.ogg")
+        ->and($chart->pv_path)->toBe("charts/{$chart->id}/pv.webm");
+
+    Storage::disk('local')->assertExists($chart->art_path);
+    Storage::disk('local')->assertExists($chart->track_path);
+    Storage::disk('local')->assertExists($chart->pv_path);
+    Storage::disk('local')->assertMissing($oldTrack);
+
+    $entries = downloadEntries($chart);
+
+    expect($entries)->toContain('bg.jpg', 'track.ogg', 'pv.webm', 'maidata.txt');
+});
+
+test('replacing the pv with the same extension overwrites the existing file', function () {
+    $owner = User::factory()->create();
+    $chart = uploadedChartWithPv($owner);
+
+    expect($chart->pv_path)->toBe("charts/{$chart->id}/pv.mp4");
+
+    $this->actingAs($owner)
+        ->patch(route('charts.settings.assets', $chart), [
+            'pv' => UploadedFile::fake()->create('new-pv.mp4', 100, 'video/mp4'),
+        ])
+        ->assertRedirect();
+
+    expect($chart->refresh()->pv_path)->toBe("charts/{$chart->id}/pv.mp4");
+    Storage::disk('local')->assertExists($chart->pv_path);
+});
+
+test('the owner can clear the pv', function () {
+    $owner = User::factory()->create();
+    $chart = uploadedChartWithPv($owner);
+    $oldPv = $chart->pv_path;
+
+    $this->actingAs($owner)
+        ->patch(route('charts.settings.assets', $chart), ['remove_pv' => '1'])
+        ->assertRedirect()
+        ->assertSessionHas('status');
+
+    expect($chart->refresh()->pv_path)->toBeNull();
+    Storage::disk('local')->assertMissing($oldPv);
+    expect(downloadEntries($chart))->not->toContain('pv.mp4');
+});
+
+test('an uploaded pv takes precedence over clearing it', function () {
+    $owner = User::factory()->create();
+    $chart = uploadedChartWithPv($owner);
+
+    $this->actingAs($owner)
+        ->patch(route('charts.settings.assets', $chart), [
+            'pv' => UploadedFile::fake()->create('new-pv.webm', 100, 'video/webm'),
+            'remove_pv' => '1',
+        ])
+        ->assertRedirect();
+
+    expect($chart->refresh()->pv_path)->toBe("charts/{$chart->id}/pv.webm");
+    Storage::disk('local')->assertExists($chart->pv_path);
+});
+
+test('a non-owner cannot update assets', function () {
+    $chart = Chart::factory()->create();
+
+    $this->actingAs(User::factory()->create())
+        ->patch(route('charts.settings.assets', $chart), [
+            'art' => UploadedFile::fake()->image('bg.png'),
+        ])
+        ->assertNotFound();
+});
+
+test('asset update rejects invalid file types', function () {
+    $owner = User::factory()->create();
+    $chart = Chart::factory()->for($owner, 'uploader')->create();
+
+    $this->actingAs($owner)
+        ->patch(route('charts.settings.assets', $chart), [
+            'art' => UploadedFile::fake()->create('notes.txt', 1, 'text/plain'),
+            'track' => UploadedFile::fake()->create('clip.mp4', 1, 'video/mp4'),
+            'pv' => UploadedFile::fake()->create('sound.mp3', 1, 'audio/mpeg'),
+        ])
+        ->assertSessionHasErrors(['art', 'track', 'pv']);
 });
 
 test('the owner can delete their chart and its files', function () {
