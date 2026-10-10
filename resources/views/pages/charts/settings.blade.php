@@ -62,6 +62,73 @@
             </div>
         </form>
 
+        {{-- Assets --}}
+        <form method="POST" action="{{ route('charts.settings.assets', $chart) }}" enctype="multipart/form-data"
+            class="space-y-6 rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8">
+            @csrf
+            @method('PATCH')
+
+            <div>
+                <h2 class="text-lg font-bold text-foreground">Assets</h2>
+                <p class="mt-1 text-sm text-foreground-accent">
+                    Replace the chart background, track, or PV. Leave a field empty to keep the current file.
+                </p>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-3">
+                <div class="space-y-2">
+                    <x-file-input name="art" label="Background" accept="image/*"
+                        hint="JPEG, PNG, WebP, or GIF. Max 10MB." />
+                    @if ($chart->art_path)
+                        <p class="text-xs text-foreground-accent">
+                            Current:
+                            <a href="{{ route('charts.files', [$chart, 'art']) }}" target="_blank"
+                                class="font-medium text-primary-accent hover:underline">{{ basename($chart->art_path) }}</a>
+                        </p>
+                    @else
+                        <p class="text-xs text-foreground-accent">No background set.</p>
+                    @endif
+                </div>
+
+                <div class="space-y-2">
+                    <x-file-input name="track" label="Track" accept="audio/*"
+                        hint="MP3, OGG, WAV, or M4A. Max 10MB." />
+                    @if ($chart->track_path)
+                        <p class="text-xs text-foreground-accent">
+                            Current:
+                            <a href="{{ route('charts.files', [$chart, 'track']) }}" target="_blank"
+                                class="font-medium text-primary-accent hover:underline">{{ basename($chart->track_path) }}</a>
+                        </p>
+                    @else
+                        <p class="text-xs text-foreground-accent">No track set.</p>
+                    @endif
+                </div>
+
+                <div class="space-y-2">
+                    <x-file-input name="pv" label="PV" accept="video/mp4,video/webm"
+                        hint="MP4 or WebM. Max 30MB." />
+                    @if ($chart->pv_path)
+                        <label class="flex items-start gap-2">
+                            <input type="checkbox" name="remove_pv" value="1" @checked(old('remove_pv'))
+                                class="mt-0.5 h-4 w-4 rounded border-border bg-background text-primary-accent focus:ring-primary-accent/40">
+                            <span class="text-xs text-foreground-accent">
+                                Remove the current PV
+                                (<a href="{{ route('charts.files', [$chart, 'pv']) }}" target="_blank"
+                                    class="font-medium text-primary-accent hover:underline">{{ basename($chart->pv_path) }}</a>).
+                                Uploading a new PV overrides this.
+                            </span>
+                        </label>
+                    @else
+                        <p class="text-xs text-foreground-accent">No PV set.</p>
+                    @endif
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 border-t border-border pt-6">
+                <x-button type="submit" class="w-auto">Save assets</x-button>
+            </div>
+        </form>
+
         {{-- Visibility --}}
         <form method="POST" action="{{ route('charts.settings.visibility', $chart) }}"
             class="space-y-6 rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8">
@@ -79,6 +146,9 @@
                     <select name="status" id="status"
                         class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary-accent focus:ring-2 focus:ring-primary-accent/40">
                         @foreach (\App\Enums\ChartStatus::cases() as $status)
+                            @if ($status === \App\Enums\ChartStatus::Approved && $chart->status !== \App\Enums\ChartStatus::Approved)
+                                @continue
+                            @endif
                             <option value="{{ $status->value }}" @selected(old('status', $chart->status->value) === $status->value)>
                                 {{ $status->label() }}
                             </option>
