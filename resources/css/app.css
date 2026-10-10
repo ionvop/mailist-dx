@@ -136,6 +136,19 @@ declared once rather than behind a `.dark` class.
 
     --color-ring: hsl(212.7 26.8% 83.9%);
 
+    --radius-lg: 0.5rem;
+    --radius-md: calc(0.5rem - 2px);
+    --radius-sm: calc(0.5rem - 4px);
+
+    --breakpoint-xs: 480px;
+}
+
+/* === Difficulty Colors ===
+These are referenced dynamically (var(--color-difficulty-{value})) from inline
+styles, so Tailwind's static analysis can't detect them. `static` forces every
+variable in this block to be emitted regardless of usage.
+*/
+@theme static {
     --color-difficulty-easy: hsl(208 100% 50%);
     --color-difficulty-basic: hsl(141 100% 38%);
     --color-difficulty-advanced: hsl(39 100% 42%);
@@ -144,12 +157,6 @@ declared once rather than behind a `.dark` class.
     --color-difficulty-remaster: hsl(286 33% 64%);
     --color-difficulty-utage: hsl(298 100% 16%);
     --color-difficulty-custom: hsl(210 40% 98%);
-
-    --radius-lg: 0.5rem;
-    --radius-md: calc(0.5rem - 2px);
-    --radius-sm: calc(0.5rem - 4px);
-
-    --breakpoint-xs: 480px;
 }
 
 @layer base {
