@@ -1,6 +1,10 @@
 import Alpine from 'alpinejs';
 
+import { registerSimaiEditor } from './simai';
+
 window.Alpine = Alpine;
+
+registerSimaiEditor(Alpine);
 
 /**
  * Confirm before submitting a profile update that changes the username.
