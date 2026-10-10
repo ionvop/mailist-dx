@@ -92,8 +92,8 @@
                     <dd class="font-medium text-foreground">{{ $chart->audio_bpm ?: '—' }}</dd>
                 </div>
                 <div>
-                    <dt class="text-foreground-accent">Illustrator</dt>
-                    <dd class="font-medium text-foreground">{{ $chart->illustrator ?: '—' }}</dd>
+                    <dt class="text-foreground-accent">Note design</dt>
+                    <dd class="font-medium text-foreground">{{ $chart->note_designer ?: '—' }}</dd>
                 </div>
                 <div>
                     <dt class="text-foreground-accent">Uploaded by</dt>
