@@ -21,8 +21,15 @@ class ChartController extends Controller
 
         $chart->load(['uploader', 'difficulties']);
 
+        $comments = $chart->comments()
+            ->with('author')
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
         return view('pages.charts.show', [
             'chart' => $chart,
+            'comments' => $comments,
         ]);
     }
 }
