@@ -41,7 +41,7 @@
                     class="[&_input]:text-center [&_input]:text-2xl [&_input]:font-bold [&_input]:tracking-[0.5em]"
                 />
 
-                <x-button type="submit">Verify &amp; sign in</x-button>
+                <x-button type="submit" class="w-full">Verify &amp; sign in</x-button>
             </form>
 
             <p class="mt-6 text-center text-sm text-foreground-accent">
