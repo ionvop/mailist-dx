@@ -177,12 +177,12 @@
                 class="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-end">
                 @csrf
 
-                <div class="flex-1">
+                <div class="min-w-0 flex-1">
                     <x-input name="username" label="Username" :value="old('username')"
                         placeholder="e.g. chartmaster" hint="The user must already have an account." />
                 </div>
 
-                <x-button type="submit" class="w-auto">
+                <x-button type="submit" class="w-auto shrink-0">
                     <x-lucide-user-plus class="h-4 w-4" /> Add
                 </x-button>
             </form>
