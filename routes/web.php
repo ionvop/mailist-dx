@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\EmailLoginController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Charts\ChartCommentController;
 use App\Http\Controllers\Charts\ChartController;
 use App\Http\Controllers\Charts\ChartFileController;
 use App\Http\Controllers\Charts\ChartUploadController;
@@ -51,4 +52,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/charts', [ChartUploadController::class, 'store'])->name('charts.store');
     Route::get('/charts/{chart}', [ChartController::class, 'show'])->name('charts.show');
     Route::get('/charts/{chart}/files/{type}', [ChartFileController::class, 'show'])->name('charts.files');
+
+    Route::get('/charts/{chart}/comments', [ChartCommentController::class, 'index'])->name('charts.comments.index');
+    Route::post('/charts/{chart}/comments', [ChartCommentController::class, 'store'])->name('charts.comments.store');
+    Route::delete('/charts/{chart}/comments/{comment}', [ChartCommentController::class, 'destroy'])->name('charts.comments.destroy');
 });
