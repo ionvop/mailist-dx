@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -84,6 +85,16 @@ class Chart extends Model
     }
 
     /**
+     * The users granted edit access to this chart.
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function collaborators(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'chart_collaborators')->withTimestamps();
+    }
+
+    /**
      * The chart description rendered from Markdown, or null when none is set.
      *
      * Raw HTML is stripped and unsafe links are disallowed to keep the
@@ -110,7 +121,7 @@ class Chart extends Model
             return true;
         }
 
-        return $user !== null && $user->id === $this->uploader_id;
+        return $this->canEdit($user);
     }
 
     /**
@@ -119,5 +130,26 @@ class Chart extends Model
     public function isOwnedBy(?User $user): bool
     {
         return $user !== null && $user->id === $this->uploader_id;
+    }
+
+    /**
+     * Whether the given user has been granted edit access to this chart.
+     */
+    public function isCollaborator(?User $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        return $this->collaborators()->whereKey($user->id)->exists();
+    }
+
+    /**
+     * Whether the given user may edit this chart, either as its owner or as
+     * a collaborator with edit access.
+     */
+    public function canEdit(?User $user): bool
+    {
+        return $this->isOwnedBy($user) || $this->isCollaborator($user);
     }
 }
