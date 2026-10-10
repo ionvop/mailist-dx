@@ -67,4 +67,27 @@ Alpine.data('usernameCooldown', (canChange, availableAtIso) => ({
     },
 }));
 
+/**
+ * Toggle the chart details page tabs, honouring the #comments deep link.
+ */
+Alpine.data('chartTabs', () => ({
+    active: 'details',
+
+    init() {
+        if (window.location.hash === '#comments') {
+            this.active = 'comments';
+        }
+    },
+
+    select(tab) {
+        this.active = tab;
+
+        const url = tab === 'comments'
+            ? '#comments'
+            : window.location.pathname + window.location.search;
+
+        history.replaceState(null, '', url);
+    },
+}));
+
 Alpine.start();
