@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Charts\ChartCommentController;
 use App\Http\Controllers\Charts\ChartController;
 use App\Http\Controllers\Charts\ChartFileController;
+use App\Http\Controllers\Charts\ChartSettingsController;
 use App\Http\Controllers\Charts\ChartUploadController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Settings\ProfileController;
@@ -52,6 +53,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/charts', [ChartUploadController::class, 'store'])->name('charts.store');
     Route::get('/charts/{chart}', [ChartController::class, 'show'])->name('charts.show');
     Route::get('/charts/{chart}/files/{type}', [ChartFileController::class, 'show'])->name('charts.files');
+
+    Route::get('/charts/{chart}/settings', [ChartSettingsController::class, 'edit'])->name('charts.settings');
+    Route::patch('/charts/{chart}/settings', [ChartSettingsController::class, 'update'])->name('charts.settings.update');
+    Route::patch('/charts/{chart}/settings/visibility', [ChartSettingsController::class, 'updateVisibility'])->name('charts.settings.visibility');
+    Route::delete('/charts/{chart}', [ChartSettingsController::class, 'destroy'])->name('charts.destroy');
 
     Route::get('/charts/{chart}/comments', [ChartCommentController::class, 'index'])->name('charts.comments.index');
     Route::post('/charts/{chart}/comments', [ChartCommentController::class, 'store'])->name('charts.comments.store');
