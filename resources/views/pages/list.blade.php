@@ -27,8 +27,8 @@
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($charts as $chart)
                     <a href="{{ route('charts.show', $chart) }}"
-                        class="group overflow-hidden rounded-2xl border border-border bg-background-accent/40 transition hover:border-primary-accent/50">
-                        <div class="aspect-square w-full overflow-hidden bg-background">
+                        class="group relative flex flex-col rounded-2xl border border-border bg-background-accent/40 transition hover:border-primary-accent/50">
+                        <div class="aspect-square w-full overflow-hidden rounded-t-2xl bg-background">
                             @if ($chart->art_path)
                                 <img src="{{ route('charts.files', [$chart, 'art']) }}" alt="{{ $chart->title }} cover"
                                     class="h-full w-full object-cover transition group-hover:scale-105">
@@ -39,7 +39,13 @@
                             @endif
                         </div>
 
-                        <div class="space-y-1 p-4">
+                        @if ($chart->difficulties->isNotEmpty())
+                            <div class="z-10 mx-4 -mb-4 -mt-4 h-8">
+                                <x-difficulty-badge-list :difficulties="$chart->difficulties" />
+                            </div>
+                        @endif
+
+                        <div class="flex grow flex-col gap-1 rounded-b-2xl p-4 {{ $chart->difficulties->isNotEmpty() ? 'pt-6' : '' }}">
                             <div class="flex items-start justify-between gap-2">
                                 <p class="truncate text-sm font-bold text-foreground">{{ $chart->title }}</p>
                                 @if ($chart->is_private)
