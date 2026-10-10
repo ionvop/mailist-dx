@@ -11,8 +11,9 @@
             <h2 class="text-sm font-semibold uppercase tracking-wide text-foreground-accent">Difficulties</h2>
 
             @forelse ($chart->difficulties as $difficulty)
-                <div
-                    class="flex items-center justify-between gap-3 rounded-xl border border-border bg-background-accent/40 p-4"
+                <a
+                    href="{{ route('charts.difficulties.show', [$chart, $difficulty]) }}"
+                    class="flex items-center justify-between gap-3 rounded-xl border border-border bg-background-accent/40 p-4 transition hover:border-primary-accent/50 hover:bg-background-accent"
                     style="--difficulty-color: var(--color-difficulty-{{ $difficulty->difficulty->value }})"
                 >
                     <div class="flex items-center gap-3">
@@ -25,12 +26,15 @@
                         </div>
                     </div>
 
-                    @if ($difficulty->difficulty_value)
-                        <span class="rounded-lg bg-[var(--difficulty-color)] px-2.5 py-1 text-sm font-bold text-background">
-                            {{ $difficulty->difficulty_value }}
-                        </span>
-                    @endif
-                </div>
+                    <div class="flex items-center gap-2">
+                        @if ($difficulty->difficulty_value)
+                            <span class="rounded-lg bg-[var(--difficulty-color)] px-2.5 py-1 text-sm font-bold text-background">
+                                {{ $difficulty->difficulty_value }}
+                            </span>
+                        @endif
+                        <x-lucide-chevron-right class="h-4 w-4 shrink-0 text-foreground-accent" />
+                    </div>
+                </a>
             @empty
                 <x-placeholder title="No difficulties" description="This chart has no difficulties." icon="music" height="h-32" />
             @endforelse
