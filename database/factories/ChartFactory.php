@@ -23,6 +23,7 @@ class ChartFactory extends Factory
             'uploader_id' => User::factory(),
             'title' => fake()->sentence(3),
             'artist' => fake()->name(),
+            'note_designer' => fake()->name(),
             'audio_bpm' => (string) fake()->numberBetween(80, 220),
             'status' => ChartStatus::Wip,
             'is_private' => false,
