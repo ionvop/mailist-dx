@@ -74,6 +74,16 @@ class Chart extends Model
     }
 
     /**
+     * The comments posted on this chart, oldest first.
+     *
+     * @return HasMany<Comment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class)->oldest('id');
+    }
+
+    /**
      * The chart description rendered from Markdown, or null when none is set.
      *
      * Raw HTML is stripped and unsafe links are disallowed to keep the
