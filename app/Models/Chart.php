@@ -74,6 +74,16 @@ class Chart extends Model
     }
 
     /**
+     * The comments left on this chart.
+     *
+     * @return HasMany<Comment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
      * The chart description rendered from Markdown, or null when none is set.
      *
      * Raw HTML is stripped and unsafe links are disallowed to keep the
