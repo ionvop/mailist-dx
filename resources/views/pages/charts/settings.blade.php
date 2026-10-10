@@ -129,6 +129,65 @@
             </div>
         </form>
 
+        {{-- Edit access --}}
+        <div class="space-y-6 rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8">
+            <div>
+                <h2 class="text-lg font-bold text-foreground">Edit access</h2>
+                <p class="mt-1 text-sm text-foreground-accent">
+                    Give other users edit access to this chart. They can view private charts and edit its charts.
+                </p>
+            </div>
+
+            @if ($chart->collaborators->isEmpty())
+                <p class="rounded-lg border border-dashed border-border bg-background px-4 py-6 text-center text-sm text-foreground-accent">
+                    No one else has edit access yet.
+                </p>
+            @else
+                <ul class="divide-y divide-border rounded-lg border border-border bg-background">
+                    @foreach ($chart->collaborators as $collaborator)
+                        <li class="flex items-center justify-between gap-3 px-4 py-3">
+                            <div class="flex min-w-0 items-center gap-3">
+                                @if ($collaborator->avatarUrl)
+                                    <img src="{{ $collaborator->avatarUrl }}" alt="{{ $collaborator->username }}"
+                                        class="h-8 w-8 shrink-0 rounded-full object-cover">
+                                @else
+                                    <span
+                                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-background-accent text-xs font-bold text-foreground-accent">
+                                        {{ $collaborator->initial() }}
+                                    </span>
+                                @endif
+                                <span class="truncate text-sm font-medium text-foreground">{{ $collaborator->username }}</span>
+                            </div>
+
+                            <form method="POST"
+                                action="{{ route('charts.settings.collaborators.destroy', [$chart, $collaborator]) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background-accent px-3 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/10">
+                                    <x-lucide-x class="h-3.5 w-3.5" /> Remove
+                                </button>
+                            </form>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+
+            <form method="POST" action="{{ route('charts.settings.collaborators.store', $chart) }}"
+                class="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-end">
+                @csrf
+
+                <div class="flex-1">
+                    <x-input name="username" label="Username" :value="old('username')"
+                        placeholder="e.g. chartmaster" hint="The user must already have an account." />
+                </div>
+
+                <x-button type="submit" class="w-auto">
+                    <x-lucide-user-plus class="h-4 w-4" /> Add
+                </x-button>
+            </form>
+        </div>
+
         {{-- Visibility --}}
         <form method="POST" action="{{ route('charts.settings.visibility', $chart) }}"
             class="space-y-6 rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8">
