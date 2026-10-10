@@ -78,6 +78,7 @@ class ChartUploadService
             'artist_link' => $maidata->artistLink,
             'illustrator' => $maidata->illustrator,
             'illustrator_link' => $maidata->illustratorLink,
+            'note_designer' => $maidata->noteDesigner,
             'audio_bpm' => $maidata->audioBpm,
             'info' => $maidata->info,
             'tags' => $maidata->tags,
