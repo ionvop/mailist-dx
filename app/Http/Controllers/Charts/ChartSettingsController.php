@@ -32,7 +32,7 @@ class ChartSettingsController extends Controller
     {
         $this->ensureOwner($request, $chart);
 
-        $chart->load('difficulties');
+        $chart->load(['difficulties', 'collaborators']);
 
         return view('pages.charts.settings', [
             'chart' => $chart,
