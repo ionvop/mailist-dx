@@ -112,4 +112,12 @@ class Chart extends Model
 
         return $user !== null && $user->id === $this->uploader_id;
     }
+
+    /**
+     * Whether the given user owns (and may manage) this chart.
+     */
+    public function isOwnedBy(?User $user): bool
+    {
+        return $user !== null && $user->id === $this->uploader_id;
+    }
 }
