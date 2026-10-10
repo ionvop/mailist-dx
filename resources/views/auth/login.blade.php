@@ -34,7 +34,7 @@
                     :required="true"
                 />
 
-                <x-button type="submit">Send me a login code</x-button>
+                <x-button type="submit" class="w-full">Send me a login code</x-button>
             </form>
 
             <div class="my-6 flex items-center gap-3">
@@ -43,7 +43,7 @@
                 <div class="h-px flex-1 bg-border"></div>
             </div>
 
-            <x-button :href="route('auth.google.redirect')" variant="secondary">
+            <x-button :href="route('auth.google.redirect')" variant="secondary" class="w-full">
                 <x-lucide-chrome class="h-5 w-5" />
                 Continue with Google
             </x-button>
