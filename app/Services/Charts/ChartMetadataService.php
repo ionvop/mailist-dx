@@ -35,7 +35,7 @@ class ChartMetadataService
     public function __construct(
         private readonly MaidataSerializer $serializer,
         private readonly MaidataParser $parser,
-        private readonly ChartPackageBuilder $packageBuilder,
+        private readonly ChartAssetService $assets,
     ) {}
 
     /**
@@ -176,35 +176,11 @@ class ChartMetadataService
             return;
         }
 
-        $this->packageBuilder->build(
-            $disk->path($chart->download_path),
-            [
-                'maidata.txt' => $this->diskPath($disk, $chart->maidata_path),
-                'bg.jpg' => $this->diskPath($disk, $chart->art_path),
-                'track.'.pathinfo((string) $chart->track_path, PATHINFO_EXTENSION) => $this->diskPath($disk, $chart->track_path),
-                'pv.'.pathinfo((string) $chart->pv_path, PATHINFO_EXTENSION) => $this->diskPath($disk, $chart->pv_path),
-            ],
-            [
-                'version' => 'v1',
-                'server' => config('app.url'),
-                'chart_id' => $chart->id,
-                'difficulties' => $chart->difficulties->map(fn ($difficulty) => [
-                    'id' => $difficulty->id,
-                    'chart_index' => $difficulty->chart_index,
-                ])->all(),
-            ],
-        );
-    }
-
-    /**
-     * Resolve a stored path to its absolute path when the file exists.
-     */
-    private function diskPath(Filesystem $disk, ?string $path): ?string
-    {
-        if ($path === null || ! $disk->exists($path)) {
-            return null;
-        }
-
-        return $disk->path($path);
+        $this->assets->buildDownload($disk, $chart, [
+            'maidata_path' => $chart->maidata_path,
+            'art_path' => $chart->art_path,
+            'track_path' => $chart->track_path,
+            'pv_path' => $chart->pv_path,
+        ], $chart->download_path);
     }
 }
