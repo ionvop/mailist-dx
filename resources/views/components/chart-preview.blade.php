@@ -25,7 +25,8 @@
 >
     {{-- Canvas stage: shown while loading, ready, or after an error. --}}
     <div class="absolute inset-0" x-show="status !== 'idle'" x-cloak aria-hidden="true">
-        <canvas x-ref="canvas" class="block h-full w-full bg-black"></canvas>
+        {{-- The Unity build targets this canvas by id (`#" + Module.canvas.id`), so it must not be blank. --}}
+        <canvas id="unity-canvas" x-ref="canvas" class="block h-full w-full bg-black"></canvas>
 
         <div
             class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/60 p-6 text-center text-sm text-foreground"
