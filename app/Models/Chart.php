@@ -75,13 +75,13 @@ class Chart extends Model
     }
 
     /**
-     * The comments posted on this chart, oldest first.
+     * The comments posted on this chart, newest first.
      *
      * @return HasMany<Comment, $this>
      */
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class)->oldest('id');
+        return $this->hasMany(Comment::class)->latest('id');
     }
 
     /**
