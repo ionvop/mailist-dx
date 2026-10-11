@@ -20,9 +20,7 @@
                 <x-lucide-lock class="h-3.5 w-3.5" /> Private
             </span>
         @endif
-        <span class="inline-flex items-center rounded-full border border-border bg-background-accent px-3 py-1 text-xs font-semibold text-foreground-accent">
-            {{ $chart->status->label() }}
-        </span>
+        <x-status-badge :status="$chart->status" class="px-3 py-1 text-xs" />
     </div>
 </div>
 
