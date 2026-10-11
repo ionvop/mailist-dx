@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Charts\UpdateChartDifficultyRequest;
 use App\Models\Chart;
 use App\Models\ChartDifficulty;
+use App\Models\ChartDifficultyRevision;
+use App\Services\Charts\ChartDifficultyRevisionService;
 use App\Services\Charts\ChartDifficultyService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -19,8 +22,14 @@ class ChartDifficultyController extends Controller
      */
     private const TABS = ['code', 'improvements', 'comments', 'history'];
 
+    /**
+     * Number of revisions shown per page on the history tab.
+     */
+    private const REVISIONS_PER_PAGE = 20;
+
     public function __construct(
         private readonly ChartDifficultyService $difficulties,
+        private readonly ChartDifficultyRevisionService $revisions,
     ) {}
 
     /**
@@ -41,6 +50,9 @@ class ChartDifficultyController extends Controller
             'activeTab' => $tab,
             'canEdit' => $chart->canEdit($request->user()),
             'preview' => $this->previewConfig($chart, $difficulty),
+            'revisions' => $tab === 'history'
+                ? $difficulty->revisions()->with('user')->paginate(self::REVISIONS_PER_PAGE)
+                : null,
         ]);
     }
 
@@ -78,11 +90,68 @@ class ChartDifficultyController extends Controller
         $this->ensureEditable($request, $chart);
         $this->ensureBelongsToChart($chart, $difficulty);
 
-        $this->difficulties->updateCode($chart, $difficulty, $request->validated('code'));
+        $this->difficulties->updateCode($chart, $difficulty, $request->validated('code'), $request->user()?->id);
 
         return redirect()
             ->route('charts.difficulties.show', [$chart, $difficulty])
             ->with('status', 'Chart code updated successfully.');
+    }
+
+    /**
+     * Restore a difficulty to an earlier revision. Editors only.
+     *
+     * The current code is snapshotted before reverting, so history is only
+     * ever appended to, never rewritten.
+     */
+    public function restore(Request $request, Chart $chart, ChartDifficulty $difficulty, ChartDifficultyRevision $revision): RedirectResponse
+    {
+        $this->ensureEditable($request, $chart);
+        $this->ensureBelongsToChart($chart, $difficulty);
+        $this->ensureRevisionBelongsToDifficulty($difficulty, $revision);
+
+        $this->difficulties->updateCode($chart, $difficulty, $revision->code, $request->user()?->id);
+
+        return redirect()
+            ->route('charts.difficulties.show', [$chart, $difficulty])
+            ->with('status', 'Restored the selected version.');
+    }
+
+    /**
+     * Return a revision and its predecessor for the client-side diff viewer.
+     */
+    public function diff(Request $request, Chart $chart, ChartDifficulty $difficulty, ChartDifficultyRevision $revision): JsonResponse
+    {
+        $this->ensureVisible($request, $chart);
+        $this->ensureBelongsToChart($chart, $difficulty);
+        $this->ensureRevisionBelongsToDifficulty($difficulty, $revision);
+
+        $revision->loadMissing('user');
+
+        $previous = $difficulty->revisions()
+            ->where('id', '<', $revision->id)
+            ->with('user')
+            ->first();
+
+        return response()->json([
+            'current' => $this->revisionPayload($revision),
+            'previous' => $previous === null ? null : $this->revisionPayload($previous),
+        ]);
+    }
+
+    /**
+     * Shape a revision for the diff viewer JSON response.
+     *
+     * @return array{id: int, code: string, is_original: bool, author: string|null, created_at: string|null}
+     */
+    private function revisionPayload(ChartDifficultyRevision $revision): array
+    {
+        return [
+            'id' => $revision->id,
+            'code' => $revision->code,
+            'is_original' => $revision->is_original,
+            'author' => $revision->user?->username,
+            'created_at' => $revision->created_at?->toIso8601String(),
+        ];
     }
 
     /**
@@ -111,6 +180,16 @@ class ChartDifficultyController extends Controller
     private function ensureBelongsToChart(Chart $chart, ChartDifficulty $difficulty): void
     {
         if ($difficulty->chart_id !== $chart->id) {
+            throw new NotFoundHttpException;
+        }
+    }
+
+    /**
+     * Abort with a 404 when the revision does not belong to the difficulty.
+     */
+    private function ensureRevisionBelongsToDifficulty(ChartDifficulty $difficulty, ChartDifficultyRevision $revision): void
+    {
+        if ($revision->difficulty_id !== $difficulty->id) {
             throw new NotFoundHttpException;
         }
     }
