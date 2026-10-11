@@ -24,6 +24,17 @@ test('a user can view a chart\'s comments', function () {
         ->assertSee($comment->user->username);
 });
 
+test('a chart\'s comments are displayed newest first', function () {
+    $chart = Chart::factory()->create();
+    Comment::factory()->for($chart)->create(['body' => 'First thought']);
+    Comment::factory()->for($chart)->create(['body' => 'Second thought']);
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('charts.comments.index', $chart))
+        ->assertOk()
+        ->assertSeeInOrder(['Second thought', 'First thought']);
+});
+
 test('a user can post a comment on a chart', function () {
     $chart = Chart::factory()->create();
     $user = User::factory()->create();
