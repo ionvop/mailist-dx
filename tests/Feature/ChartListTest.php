@@ -26,6 +26,17 @@ test('the list page shows the charts owned by the user', function () {
         ->assertDontSee('Someone Elses Chart');
 });
 
+test('the list page shows charts the user has edit access to', function () {
+    $user = User::factory()->create();
+    $chart = Chart::factory()->create(['title' => 'Shared With Me']);
+    $chart->collaborators()->attach($user);
+
+    $this->actingAs($user)
+        ->get(route('list'))
+        ->assertOk()
+        ->assertSee('Shared With Me');
+});
+
 test('the list page shows a placeholder when the user has no charts', function () {
     $this->actingAs(User::factory()->create())
         ->get(route('list'))
