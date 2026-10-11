@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Chart;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -24,12 +25,18 @@ class PageController extends Controller
 
     public function list(Request $request): View
     {
-        $charts = $request->user()
-            ?->charts()
-            ->withCount('difficulties')
-            ->with('difficulties')
-            ->latest()
-            ->get() ?? collect();
+        $user = $request->user();
+
+        $charts = $user
+            ? Chart::query()
+                ->withCount('difficulties')
+                ->with('difficulties')
+                ->where(fn ($query) => $query
+                    ->where('uploader_id', $user->id)
+                    ->orWhereHas('collaborators', fn ($query) => $query->whereKey($user->id)))
+                ->latest()
+                ->get()
+            : collect();
 
         return view('pages.list', [
             'charts' => $charts,
