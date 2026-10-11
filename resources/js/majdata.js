@@ -130,6 +130,12 @@ export function registerMajdataPreview(Alpine) {
                 // Wait a frame so the (previously hidden) canvas has a real size.
                 await this.$nextTick();
 
+                // The build resolves its keyboard/event target with `"#" + canvas.id`,
+                // so the canvas must carry an id or the selector becomes the invalid `"#"`.
+                if (! this.$refs.canvas.id) {
+                    this.$refs.canvas.id = 'unity-canvas';
+                }
+
                 unityInstance ??= await window.createUnityInstance(
                     this.$refs.canvas,
                     {
