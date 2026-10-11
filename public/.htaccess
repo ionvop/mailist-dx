@@ -1,3 +1,10 @@
+# Unity WebGL chart preview (public/WebGLBuild). The loader warns if the .wasm
+# content type is wrong; the .data bundle is a binary download.
+<IfModule mod_mime.c>
+    AddType application/wasm .wasm
+    AddType application/octet-stream .data
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
