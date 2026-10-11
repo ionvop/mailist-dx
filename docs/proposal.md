@@ -149,5 +149,9 @@ The is the page that opens when checking on a chart difficulty. It will have the
     - Everytime a change is saved, the system saves a snapshot of the change.
     - There will be a diff visualizer for the snapshot and the snapshot before it.
     - Each snapshot will have a "Restore to this state" button which will revert the code back into this snapshot (this will be treated as an edit instead of removing history)
+- Settings (owner only)
+    - Set difficulty level value
+    - Set difficulty charter
+    - Download history
 
 *WIP*
