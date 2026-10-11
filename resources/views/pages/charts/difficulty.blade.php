@@ -14,29 +14,42 @@
     @endif
 
     @if ($activeTab === 'code')
-        @if ($canEdit)
-            <form method="POST" action="{{ route('charts.difficulties.update', [$chart, $difficulty]) }}" class="space-y-4">
-                @csrf
-                @method('PATCH')
+        <div @class(['grid gap-6 lg:items-start', 'lg:grid-cols-2' => $preview !== null])>
+            @if ($canEdit)
+                <form method="POST" action="{{ route('charts.difficulties.update', [$chart, $difficulty]) }}" class="space-y-4">
+                    @csrf
+                    @method('PATCH')
 
-                <x-code-editor name="code" :value="old('code', $difficulty->code)" />
+                    <x-code-editor name="code" :value="old('code', $difficulty->code)" />
 
-                @error('code')
-                    <x-alert variant="error">{{ $message }}</x-alert>
-                @enderror
+                    @error('code')
+                        <x-alert variant="error">{{ $message }}</x-alert>
+                    @enderror
 
-                <div class="flex justify-end">
-                    <x-button type="submit" class="w-auto">
-                        <x-lucide-save class="h-4 w-4" /> Save changes
-                    </x-button>
+                    <div class="flex justify-end">
+                        <x-button type="submit" class="w-auto">
+                            <x-lucide-save class="h-4 w-4" /> Save changes
+                        </x-button>
+                    </div>
+                </form>
+            @else
+                <div class="space-y-3">
+                    <x-code-editor :value="$difficulty->code" readonly />
+                    <p class="text-xs text-foreground-accent">You need edit access to change this chart’s code.</p>
                 </div>
-            </form>
-        @else
-            <div class="space-y-3">
-                <x-code-editor :value="$difficulty->code" readonly />
-                <p class="text-xs text-foreground-accent">You need edit access to change this chart’s code.</p>
-            </div>
-        @endif
+            @endif
+
+            @if ($preview !== null)
+                <div class="lg:sticky lg:top-6">
+                    <x-chart-preview
+                        :maidata="$preview['maidata']"
+                        :track="$preview['track']"
+                        :art="$preview['art']"
+                        :pv="$preview['pv']"
+                        :level="$preview['level']" />
+                </div>
+            @endif
+        </div>
     @else
         @php
             $placeholders = [
