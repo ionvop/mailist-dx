@@ -26,6 +26,19 @@ test('a user can download a public chart file', function () {
         ->assertOk();
 });
 
+test('a range request for a chart file returns partial content', function () {
+    $chart = Chart::factory()->create(['track_path' => 'charts/1/track.mp3']);
+    Storage::disk('local')->put('charts/1/track.mp3', str_repeat('a', 1024));
+
+    $response = $this->actingAs(User::factory()->create())
+        ->get(route('charts.files', [$chart, 'track']), ['Range' => 'bytes=0-99']);
+
+    $response->assertStatus(206);
+    expect($response->headers->get('accept-ranges'))->toBe('bytes');
+    expect($response->headers->get('content-range'))->toBe('bytes 0-99/1024');
+    expect($response->headers->get('content-length'))->toBe('100');
+});
+
 test('a non-owner cannot download a private chart file', function () {
     $chart = Chart::factory()->private()->create(['art_path' => 'charts/1/art.jpg']);
     Storage::disk('local')->put('charts/1/art.jpg', fakeJpegBytes());
