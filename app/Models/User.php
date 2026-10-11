@@ -72,6 +72,16 @@ class User extends Authenticatable
     }
 
     /**
+     * The difficulty revisions saved by the user.
+     *
+     * @return HasMany<ChartDifficultyRevision, $this>
+     */
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(ChartDifficultyRevision::class);
+    }
+
+    /**
      * Public URL for the user's avatar, or null when none is set.
      */
     protected function avatarUrl(): Attribute
