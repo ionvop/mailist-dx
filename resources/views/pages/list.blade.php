@@ -28,7 +28,7 @@
                 @foreach ($charts as $chart)
                     <a href="{{ route('charts.show', $chart) }}"
                         class="group relative flex flex-col rounded-2xl border border-border bg-background-accent/40 transition hover:border-primary-accent/50">
-                        <div class="aspect-square w-full overflow-hidden rounded-t-2xl bg-background">
+                        <div class="relative aspect-square w-full overflow-hidden rounded-t-2xl bg-background">
                             @if ($chart->art_path)
                                 <img src="{{ route('charts.files', [$chart, 'art']) }}" alt="{{ $chart->title }} cover"
                                     class="h-full w-full object-cover transition group-hover:scale-105">
@@ -37,6 +37,8 @@
                                     <x-lucide-image class="h-8 w-8 text-foreground-accent" />
                                 </div>
                             @endif
+
+                            <x-status-badge :status="$chart->status" class="absolute right-2 top-2 z-10" />
                         </div>
 
                         @if ($chart->difficulties->isNotEmpty())
@@ -53,9 +55,10 @@
                                 @endif
                             </div>
                             <p class="truncate text-xs text-foreground-accent">{{ $chart->artist }}</p>
-                            <p class="text-xs text-foreground-accent">
-                                {{ $chart->status->label() }} · {{ $chart->difficulties_count }} {{ Str::plural('difficulty', $chart->difficulties_count) }}
-                            </p>
+                            <div class="mt-1 flex items-center gap-1.5 text-xs text-foreground-accent">
+                                <x-avatar :user="$chart->uploader" size="xs" />
+                                <span class="truncate">{{ $chart->uploader->username }}</span>
+                            </div>
                         </div>
                     </a>
                 @endforeach
