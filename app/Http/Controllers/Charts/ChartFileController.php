@@ -20,6 +20,17 @@ class ChartFileController extends Controller
         'pv' => 'pv_path',
         'maidata' => 'maidata_path',
         'download' => 'download_path',
+        'adx' => 'download_path',
+    ];
+
+    /**
+     * Map of file type to the extension used for the downloaded package.
+     *
+     * `.zip` and `.adx` are the same archive; only the extension differs.
+     */
+    private const DOWNLOAD_EXTENSIONS = [
+        'download' => 'zip',
+        'adx' => 'adx',
     ];
 
     /**
@@ -43,8 +54,8 @@ class ChartFileController extends Controller
 
         $disk = Storage::disk('local');
 
-        if ($type === 'download') {
-            return $disk->download($path, "{$chart->title}.zip");
+        if (isset(self::DOWNLOAD_EXTENSIONS[$type])) {
+            return $disk->download($path, "{$chart->title}.".self::DOWNLOAD_EXTENSIONS[$type]);
         }
 
         return $disk->response($path);
