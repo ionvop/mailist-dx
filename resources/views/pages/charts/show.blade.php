@@ -43,7 +43,7 @@
         {{-- Details --}}
         <div class="space-y-6">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
-                <div class="w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-background-accent/40 sm:w-48">
+                <div class="w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-background-accent/40 sm:w-64">
                     @if ($chart->art_path)
                         <img src="{{ route('charts.files', [$chart, 'art']) }}" alt="{{ $chart->title }} cover"
                             class="aspect-square w-full object-cover">
@@ -55,6 +55,10 @@
                 </div>
 
                 <dl class="flex-1 space-y-3 text-sm">
+                    <div>
+                        <dt class="text-foreground-accent">Title</dt>
+                        <dd class="font-medium text-foreground">{{ $chart->title }}</dd>
+                    </div>
                     <div>
                         <dt class="text-foreground-accent">Artist</dt>
                         <dd class="font-medium text-foreground">{{ $chart->artist }}</dd>
@@ -69,7 +73,13 @@
                     </div>
                     <div>
                         <dt class="text-foreground-accent">Uploaded by</dt>
-                        <dd class="font-medium text-foreground">{{ $chart->uploader->username }}</dd>
+                        <dd>
+                            <a href="{{ route('users.show', $chart->uploader) }}"
+                                class="inline-flex items-center gap-2 font-medium text-foreground transition hover:text-primary-accent">
+                                <x-avatar :user="$chart->uploader" size="xs" />
+                                {{ $chart->uploader->username }}
+                            </a>
+                        </dd>
                     </div>
                 </dl>
             </div>
