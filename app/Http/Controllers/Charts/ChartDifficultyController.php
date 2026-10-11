@@ -40,7 +40,34 @@ class ChartDifficultyController extends Controller
             'difficulty' => $difficulty,
             'activeTab' => $tab,
             'canEdit' => $chart->canEdit($request->user()),
+            'preview' => $this->previewConfig($chart, $difficulty),
         ]);
+    }
+
+    /**
+     * Build the payload for the WebGL chart preview, or null when the chart has
+     * no stored maidata file for the preview engine to read.
+     *
+     * The build is handed the public file URLs (it fetches them itself) plus a
+     * level token derived from the difficulty's chart index, e.g. index 5 -> lv4.
+     *
+     * @return array{maidata: string, track: string|null, art: string|null, pv: string|null, level: string}|null
+     */
+    private function previewConfig(Chart $chart, ChartDifficulty $difficulty): ?array
+    {
+        if ($chart->maidata_path === null) {
+            return null;
+        }
+
+        $file = fn (string $type): string => route('charts.files', [$chart, $type]);
+
+        return [
+            'maidata' => $file('maidata'),
+            'track' => $chart->track_path !== null ? $file('track') : null,
+            'art' => $chart->art_path !== null ? $file('art') : null,
+            'pv' => $chart->pv_path !== null ? $file('pv') : null,
+            'level' => 'lv'.((int) $difficulty->chart_index - 1),
+        ];
     }
 
     /**
