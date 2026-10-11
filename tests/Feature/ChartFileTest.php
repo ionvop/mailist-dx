@@ -35,6 +35,34 @@ test('a non-owner cannot download a private chart file', function () {
         ->assertNotFound();
 });
 
+test('a user can download the chart package as a zip', function () {
+    $chart = Chart::factory()->create([
+        'title' => 'My Chart',
+        'download_path' => 'charts/1/download.zip',
+    ]);
+    Storage::disk('local')->put('charts/1/download.zip', 'package');
+
+    $response = $this->actingAs(User::factory()->create())
+        ->get(route('charts.files', [$chart, 'download']));
+
+    $response->assertOk();
+    expect($response->headers->get('content-disposition'))->toContain('My Chart.zip');
+});
+
+test('a user can download the chart package as an adx', function () {
+    $chart = Chart::factory()->create([
+        'title' => 'My Chart',
+        'download_path' => 'charts/1/download.zip',
+    ]);
+    Storage::disk('local')->put('charts/1/download.zip', 'package');
+
+    $response = $this->actingAs(User::factory()->create())
+        ->get(route('charts.files', [$chart, 'adx']));
+
+    $response->assertOk();
+    expect($response->headers->get('content-disposition'))->toContain('My Chart.adx');
+});
+
 test('an unknown file type is not found', function () {
     $chart = Chart::factory()->create();
 
