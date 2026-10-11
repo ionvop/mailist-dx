@@ -28,9 +28,7 @@
 
                     <div class="flex items-center gap-2">
                         @if ($difficulty->difficulty_value)
-                            <span class="rounded-lg bg-[var(--difficulty-color)] px-2.5 py-1 text-sm font-bold text-background">
-                                {{ $difficulty->difficulty_value }}
-                            </span>
+                            <x-difficulty-badge :difficulty="$difficulty" />
                         @endif
                         <x-lucide-chevron-right class="h-4 w-4 shrink-0 text-foreground-accent" />
                     </div>
@@ -107,9 +105,14 @@
             @endif
 
             @if ($chart->download_path)
-                <x-button href="{{ route('charts.files', [$chart, 'download']) }}" variant="secondary" class="w-auto">
-                    <x-lucide-download class="h-4 w-4" /> Download package
-                </x-button>
+                <div class="flex flex-wrap gap-2">
+                    <x-button href="{{ route('charts.files', [$chart, 'download']) }}" variant="secondary" class="w-auto">
+                        <x-lucide-download class="h-4 w-4" /> Download package
+                    </x-button>
+                    <x-button href="{{ route('charts.files', [$chart, 'adx']) }}" variant="secondary" class="w-auto">
+                        <x-lucide-download class="h-4 w-4" /> Download ADX
+                    </x-button>
+                </div>
             @endif
         </div>
     </div>
