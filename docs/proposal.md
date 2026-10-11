@@ -142,8 +142,8 @@ The is the page that opens when checking on a chart difficulty. It will have the
     - Left column: Textarea containing the simai code that makes up the chart, edits can only be saved by those with edit access.
     - Right column: Chart preview
 - Improvements
-    - Other users can select line(s) from the simai code for context and suggests improvements (e.g. ln 45-47 The note placements here doen't match with the song. I suggest `1,2,3,,8,7,6,`)
-    - The editors can either reject the suggestion with a reason or mark the suggestion as resolved by selecting the lines that were changed in the new version (there will be a diff visualizer for the suggester's selected lines and the editor's selected lines) and a remark
+    - Other users can select line(s) from the simai code for context and suggests improvements (e.g. ln 45-47 The note placements here doesn't match with the song. I suggest `1,2,3,,8,7,6,`)
+    - The editors can either reject the suggestion with a reason or mark the suggestion as resolved by selecting the lines that were changed in the new version and a remark.
 - Comments
 - History
     - Everytime a change is saved, the system saves a snapshot of the change.
