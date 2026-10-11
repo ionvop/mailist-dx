@@ -29,8 +29,7 @@ class PageController extends Controller
 
         $charts = $user
             ? Chart::query()
-                ->withCount('difficulties')
-                ->with('difficulties')
+                ->with(['difficulties', 'uploader'])
                 ->where(fn ($query) => $query
                     ->where('uploader_id', $user->id)
                     ->orWhereHas('collaborators', fn ($query) => $query->whereKey($user->id)))
