@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Chart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -36,7 +38,7 @@ class ChartFileController extends Controller
     /**
      * Serve one of a chart's files from the private disk.
      */
-    public function show(Request $request, Chart $chart, string $type): StreamedResponse
+    public function show(Request $request, Chart $chart, string $type): Response
     {
         if (! array_key_exists($type, self::PATHS)) {
             throw new NotFoundHttpException;
@@ -58,6 +60,10 @@ class ChartFileController extends Controller
             return $disk->download($path, "{$chart->title}.".self::DOWNLOAD_EXTENSIONS[$type]);
         }
 
-        return $disk->response($path);
+        // A BinaryFileResponse (unlike a StreamedResponse) honours the Range
+        // header, so media files can be seeked forward in the browser player.
+        return new BinaryFileResponse($disk->path($path), 200, [
+            'Content-Type' => $disk->mimeType($path),
+        ]);
     }
 }
