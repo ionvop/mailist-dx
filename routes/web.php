@@ -61,6 +61,10 @@ Route::middleware('auth')->group(function () {
         ->name('charts.difficulties.show');
     Route::patch('/charts/{chart}/difficulties/{difficulty}', [ChartDifficultyController::class, 'update'])
         ->name('charts.difficulties.update');
+    Route::get('/charts/{chart}/difficulties/{difficulty}/revisions/{revision}/diff', [ChartDifficultyController::class, 'diff'])
+        ->name('charts.difficulties.revisions.diff');
+    Route::post('/charts/{chart}/difficulties/{difficulty}/revisions/{revision}/restore', [ChartDifficultyController::class, 'restore'])
+        ->name('charts.difficulties.revisions.restore');
 
     Route::get('/charts/{chart}/settings', [ChartSettingsController::class, 'edit'])->name('charts.settings');
     Route::patch('/charts/{chart}/settings', [ChartSettingsController::class, 'update'])->name('charts.settings.update');
