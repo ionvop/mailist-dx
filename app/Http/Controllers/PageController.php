@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chart;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -42,9 +43,18 @@ class PageController extends Controller
         ]);
     }
 
-    public function profile(): View
+    public function profile(Request $request): View
     {
-        return view('pages.profile');
+        return view('pages.profile', [
+            'profileUser' => $request->user(),
+        ]);
+    }
+
+    public function user(User $user): View
+    {
+        return view('pages.profile', [
+            'profileUser' => $user,
+        ]);
     }
 
     public function settings(Request $request): View
