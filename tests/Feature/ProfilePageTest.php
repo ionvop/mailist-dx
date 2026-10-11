@@ -43,3 +43,31 @@ test('a guest sees the bio placeholder', function () {
         ->assertOk()
         ->assertSee('Markdown-supported biography.');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Public profiles
+|--------------------------------------------------------------------------
+*/
+
+test('a guest can view a user profile by username', function () {
+    $user = User::factory()->create(['username' => 'chartmaker', 'bio' => 'Hello there']);
+
+    $this->get(route('users.show', $user))
+        ->assertOk()
+        ->assertSee('chartmaker')
+        ->assertSee('Hello there');
+});
+
+test('a public profile hides the email of another user', function () {
+    $user = User::factory()->create(['username' => 'otherguy', 'email' => 'secret@example.com']);
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('users.show', $user))
+        ->assertOk()
+        ->assertDontSee('secret@example.com');
+});
+
+test('an unknown username returns not found', function () {
+    $this->get('/users/does-not-exist')->assertNotFound();
+});
