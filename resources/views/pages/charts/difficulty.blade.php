@@ -57,12 +57,25 @@
                 </div>
             @endif
         </div>
+    @elseif ($activeTab === 'history')
+        @if ($revisions->isEmpty())
+            <x-placeholder
+                title="No history yet"
+                description="Every saved change to this difficulty's code will be snapshotted here."
+                icon="history"
+                height="h-48" />
+        @else
+            <x-revision-timeline :revisions="$revisions" :chart="$chart" :difficulty="$difficulty" :can-edit="$canEdit" />
+
+            <div class="mt-6">
+                {{ $revisions->links() }}
+            </div>
+        @endif
     @else
         @php
             $placeholders = [
                 'improvements' => ['Improvements', 'Suggest and track changes to this chart.', 'message-square-plus'],
                 'comments' => ['Comments', 'Discuss this chart with the community.', 'message-circle'],
-                'history' => ['History', 'Every saved change is snapshotted here.', 'history'],
             ];
         @endphp
 
