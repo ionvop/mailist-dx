@@ -16,17 +16,24 @@ class ChartDifficultyService
     public function __construct(
         private readonly MaidataSerializer $serializer,
         private readonly ChartAssetService $assets,
+        private readonly ChartDifficultyRevisionService $revisions,
     ) {}
 
     /**
      * Replace the given difficulty's code.
+     *
+     * A revision is snapshotted when the code actually changes (see
+     * {@see ChartDifficultyRevisionService::record()}).
      */
-    public function updateCode(Chart $chart, ChartDifficulty $difficulty, string $code): void
+    public function updateCode(Chart $chart, ChartDifficulty $difficulty, string $code, ?int $userId = null): void
     {
         $code = trim($code);
+        $before = $difficulty->code;
 
         $difficulty->code = $code;
         $difficulty->save();
+
+        $this->revisions->record($difficulty, $before, $code, $userId);
 
         $disk = Storage::disk('local');
         $maidataPath = $chart->maidata_path;
