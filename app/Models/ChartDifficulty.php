@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'chart_id',
@@ -50,6 +51,16 @@ class ChartDifficulty extends Model
     public function chart(): BelongsTo
     {
         return $this->belongsTo(Chart::class);
+    }
+
+    /**
+     * The code snapshots recorded for this difficulty, newest first.
+     *
+     * @return HasMany<ChartDifficultyRevision, $this>
+     */
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(ChartDifficultyRevision::class, 'difficulty_id')->latest('id');
     }
 
     /**
