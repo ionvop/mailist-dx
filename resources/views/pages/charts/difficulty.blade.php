@@ -47,6 +47,13 @@
                         :art="$preview['art']"
                         :pv="$preview['pv']"
                         :level="$preview['level']" />
+
+                    <p class="mt-3 text-center text-xs text-foreground-accent">
+                        Powered by
+                        <a href="https://github.com/TeamMajdata/MajdataView_web"
+                            target="_blank" rel="noopener noreferrer"
+                            class="font-medium text-foreground transition hover:text-primary-accent">MajdataView_web</a>
+                    </p>
                 </div>
             @endif
         </div>
