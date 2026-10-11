@@ -20,6 +20,7 @@ Route::get('/search', [PageController::class, 'search'])->name('search');
 Route::get('/feed', [PageController::class, 'feed'])->name('feed');
 Route::get('/list', [PageController::class, 'list'])->name('list');
 Route::get('/profile', [PageController::class, 'profile'])->name('profile');
+Route::get('/users/{user:username}', [PageController::class, 'user'])->name('users.show');
 Route::get('/settings', [PageController::class, 'settings'])->name('settings');
 Route::get('/notifications', [PageController::class, 'notifications'])->name('notifications');
 
