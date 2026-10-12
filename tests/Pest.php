@@ -97,6 +97,7 @@ function sampleMaidata(): string
         '&title=Test Song',
         '&artist=Test Artist',
         '&wholebpm=180',
+        '&first=0.24',
         '&des=Test Charter',
         '&tags=tag1, tag2',
         '&inote_4=(180){4}1,2,3,4,',
