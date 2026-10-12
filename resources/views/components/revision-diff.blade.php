@@ -56,7 +56,7 @@
 
         <div x-show="status === 'ready'" x-cloak>
             <p x-show="isInitial" class="border-t border-border bg-background-accent/40 px-4 py-2 text-xs text-foreground-accent">
-                This is the original version — the code as it was before the first recorded change.
+                This is the original uploaded version — the code as it was when the chart was uploaded.
             </p>
 
             {{-- Split (side-by-side) view --}}
