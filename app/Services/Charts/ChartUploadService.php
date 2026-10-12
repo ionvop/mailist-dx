@@ -21,6 +21,7 @@ class ChartUploadService
         private readonly MaidataParser $parser,
         private readonly ChartPackageExtractor $extractor,
         private readonly ChartAssetService $assets,
+        private readonly ChartDifficultyRevisionService $revisions,
     ) {}
 
     /**
@@ -137,11 +138,15 @@ class ChartUploadService
 
     /**
      * Persist the difficulties parsed from the maidata file.
+     *
+     * Each difficulty's uploaded code is recorded as its original revision,
+     * attributed to the uploader, so the History tab has a baseline from the
+     * moment the chart is uploaded.
      */
     private function storeDifficulties(Chart $chart, ParsedMaidata $maidata): void
     {
         foreach ($maidata->charts as $parsed) {
-            $chart->difficulties()->create([
+            $difficulty = $chart->difficulties()->create([
                 'chart_index' => $parsed->chartIndex,
                 'difficulty' => $parsed->difficulty,
                 'difficulty_alias' => $parsed->difficultyAlias,
@@ -151,6 +156,8 @@ class ChartUploadService
                 'info' => $parsed->info,
                 'code' => $parsed->code,
             ]);
+
+            $this->revisions->recordOriginal($difficulty, $parsed->code, $chart->uploader_id);
         }
     }
 
