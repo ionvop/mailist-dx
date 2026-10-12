@@ -5,6 +5,9 @@
  * diff endpoint, then renders a side-by-side (split) diff - with a unified
  * fallback - using jsdiff. The `diff` package is only downloaded on pages that
  * actually expand a revision.
+ *
+ * Long runs of unchanged lines are collapsed into `gap` markers, keeping a few
+ * lines of context around each change. A single toggle reveals the full file.
  */
 
 /**
@@ -34,7 +37,11 @@ export function registerDiffViewer(Alpine) {
         current: null,
         previous: null,
         rows: [],
-        unifiedRows: [],
+        displayRows: [],
+        displayUnifiedRows: [],
+        contextLines: 3,
+        showFull: false,
+        hasGaps: false,
         added: 0,
         removed: 0,
         copied: false,
@@ -142,7 +149,83 @@ export function registerDiffViewer(Alpine) {
             this.rows = rows;
             this.added = added;
             this.removed = removed;
-            this.unifiedRows = this.buildUnified(rows);
+            this.applyCollapse();
+        },
+
+        /**
+         * Recompute the visible rows from the full row list, honouring the
+         * current `showFull` state.
+         */
+        applyCollapse() {
+            const collapsed = this.collapse(this.rows);
+
+            this.hasGaps = collapsed.length < this.rows.length;
+            this.displayRows = this.showFull ? this.rows : collapsed;
+            this.displayUnifiedRows = this.buildUnified(this.displayRows);
+        },
+
+        /**
+         * Collapse long runs of unchanged lines into `gap` markers, keeping
+         * `contextLines` unchanged lines around every change. The original
+         * upload (no predecessor) is always shown in full.
+         *
+         * @param {Array} rows
+         * @returns {Array}
+         */
+        collapse(rows) {
+            if (this.isInitial) {
+                return rows;
+            }
+
+            const keep = new Set();
+
+            rows.forEach((row, index) => {
+                if (row.type === 'same') {
+                    return;
+                }
+
+                for (let offset = -this.contextLines; offset <= this.contextLines; offset++) {
+                    const target = index + offset;
+
+                    if (target >= 0 && target < rows.length) {
+                        keep.add(target);
+                    }
+                }
+            });
+
+            if (keep.size === 0) {
+                return rows;
+            }
+
+            const collapsed = [];
+            let gap = 0;
+
+            rows.forEach((row, index) => {
+                if (keep.has(index)) {
+                    if (gap > 0) {
+                        collapsed.push({ type: 'gap', count: gap });
+                        gap = 0;
+                    }
+
+                    collapsed.push(row);
+                } else {
+                    gap++;
+                }
+            });
+
+            if (gap > 0) {
+                collapsed.push({ type: 'gap', count: gap });
+            }
+
+            return collapsed;
+        },
+
+        /**
+         * Toggle between the collapsed (changes + context) and full views.
+         */
+        toggleFull() {
+            this.showFull = ! this.showFull;
+            this.applyCollapse();
         },
 
         /**
@@ -154,7 +237,9 @@ export function registerDiffViewer(Alpine) {
             const unified = [];
 
             for (const row of rows) {
-                if (row.type === 'same') {
+                if (row.type === 'gap') {
+                    unified.push({ type: 'gap', count: row.count });
+                } else if (row.type === 'same') {
                     unified.push({ type: 'same', number: row.right.number, text: row.right.text });
                 } else if (row.type === 'change') {
                     unified.push({ type: 'removed', number: row.left.number, text: row.left.text });
