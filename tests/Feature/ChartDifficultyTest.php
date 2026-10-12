@@ -47,7 +47,25 @@ test('a non-editor sees the code read-only', function () {
         ->get(route('charts.difficulties.show', [$chart, $difficulty]))
         ->assertOk()
         ->assertDontSee('Save changes')
-        ->assertSee('You need edit access', false);
+        ->assertSee('You need edit access', false)
+        // The textarea is still rendered (so the caret can be placed) but is
+        // read-only and not submitted.
+        ->assertSee('class="simai-input"', false)
+        ->assertSee('readonly', false)
+        ->assertDontSee('name="code"', false);
+});
+
+test('the code editor shows a cursor time readout', function () {
+    $chart = Chart::factory()->create(['audio_bpm' => '179', 'audio_offset' => '0.5']);
+    $difficulty = ChartDifficulty::factory()->for($chart)->create([
+        'code' => '(179){1}4,5,6,',
+    ]);
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('charts.difficulties.show', [$chart, $difficulty]))
+        ->assertOk()
+        ->assertSee('simai-status', false)
+        ->assertSee('timeLabel', false);
 });
 
 test('the owner can update a difficulty code', function () {
