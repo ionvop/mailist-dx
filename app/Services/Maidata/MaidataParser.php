@@ -80,6 +80,7 @@ class MaidataParser
             illustratorLink: $illustratorLink,
             noteDesigner: $noteDesigner,
             audioBpm: $this->extract($pairs, 'wholebpm', 'BPM', 50, $logs->infos),
+            audioOffset: $this->toFloat($this->extract($pairs, 'first', 'Audio offset', 50, $logs->infos)),
             info: $this->extract($pairs, 'freemsg', 'Level info', self::MAX_LONG_TEXT_LENGTH, $logs->warnings),
             tags: $tags,
             previewStart: $this->toFloat($this->extract($pairs, 'preview_start', 'Audio preview start', 50, $logs->infos)),
