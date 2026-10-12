@@ -31,6 +31,7 @@ class UpdateChartMetadataRequest extends FormRequest
             'illustrator_link' => ['nullable', 'url', 'max:500'],
             'note_designer' => ['nullable', 'string', 'max:500'],
             'audio_bpm' => ['nullable', 'string', 'max:50'],
+            'audio_offset' => ['nullable', 'numeric'],
             'tags' => ['nullable', 'string', 'max:500'],
             'info' => ['nullable', 'string', 'max:5000'],
             'description' => ['nullable', 'string', 'max:5000'],
