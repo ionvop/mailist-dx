@@ -10,6 +10,7 @@ test('it parses level metadata and difficulties', function () {
         ->and($parsed->artist)->toBe('Test Artist')
         ->and($parsed->noteDesigner)->toBe('Test Charter')
         ->and($parsed->audioBpm)->toBe('180')
+        ->and($parsed->audioOffset)->toBe(0.24)
         ->and($parsed->tags)->toBe(['tag1', 'tag2'])
         ->and($parsed->charts)->toHaveCount(2)
         ->and($parsed->logs->hasErrors())->toBeFalse();
