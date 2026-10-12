@@ -11,9 +11,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * An immutable snapshot of a difficulty's simai code at a point in time.
  *
- * A revision is recorded every time the code changes (plus an `is_original`
- * baseline captured before the very first recorded change). Restoring an old
- * revision does not rewrite history — it appends a new revision.
+ * The original (uploaded) state is recorded when the chart is uploaded and
+ * attributed to the uploader. A revision is then recorded every time the code
+ * changes. Restoring an old revision does not rewrite history — it appends a
+ * new revision.
  */
 #[Fillable([
     'difficulty_id',
@@ -55,7 +56,8 @@ class ChartDifficultyRevision extends Model
     }
 
     /**
-     * The user who saved this revision, or null for the original version.
+     * The user who saved this revision, or the uploader for the original
+     * version. Null only when that user has since been deleted.
      *
      * @return BelongsTo<User, $this>
      */
