@@ -48,6 +48,8 @@
                 <x-input name="note_designer" label="Note designer" :value="$chart->note_designer"
                     hint="Used as the fallback charter for each difficulty." />
                 <x-input name="audio_bpm" label="BPM" :value="$chart->audio_bpm" inputmode="decimal" />
+                <x-input name="audio_offset" label="Offset" :value="$chart->audio_offset" inputmode="decimal"
+                    hint="Audio offset in seconds (&first=). Applies to all difficulties." />
                 <x-input name="tags" label="Tags" :value="$chart->tags ? implode(', ', $chart->tags) : ''"
                     hint="Comma-separated." />
             </div>
