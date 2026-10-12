@@ -35,7 +35,7 @@ test('the first save records an original snapshot before the change', function (
     expect($revisions)->toHaveCount(2)
         ->and($revisions->last()->is_original)->toBeTrue()
         ->and($revisions->last()->code)->toBe('1,2,3,4,')
-        ->and($revisions->last()->user_id)->toBeNull()
+        ->and($revisions->last()->user_id)->toBe($owner->id)
         ->and($revisions->first()->is_original)->toBeFalse()
         ->and($revisions->first()->code)->toBe('4,5,6,7,')
         ->and($revisions->first()->user_id)->toBe($owner->id);
@@ -128,7 +128,7 @@ test('the diff endpoint returns the revision and its predecessor', function () {
         ->assertJsonPath('current.author', $owner->username)
         ->assertJsonPath('previous.code', '1,2,3,4,')
         ->assertJsonPath('previous.is_original', true)
-        ->assertJsonPath('previous.author', null);
+        ->assertJsonPath('previous.author', $owner->username);
 });
 
 test('the original revision has no predecessor in the diff', function () {
@@ -163,7 +163,7 @@ test('the history tab lists snapshots for a viewer', function () {
     $this->actingAs(User::factory()->create())
         ->get(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'history']))
         ->assertOk()
-        ->assertSee('Original version')
+        ->assertSee('Uploaded')
         ->assertSee($owner->username);
 });
 
