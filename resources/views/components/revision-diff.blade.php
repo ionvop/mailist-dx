@@ -25,6 +25,12 @@
             <span class="font-mono text-xs font-semibold text-emerald-400" x-text="'+' + added"></span>
             <span class="font-mono text-xs font-semibold text-destructive" x-text="'-' + removed"></span>
 
+            <button type="button" x-show="hasGaps" @click="toggleFull()"
+                class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold text-foreground-accent transition hover:text-foreground">
+                <x-lucide-chevrons-up-down class="h-3.5 w-3.5" />
+                <span x-text="showFull ? 'Show changes only' : 'Show full file'"></span>
+            </button>
+
             <div class="flex items-center gap-0.5 rounded-lg border border-border p-0.5">
                 <button type="button" @click="mode = 'split'"
                     class="rounded-md px-2 py-0.5 text-[11px] font-semibold transition"
@@ -69,21 +75,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <template x-for="(row, index) in rows" :key="index">
-                            <tr class="align-top">
-                                <td class="w-1/2 border-r border-border/70" x-bind:class="cellClass(row.type, 'left')">
-                                    <div class="flex min-h-5">
-                                        <span class="w-9 shrink-0 select-none px-2 text-right text-foreground-accent/40 tabular-nums" x-text="row.left ? row.left.number : ''"></span>
-                                        <pre class="whitespace-pre px-2" x-text="row.left ? row.left.text : ''"></pre>
-                                    </div>
-                                </td>
-                                <td class="w-1/2" x-bind:class="cellClass(row.type, 'right')">
-                                    <div class="flex min-h-5">
-                                        <span class="w-9 shrink-0 select-none px-2 text-right text-foreground-accent/40 tabular-nums" x-text="row.right ? row.right.number : ''"></span>
-                                        <pre class="whitespace-pre px-2" x-text="row.right ? row.right.text : ''"></pre>
-                                    </div>
-                                </td>
-                            </tr>
+                        <template x-for="(row, index) in displayRows" :key="index">
+                            <template x-if="row.type === 'gap'">
+                                <tr class="bg-background-accent/30 text-foreground-accent/70">
+                                    <td colspan="2" class="px-3 py-1 text-center text-[11px] italic">
+                                        <span x-text="'⋯ ' + row.count + ' unchanged ' + (row.count === 1 ? 'line' : 'lines')"></span>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-if="row.type !== 'gap'">
+                                <tr class="align-top">
+                                    <td class="w-1/2 border-r border-border/70" x-bind:class="cellClass(row.type, 'left')">
+                                        <div class="flex min-h-5">
+                                            <span class="w-9 shrink-0 select-none px-2 text-right text-foreground-accent/40 tabular-nums" x-text="row.left ? row.left.number : ''"></span>
+                                            <pre class="whitespace-pre px-2" x-text="row.left ? row.left.text : ''"></pre>
+                                        </div>
+                                    </td>
+                                    <td class="w-1/2" x-bind:class="cellClass(row.type, 'right')">
+                                        <div class="flex min-h-5">
+                                            <span class="w-9 shrink-0 select-none px-2 text-right text-foreground-accent/40 tabular-nums" x-text="row.right ? row.right.number : ''"></span>
+                                            <pre class="whitespace-pre px-2" x-text="row.right ? row.right.text : ''"></pre>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
                         </template>
                     </tbody>
                 </table>
@@ -91,14 +106,23 @@
 
             {{-- Unified view --}}
             <div x-show="mode === 'unified'" class="overflow-x-auto border-t border-border font-mono text-xs leading-5">
-                <template x-for="(row, index) in unifiedRows" :key="index">
-                    <div class="flex min-h-5"
-                        x-bind:class="row.type === 'added' ? 'bg-emerald-500/15' : (row.type === 'removed' ? 'bg-destructive/15' : '')">
-                        <span class="w-9 shrink-0 select-none px-2 text-right text-foreground-accent/40 tabular-nums" x-text="row.number"></span>
-                        <span class="w-4 shrink-0 select-none text-center text-foreground-accent/60"
-                            x-text="row.type === 'added' ? '+' : (row.type === 'removed' ? '-' : '')"></span>
-                        <pre class="whitespace-pre px-2" x-text="row.text"></pre>
-                    </div>
+                <template x-for="(row, index) in displayUnifiedRows" :key="index">
+                    <template x-if="row.type === 'gap'">
+                        <div class="flex min-h-5 bg-background-accent/30 text-foreground-accent/70">
+                            <span class="w-9 shrink-0 select-none"></span>
+                            <span class="w-4 shrink-0 select-none"></span>
+                            <span class="px-2 text-[11px] italic" x-text="'⋯ ' + row.count + ' unchanged ' + (row.count === 1 ? 'line' : 'lines')"></span>
+                        </div>
+                    </template>
+                    <template x-if="row.type !== 'gap'">
+                        <div class="flex min-h-5"
+                            x-bind:class="row.type === 'added' ? 'bg-emerald-500/15' : (row.type === 'removed' ? 'bg-destructive/15' : '')">
+                            <span class="w-9 shrink-0 select-none px-2 text-right text-foreground-accent/40 tabular-nums" x-text="row.number"></span>
+                            <span class="w-4 shrink-0 select-none text-center text-foreground-accent/60"
+                                x-text="row.type === 'added' ? '+' : (row.type === 'removed' ? '-' : '')"></span>
+                            <pre class="whitespace-pre px-2" x-text="row.text"></pre>
+                        </div>
+                    </template>
                 </template>
             </div>
         </div>
