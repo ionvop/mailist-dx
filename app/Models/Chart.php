@@ -24,6 +24,7 @@ use Illuminate\Support\Str;
     'illustrator_link',
     'note_designer',
     'audio_bpm',
+    'audio_offset',
     'info',
     'description',
     'tags',
