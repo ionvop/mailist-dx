@@ -28,6 +28,7 @@ class ChartMetadataService
         'illustrator_link' => 'illus_link',
         'note_designer' => 'des',
         'audio_bpm' => 'wholebpm',
+        'audio_offset' => 'first',
         'tags' => 'tags',
         'info' => 'freemsg',
     ];
@@ -162,6 +163,7 @@ class ChartMetadataService
             'illustrator_link' => $maidata->illustratorLink,
             'note_designer' => $maidata->noteDesigner,
             'audio_bpm' => $maidata->audioBpm,
+            'audio_offset' => $maidata->audioOffset,
             'info' => $maidata->info,
             'tags' => $maidata->tags,
         ]);
