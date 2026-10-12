@@ -20,7 +20,7 @@
                     @csrf
                     @method('PATCH')
 
-                    <x-code-editor name="code" :value="old('code', $difficulty->code)" />
+                    <x-code-editor name="code" :value="old('code', $difficulty->code)" :bpm="$chart->audio_bpm" :offset="$chart->audio_offset" />
 
                     @error('code')
                         <x-alert variant="error">{{ $message }}</x-alert>
@@ -34,7 +34,7 @@
                 </form>
             @else
                 <div class="space-y-3">
-                    <x-code-editor :value="$difficulty->code" readonly />
+                    <x-code-editor :value="$difficulty->code" :bpm="$chart->audio_bpm" :offset="$chart->audio_offset" readonly />
                     <p class="text-xs text-foreground-accent">You need edit access to change this chart’s code.</p>
                 </div>
             @endif
