@@ -47,6 +47,7 @@ test('a user can upload a chart package', function () {
         ->and($chart->title)->toBe('Test Song')
         ->and($chart->artist)->toBe('Test Artist')
         ->and($chart->note_designer)->toBe('Test Charter')
+        ->and($chart->audio_offset)->toBe('0.24')
         ->and($chart->difficulties)->toHaveCount(2)
         ->and($chart->difficulties->pluck('difficulty')->all())
         ->toBe([ChartDifficultyName::Expert, ChartDifficultyName::Master]);
