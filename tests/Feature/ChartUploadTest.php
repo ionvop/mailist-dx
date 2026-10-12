@@ -51,6 +51,15 @@ test('a user can upload a chart package', function () {
         ->and($chart->difficulties->pluck('difficulty')->all())
         ->toBe([ChartDifficultyName::Expert, ChartDifficultyName::Master]);
 
+    foreach ($chart->difficulties as $difficulty) {
+        $original = $difficulty->revisions()->get();
+
+        expect($original)->toHaveCount(1)
+            ->and($original->first()->is_original)->toBeTrue()
+            ->and($original->first()->user_id)->toBe($user->id)
+            ->and($original->first()->code)->toBe($difficulty->code);
+    }
+
     Storage::disk('local')->assertExists($chart->maidata_path);
     Storage::disk('local')->assertExists($chart->art_path);
     Storage::disk('local')->assertExists($chart->track_path);
