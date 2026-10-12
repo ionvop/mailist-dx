@@ -396,3 +396,26 @@ gutter, highlighter, and textarea share one font metric so lines stay aligned.
 .simai-view .shiki {
     background: transparent !important;
 }
+
+.simai-status {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-background-accent);
+    padding: 0.375rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+}
+
+.simai-status-label {
+    color: var(--color-foreground-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.simai-status-value {
+    color: var(--color-foreground);
+    font-variant-numeric: tabular-nums;
+}
