@@ -28,12 +28,11 @@ class ChartDifficultyRevisionFactory extends Factory
     }
 
     /**
-     * Indicate that the revision is the original (pre-change) version.
+     * Indicate that the revision is the original (uploaded) version.
      */
     public function original(): static
     {
         return $this->state(fn (array $attributes) => [
-            'user_id' => null,
             'is_original' => true,
         ]);
     }
