@@ -27,11 +27,11 @@
                     <div>
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="text-sm font-semibold text-foreground">
-                                {{ $revision->is_original ? 'Original version' : ($revision->user?->username ?? 'Deleted user') }}
+                                {{ $revision->user?->username ?? 'Deleted user' }}
                             </span>
 
                             @if ($revision->is_original)
-                                <span class="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-300">Original</span>
+                                <span class="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-300">Uploaded</span>
                             @endif
 
                             @if ($isLatestRevision)
