@@ -119,6 +119,7 @@ test('the owner can update metadata and it is written to maidata', function () {
             'title' => 'Renamed Song',
             'artist' => 'New Artist',
             'audio_bpm' => '200',
+            'audio_offset' => '0.5',
             'tags' => 'updated, tags',
             'description' => 'A **new** description.',
         ])
@@ -130,6 +131,7 @@ test('the owner can update metadata and it is written to maidata', function () {
     expect($chart->title)->toBe('Renamed Song')
         ->and($chart->artist)->toBe('New Artist')
         ->and($chart->audio_bpm)->toBe('200')
+        ->and($chart->audio_offset)->toBe('0.5')
         ->and($chart->tags)->toBe(['updated', 'tags'])
         ->and($chart->description)->toBe('A **new** description.');
 
@@ -139,10 +141,53 @@ test('the owner can update metadata and it is written to maidata', function () {
         ->toContain('&title=Renamed Song')
         ->toContain('&artist=New Artist')
         ->toContain('&wholebpm=200')
+        ->toContain('&first=0.5')
         ->toContain('&tags=updated, tags');
 
     // The chart data must be preserved byte-for-byte.
     expect($maidata)->toContain('&inote_5=(180){4}1,2,3,4,5,');
+});
+
+test('an empty offset removes the &first tag', function () {
+    $owner = User::factory()->create();
+    $chart = uploadedChart($owner);
+
+    $this->actingAs($owner)
+        ->patch(route('charts.settings.update', $chart), [
+            'title' => 'Test Song',
+            'artist' => 'Test Artist',
+            'audio_offset' => '',
+        ])
+        ->assertRedirect();
+
+    $chart->refresh();
+
+    expect($chart->audio_offset)->toBeNull();
+
+    $maidata = Storage::disk('local')->get($chart->maidata_path);
+
+    expect($maidata)->not->toContain('&first=');
+});
+
+test('a negative offset is accepted', function () {
+    $owner = User::factory()->create();
+    $chart = uploadedChart($owner);
+
+    $this->actingAs($owner)
+        ->patch(route('charts.settings.update', $chart), [
+            'title' => 'Test Song',
+            'artist' => 'Test Artist',
+            'audio_offset' => '-0.25',
+        ])
+        ->assertRedirect();
+
+    $chart->refresh();
+
+    expect($chart->audio_offset)->toBe('-0.25');
+
+    $maidata = Storage::disk('local')->get($chart->maidata_path);
+
+    expect($maidata)->toContain('&first=-0.25');
 });
 
 test('a non-owner cannot update metadata', function () {
