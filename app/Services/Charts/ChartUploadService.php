@@ -80,6 +80,7 @@ class ChartUploadService
             'illustrator_link' => $maidata->illustratorLink,
             'note_designer' => $maidata->noteDesigner,
             'audio_bpm' => $maidata->audioBpm,
+            'audio_offset' => $maidata->audioOffset,
             'info' => $maidata->info,
             'tags' => $maidata->tags,
             'description' => $attributes['description'] ?? null,
