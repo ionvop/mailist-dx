@@ -127,6 +127,29 @@ test('an editor can resolve a suggestion with a remark and a linked revision', f
         ->and($improvement->revision_id)->toBe($revision->id);
 });
 
+test('a resolved suggestion links to its revision on the history tab', function () {
+    $owner = User::factory()->create();
+    $difficulty = improvementDifficultyFor($owner);
+    $revision = ChartDifficultyRevision::factory()->for($difficulty, 'difficulty')->create(['revision_number' => 2]);
+
+    $improvement = ChartDifficultyImprovement::factory()->for($difficulty, 'difficulty')->create([
+        'status' => ImprovementStatus::Resolved,
+        'resolution_note' => 'Fixed.',
+        'resolved_by' => $owner->id,
+        'resolved_at' => now(),
+        'revision_id' => $revision->id,
+    ]);
+
+    $expected = route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'history'])
+        .'?revision='.$revision->id.'#revision-'.$revision->id;
+
+    $this->actingAs($owner)
+        ->get(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'improvements']))
+        ->assertOk()
+        ->assertSee('revision #2')
+        ->assertSee($expected, false);
+});
+
 test('an editor can reject a suggestion with a reason', function () {
     $owner = User::factory()->create();
     $difficulty = improvementDifficultyFor($owner);
