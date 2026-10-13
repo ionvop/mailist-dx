@@ -82,6 +82,16 @@ class User extends Authenticatable
     }
 
     /**
+     * The difficulty improvement suggestions posted by the user.
+     *
+     * @return HasMany<ChartDifficultyImprovement, $this>
+     */
+    public function improvements(): HasMany
+    {
+        return $this->hasMany(ChartDifficultyImprovement::class);
+    }
+
+    /**
      * Public URL for the user's avatar, or null when none is set.
      */
     protected function avatarUrl(): Attribute
