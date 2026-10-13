@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'difficulty_id',
     'user_id',
+    'revision_number',
     'code',
     'is_original',
 ])]
@@ -40,6 +41,7 @@ class ChartDifficultyRevision extends Model
     protected function casts(): array
     {
         return [
+            'revision_number' => 'integer',
             'is_original' => 'boolean',
             'created_at' => 'datetime',
         ];
