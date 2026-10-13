@@ -22,6 +22,7 @@ class ChartDifficultyRevisionFactory extends Factory
         return [
             'difficulty_id' => ChartDifficulty::factory(),
             'user_id' => User::factory(),
+            'revision_number' => 1,
             'code' => '(120){1}1,2,3,4,',
             'is_original' => false,
         ];
