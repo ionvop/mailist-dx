@@ -92,6 +92,16 @@ class User extends Authenticatable
     }
 
     /**
+     * The difficulty comments written by the user.
+     *
+     * @return HasMany<ChartDifficultyComment, $this>
+     */
+    public function difficultyComments(): HasMany
+    {
+        return $this->hasMany(ChartDifficultyComment::class);
+    }
+
+    /**
      * Public URL for the user's avatar, or null when none is set.
      */
     protected function avatarUrl(): Attribute
