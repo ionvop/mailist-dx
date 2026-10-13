@@ -1,9 +1,12 @@
 @php
+    $canManage = $chart->isOwnedBy($currentUser ?? null);
+
     $tabs = [
         ['label' => 'Code', 'tab' => 'code'],
         ['label' => 'Improvements', 'tab' => 'improvements'],
         ['label' => 'Comments', 'tab' => 'comments'],
         ['label' => 'History', 'tab' => 'history'],
+        ['label' => 'Settings', 'tab' => 'settings', 'ownerOnly' => true],
     ];
 
     $color = fn ($difficulty) => $difficulty->difficulty_color
@@ -50,10 +53,16 @@
     {{-- Tabs --}}
     <div class="mt-4 flex gap-1 overflow-x-auto border-b border-border">
         @foreach ($tabs as $item)
-            <a href="{{ route('charts.difficulties.show', [$chart, $difficulty, $item['tab']]) }}"
-                class="border-b-2 px-4 py-2 text-sm font-semibold transition {{ $activeTab === $item['tab'] ? 'border-primary-accent text-foreground' : 'border-transparent text-foreground-accent hover:text-foreground' }}">
-                {{ $item['label'] }}
-            </a>
+            @if (($item['ownerOnly'] ?? false) && ! $canManage)
+                <span class="border-b-2 border-transparent px-4 py-2 text-sm font-semibold text-foreground-accent/60">
+                    {{ $item['label'] }}
+                </span>
+            @else
+                <a href="{{ route('charts.difficulties.show', [$chart, $difficulty, $item['tab']]) }}"
+                    class="border-b-2 px-4 py-2 text-sm font-semibold transition {{ $activeTab === $item['tab'] ? 'border-primary-accent text-foreground' : 'border-transparent text-foreground-accent hover:text-foreground' }}">
+                    {{ $item['label'] }}
+                </a>
+            @endif
         @endforeach
     </div>
 </div>
