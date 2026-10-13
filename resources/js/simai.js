@@ -136,6 +136,20 @@ function caretTimeAt(timings, offset) {
 }
 
 /**
+ * Normalise line endings to `\n`.
+ *
+ * Stored chart code may use CRLF (Windows) line endings, but a `<textarea>`
+ * always reports its value with LF endings. Normalising up front keeps the
+ * component's `code` in sync with the textarea, so caret offsets (and the
+ * derived song time / line readout) line up on first load.
+ *
+ * @param {string} value
+ */
+function normalizeEol(value) {
+    return value.replace(/\r\n?/g, '\n');
+}
+
+/**
  * Format a duration in seconds as `M:SS.mmm`.
  *
  * @param {number} seconds
@@ -157,8 +171,8 @@ function formatTime(seconds) {
  */
 export function registerSimaiEditor(Alpine) {
     Alpine.data('simaiEditor', (initialCode = '', config = {}) => ({
-        code: initialCode,
-        original: initialCode,
+        code: normalizeEol(initialCode),
+        original: normalizeEol(initialCode),
         editing: false,
 
         bpm: Number(config.bpm) > 0 ? Number(config.bpm) : DEFAULT_BPM,
