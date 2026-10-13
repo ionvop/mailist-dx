@@ -44,14 +44,22 @@ class ChartDifficultyController extends Controller
 
         $chart->load(['uploader', 'difficulties']);
 
+        $canEdit = $chart->canEdit($request->user());
+
         return view('pages.charts.difficulty', [
             'chart' => $chart,
             'difficulty' => $difficulty,
             'activeTab' => $tab,
-            'canEdit' => $chart->canEdit($request->user()),
+            'canEdit' => $canEdit,
             'preview' => $this->previewConfig($chart, $difficulty),
             'revisions' => $tab === 'history'
                 ? $difficulty->revisions()->with('user')->paginate(self::REVISIONS_PER_PAGE)
+                : null,
+            'improvements' => $tab === 'improvements'
+                ? $difficulty->improvements()->with(['user', 'resolver', 'revision.user'])->get()
+                : null,
+            'revisionOptions' => $tab === 'improvements' && $canEdit
+                ? $difficulty->revisions()->with('user')->get()
                 : null,
         ]);
     }
