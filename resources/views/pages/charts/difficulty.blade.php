@@ -67,7 +67,7 @@
                 icon="history"
                 height="h-48" />
         @else
-            <x-revision-timeline :revisions="$revisions" :chart="$chart" :difficulty="$difficulty" :can-edit="$canEdit" />
+            <x-revision-timeline :revisions="$revisions" :chart="$chart" :difficulty="$difficulty" :can-edit="$canEdit" :focus-revision-id="$focusRevisionId ?? null" />
 
             <div class="mt-6">
                 {{ $revisions->links() }}
