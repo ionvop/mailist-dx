@@ -178,10 +178,17 @@ export function registerSimaiEditor(Alpine) {
         bpm: Number(config.bpm) > 0 ? Number(config.bpm) : DEFAULT_BPM,
         offset: Number(config.offset) || 0,
 
+        /** Whether the editor offers a "suggest improvement" action. */
+        suggest: Boolean(config.suggest),
+
         /** @type {{ pos: number, time: number }[]} */
         timings: [],
         caretTime: 0,
         caretLine: 1,
+
+        /** Current text selection, as character offsets into `code`. */
+        selectionStart: 0,
+        selectionEnd: 0,
 
         async init() {
             await this.highlight();
@@ -193,6 +200,10 @@ export function registerSimaiEditor(Alpine) {
 
         get lineCount() {
             return (this.code.match(/\n/g)?.length ?? 0) + 1;
+        },
+
+        get hasSelection() {
+            return this.selectionEnd > this.selectionStart;
         },
 
         get timeLabel() {
@@ -220,6 +231,45 @@ export function registerSimaiEditor(Alpine) {
 
             this.caretTime = caretTimeAt(this.timings, position);
             this.caretLine = (this.code.slice(0, position).match(/\n/g)?.length ?? 0) + 1;
+        },
+
+        /**
+         * Track the current text selection so the "suggest improvement"
+         * action can be offered when a range is selected.
+         */
+        updateSelection() {
+            const input = this.$refs.input;
+
+            if (! input) {
+                return;
+            }
+
+            this.selectionStart = input.selectionStart ?? 0;
+            this.selectionEnd = input.selectionEnd ?? 0;
+        },
+
+        /**
+         * Resolve the 1-indexed, inclusive line range covering the current
+         * selection and broadcast it so the improvement composer can open.
+         */
+        suggestSelection() {
+            if (! this.hasSelection) {
+                return;
+            }
+
+            const start = Math.min(this.selectionStart, this.selectionEnd);
+            const end = Math.max(this.selectionStart, this.selectionEnd);
+
+            const lineStart = (this.code.slice(0, start).match(/\n/g)?.length ?? 0) + 1;
+            const lineEnd = (this.code.slice(0, end).match(/\n/g)?.length ?? 0) + 1;
+
+            window.dispatchEvent(new CustomEvent('simai-suggest', {
+                detail: {
+                    lineStart,
+                    lineEnd,
+                    text: this.code.slice(start, end),
+                },
+            }));
         },
 
         startEditing() {
