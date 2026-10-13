@@ -74,6 +74,16 @@ class ChartDifficulty extends Model
     }
 
     /**
+     * The comments posted on this difficulty, newest first.
+     *
+     * @return HasMany<ChartDifficultyComment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(ChartDifficultyComment::class, 'difficulty_id')->latest('id');
+    }
+
+    /**
      * The display name for the difficulty, preferring a custom alias.
      */
     public function displayName(): string
