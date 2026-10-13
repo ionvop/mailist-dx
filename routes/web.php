@@ -7,8 +7,10 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Charts\ChartCollaboratorController;
 use App\Http\Controllers\Charts\ChartCommentController;
 use App\Http\Controllers\Charts\ChartController;
+use App\Http\Controllers\Charts\ChartDifficultyCommentController;
 use App\Http\Controllers\Charts\ChartDifficultyController;
 use App\Http\Controllers\Charts\ChartDifficultyImprovementController;
+use App\Http\Controllers\Charts\ChartDifficultySettingsController;
 use App\Http\Controllers\Charts\ChartFileController;
 use App\Http\Controllers\Charts\ChartSettingsController;
 use App\Http\Controllers\Charts\ChartUploadController;
@@ -73,6 +75,14 @@ Route::middleware('auth')->group(function () {
         ->name('charts.difficulties.improvements.update');
     Route::delete('/charts/{chart}/difficulties/{difficulty}/improvements/{improvement}', [ChartDifficultyImprovementController::class, 'destroy'])
         ->name('charts.difficulties.improvements.destroy');
+
+    Route::post('/charts/{chart}/difficulties/{difficulty}/comments', [ChartDifficultyCommentController::class, 'store'])
+        ->name('charts.difficulties.comments.store');
+    Route::delete('/charts/{chart}/difficulties/{difficulty}/comments/{comment}', [ChartDifficultyCommentController::class, 'destroy'])
+        ->name('charts.difficulties.comments.destroy');
+
+    Route::patch('/charts/{chart}/difficulties/{difficulty}/settings', [ChartDifficultySettingsController::class, 'update'])
+        ->name('charts.difficulties.settings.update');
 
     Route::get('/charts/{chart}/settings', [ChartSettingsController::class, 'edit'])->name('charts.settings');
     Route::patch('/charts/{chart}/settings', [ChartSettingsController::class, 'update'])->name('charts.settings.update');
