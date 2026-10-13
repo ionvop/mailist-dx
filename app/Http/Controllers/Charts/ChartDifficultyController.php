@@ -46,14 +46,22 @@ class ChartDifficultyController extends Controller
 
         $canEdit = $chart->canEdit($request->user());
 
+        $focusRevisionId = $tab === 'history' ? $this->focusRevisionId($request, $difficulty) : null;
+
         return view('pages.charts.difficulty', [
             'chart' => $chart,
             'difficulty' => $difficulty,
             'activeTab' => $tab,
             'canEdit' => $canEdit,
             'preview' => $this->previewConfig($chart, $difficulty),
+            'focusRevisionId' => $focusRevisionId,
             'revisions' => $tab === 'history'
-                ? $difficulty->revisions()->with('user')->paginate(self::REVISIONS_PER_PAGE)
+                ? $difficulty->revisions()->with('user')->paginate(
+                    self::REVISIONS_PER_PAGE,
+                    ['*'],
+                    'page',
+                    $this->revisionPage($difficulty, $focusRevisionId),
+                )
                 : null,
             'improvements' => $tab === 'improvements'
                 ? $difficulty->improvements()->with(['user', 'resolver', 'revision.user'])->get()
@@ -62,6 +70,41 @@ class ChartDifficultyController extends Controller
                 ? $difficulty->revisions()->with('user')->get()
                 : null,
         ]);
+    }
+
+    /**
+     * The revision id the history tab should jump to and expand, if any.
+     */
+    private function focusRevisionId(Request $request, ChartDifficulty $difficulty): ?int
+    {
+        $revisionId = $request->query('revision');
+
+        if (! is_numeric($revisionId)) {
+            return null;
+        }
+
+        $revisionId = (int) $revisionId;
+
+        $exists = $difficulty->revisions()->whereKey($revisionId)->exists();
+
+        return $exists ? $revisionId : null;
+    }
+
+    /**
+     * The pagination page that contains the given revision, defaulting to 1.
+     *
+     * Revisions are listed newest-first, so the offset counts how many later
+     * revisions exist before the target.
+     */
+    private function revisionPage(ChartDifficulty $difficulty, ?int $revisionId): int
+    {
+        if ($revisionId === null) {
+            return 1;
+        }
+
+        $offset = $difficulty->revisions()->where('id', '>', $revisionId)->count();
+
+        return intdiv($offset, self::REVISIONS_PER_PAGE) + 1;
     }
 
     /**
