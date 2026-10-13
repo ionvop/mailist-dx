@@ -251,6 +251,10 @@ export function registerSimaiEditor(Alpine) {
         /**
          * Resolve the 1-indexed, inclusive line range covering the current
          * selection and broadcast it so the improvement composer can open.
+         *
+         * The preview text is the FULL lines spanned by the selection (clamped
+         * to the code bounds) rather than the raw highlighted characters, so it
+         * matches the snippet the server extracts from the same line range.
          */
         suggestSelection() {
             if (! this.hasSelection) {
@@ -263,11 +267,15 @@ export function registerSimaiEditor(Alpine) {
             const lineStart = (this.code.slice(0, start).match(/\n/g)?.length ?? 0) + 1;
             const lineEnd = (this.code.slice(0, end).match(/\n/g)?.length ?? 0) + 1;
 
+            const lines = this.code.split('\n');
+            const from = Math.max(1, Math.min(lineStart, lines.length));
+            const to = Math.max(from, Math.min(lineEnd, lines.length));
+
             window.dispatchEvent(new CustomEvent('simai-suggest', {
                 detail: {
                     lineStart,
                     lineEnd,
-                    text: this.code.slice(start, end),
+                    text: lines.slice(from - 1, to).join('\n'),
                 },
             }));
         },
