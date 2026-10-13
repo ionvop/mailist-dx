@@ -27,9 +27,9 @@ function splitLines(value) {
  * @param {import('alpinejs').Alpine} Alpine
  */
 export function registerDiffViewer(Alpine) {
-    Alpine.data('diffViewer', (url) => ({
+    Alpine.data('diffViewer', (url, startExpanded = false) => ({
         url,
-        expanded: false,
+        expanded: startExpanded,
         status: 'idle', // idle | loading | ready | error
         error: '',
         mode: 'split', // split | unified
@@ -45,6 +45,12 @@ export function registerDiffViewer(Alpine) {
         added: 0,
         removed: 0,
         copied: false,
+
+        init() {
+            if (this.expanded) {
+                this.load();
+            }
+        },
 
         async toggle() {
             this.expanded = ! this.expanded;
