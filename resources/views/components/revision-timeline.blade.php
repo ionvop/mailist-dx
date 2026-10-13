@@ -3,6 +3,7 @@
     'chart',
     'difficulty',
     'canEdit' => false,
+    'focusRevisionId' => null,
 ])
 
 {{--
@@ -15,11 +16,14 @@
         @php
             $isLatestRevision = $loop->first && $revisions->onFirstPage();
             $isCurrentCode = $revision->code === $difficulty->code;
+            $isFocused = $focusRevisionId !== null && (int) $focusRevisionId === $revision->id;
             $lines = substr_count($revision->code, "\n") + 1;
             $lineLabel = number_format($lines).' '.($lines === 1 ? 'line' : 'lines');
         @endphp
 
-        <article x-data="{ confirm: false }" class="overflow-hidden rounded-2xl border border-border bg-background-accent/20">
+        <article id="revision-{{ $revision->id }}" x-data="{ confirm: false, focused: @js($isFocused) }"
+            x-init="if (focused) $nextTick(() => $el.scrollIntoView({ behavior: 'smooth', block: 'start' }))"
+            class="overflow-hidden rounded-2xl border border-border bg-background-accent/20 scroll-mt-24">
             <div class="flex flex-wrap items-start justify-between gap-3 p-4">
                 <div class="flex items-start gap-3">
                     <x-avatar :user="$revision->user" size="sm" />
@@ -27,7 +31,7 @@
                     <div>
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="text-sm font-semibold text-foreground">
-                                {{ $revision->user?->username ?? 'Deleted user' }}
+                                #{{ $revision->revision_number }} · {{ $revision->user?->username ?? 'Deleted user' }}
                             </span>
 
                             @if ($revision->is_original)
@@ -57,7 +61,7 @@
                 @endif
             </div>
 
-            <x-revision-diff :revision="$revision" :chart="$chart" :difficulty="$difficulty" />
+            <x-revision-diff :revision="$revision" :chart="$chart" :difficulty="$difficulty" :focus="$isFocused" />
 
             {{-- Restore confirmation modal --}}
             @if ($canEdit && ! $isCurrentCode)
