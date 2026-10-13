@@ -143,7 +143,7 @@ The is the page that opens when checking on a chart difficulty. It will have the
     - Right column: Chart preview
 - Improvements
     - Other users can select line(s) from the simai code for context and suggests improvements (e.g. ln 45-47 The note placements here doesn't match with the song. I suggest `1,2,3,,8,7,6,`)
-    - The editors can either reject the suggestion with a reason or mark the suggestion as resolved by selecting the lines that were changed in the new version and a remark.
+    - The editors can either reject the suggestion with a reason or mark the suggestion as resolved with a remark and can optionally select the history record where the suggestion was resolved to be shown.
 - Comments
 - History
     - Everytime a change is saved, the system saves a snapshot of the change.
