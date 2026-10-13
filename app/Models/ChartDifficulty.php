@@ -64,6 +64,16 @@ class ChartDifficulty extends Model
     }
 
     /**
+     * The improvement suggestions posted for this difficulty, newest first.
+     *
+     * @return HasMany<ChartDifficultyImprovement, $this>
+     */
+    public function improvements(): HasMany
+    {
+        return $this->hasMany(ChartDifficultyImprovement::class, 'difficulty_id')->latest('id');
+    }
+
+    /**
      * The display name for the difficulty, preferring a custom alias.
      */
     public function displayName(): string
