@@ -86,9 +86,9 @@
                 @if ($improvement->revision)
                     <p class="mt-2 text-xs text-foreground-accent">
                         Resolved in
-                        <a href="{{ route('charts.difficulties.show', [$chart, $difficulty, 'history']) }}"
+                        <a href="{{ route('charts.difficulties.show', [$chart, $difficulty, 'history']).'?revision='.$improvement->revision->id.'#revision-'.$improvement->revision->id }}"
                             class="font-medium text-foreground transition hover:text-primary-accent">
-                            revision #{{ $improvement->revision->id }}
+                            revision #{{ $improvement->revision->revision_number }}
                         </a>
                         @if ($improvement->revision->user)
                             by {{ $improvement->revision->user->username }}
@@ -138,7 +138,7 @@
                             <option value="">None</option>
                             @foreach ($revisionOptions ?? [] as $revision)
                                 <option value="{{ $revision->id }}">
-                                    #{{ $revision->id }} · {{ $revision->user?->username ?? 'Deleted user' }} · {{ $revision->created_at?->diffForHumans() }}
+                                    #{{ $revision->revision_number }} · {{ $revision->user?->username ?? 'Deleted user' }} · {{ $revision->created_at?->diffForHumans() }}
                                 </option>
                             @endforeach
                         </select>
