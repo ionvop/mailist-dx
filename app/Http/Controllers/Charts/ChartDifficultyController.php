@@ -20,7 +20,7 @@ class ChartDifficultyController extends Controller
     /**
      * Tabs available on the difficulty page.
      */
-    private const TABS = ['code', 'improvements', 'comments', 'history'];
+    private const TABS = ['code', 'improvements', 'comments', 'history', 'settings'];
 
     /**
      * Number of revisions shown per page on the history tab.
@@ -41,6 +41,10 @@ class ChartDifficultyController extends Controller
         $this->ensureBelongsToChart($chart, $difficulty);
 
         $tab = in_array($tab, self::TABS, true) ? $tab : 'code';
+
+        if ($tab === 'settings' && ! $chart->isOwnedBy($request->user())) {
+            throw new NotFoundHttpException;
+        }
 
         $chart->load(['uploader', 'difficulties']);
 
@@ -65,6 +69,9 @@ class ChartDifficultyController extends Controller
                 : null,
             'improvements' => $tab === 'improvements'
                 ? $difficulty->improvements()->with(['user', 'resolver', 'revision.user'])->get()
+                : null,
+            'comments' => $tab === 'comments'
+                ? $difficulty->comments()->with('user')->get()
                 : null,
             'revisionOptions' => $tab === 'improvements' && $canEdit
                 ? $difficulty->revisions()->with('user')->get()
