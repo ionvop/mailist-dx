@@ -4,6 +4,7 @@
     'readonly' => false,
     'bpm' => null,
     'offset' => null,
+    'suggest' => false,
 ])
 
 {{--
@@ -13,11 +14,27 @@
     placed (and text selected/copied) even without edit access; when `readonly`
     is set it is not submitted and cannot be changed. A status bar below the
     editor shows the song time at the caret.
+
+    When `suggest` is set, selecting a range of code reveals a floating
+    "Suggest improvement" button that broadcasts the selected line range so the
+    improvement composer can open.
 --}}
 <div
-    x-data="simaiEditor(@js($value), @js(['bpm' => $bpm, 'offset' => $offset]))"
-    class="overflow-hidden rounded-xl border border-border bg-background"
+    x-data="simaiEditor(@js($value), @js(['bpm' => $bpm, 'offset' => $offset, 'suggest' => $suggest]))"
+    class="relative overflow-hidden rounded-xl border border-border bg-background"
 >
+    @if ($suggest)
+        <button
+            type="button"
+            x-show="hasSelection"
+            x-cloak
+            @click="suggestSelection()"
+            class="absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-lg border border-primary-accent/50 bg-background/90 px-3 py-1.5 text-xs font-semibold text-foreground shadow-lg backdrop-blur transition hover:bg-primary-accent/10"
+        >
+            <x-lucide-message-square-plus class="h-3.5 w-3.5" /> Suggest improvement
+        </button>
+    @endif
+
     <div class="simai-scroll max-h-[36rem] overflow-auto">
         <div class="simai-editor">
             <pre
@@ -34,9 +51,10 @@
                     @unless ($readonly) name="{{ $name }}" @endunless
                     x-model="code"
                     @input.debounce.200ms="highlight()"
-                    @keyup="updateCaret()"
-                    @click="updateCaret()"
-                    @select="updateCaret()"
+                    @keyup="updateCaret(); updateSelection()"
+                    @click="updateCaret(); updateSelection()"
+                    @mouseup="updateSelection()"
+                    @select="updateCaret(); updateSelection()"
                     spellcheck="false"
                     autocapitalize="off"
                     autocomplete="off"
