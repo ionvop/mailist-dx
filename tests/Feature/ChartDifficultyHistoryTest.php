@@ -182,3 +182,87 @@ test('a guest cannot open the history tab', function () {
     $this->get(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'history']))
         ->assertRedirect(route('login'));
 });
+
+test('revisions are numbered sequentially per difficulty', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner, '1,2,3,4,');
+
+    $this->actingAs($owner)->patch(route('charts.difficulties.update', [$difficulty->chart, $difficulty]), ['code' => '4,5,6,7,']);
+    $this->actingAs($owner)->patch(route('charts.difficulties.update', [$difficulty->chart, $difficulty]), ['code' => '7,8,9,0,']);
+
+    $revisions = $difficulty->revisions()->reorder('id')->get();
+
+    expect($revisions->pluck('revision_number')->all())->toBe([1, 2, 3])
+        ->and($revisions->first()->is_original)->toBeTrue();
+});
+
+test('the history tab shows the revision number and an anchor for each record', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner, '1,2,3,4,');
+    $this->actingAs($owner)->patch(route('charts.difficulties.update', [$difficulty->chart, $difficulty]), ['code' => '4,5,6,7,']);
+
+    $latest = $difficulty->revisions()->first();
+
+    $this->actingAs($owner)
+        ->get(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'history']))
+        ->assertOk()
+        ->assertSee('#2')
+        ->assertSee('id="revision-'.$latest->id.'"', false);
+});
+
+test('the history tab jumps to the page containing the linked revision', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner, '1,2,3,4,');
+
+    // 25 revisions -> the target on page 1 scrolls off page 2.
+    for ($i = 1; $i <= 24; $i++) {
+        $this->actingAs($owner)->patch(route('charts.difficulties.update', [$difficulty->chart, $difficulty]), ['code' => "1,2,3,{$i},"]);
+    }
+
+    $target = $difficulty->revisions()->reorder('id')->first(); // oldest = #1
+
+    $response = $this->actingAs($owner)
+        ->get(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'history']).'?revision='.$target->id)
+        ->assertOk();
+
+    // The target is the oldest of 25, so it sits on page 2.
+    expect($response->viewData('revisions')->currentPage())->toBe(2)
+        ->and($response->viewData('focusRevisionId'))->toBe($target->id);
+
+    $response->assertSee('id="revision-'.$target->id.'"', false);
+});
+
+test('an unknown revision query is ignored', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner, '1,2,3,4,');
+    $this->actingAs($owner)->patch(route('charts.difficulties.update', [$difficulty->chart, $difficulty]), ['code' => '4,5,6,7,']);
+
+    $response = $this->actingAs($owner)
+        ->get(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'history']).'?revision=999999')
+        ->assertOk();
+
+    expect($response->viewData('focusRevisionId'))->toBeNull()
+        ->and($response->viewData('revisions')->currentPage())->toBe(1);
+});
+
+test('a collaborator can restore a revision authored by another user', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner, '1,2,3,4,');
+
+    $editor = User::factory()->create();
+    $difficulty->chart->collaborators()->attach($editor);
+
+    // A different user makes a change...
+    $this->actingAs($editor)->patch(route('charts.difficulties.update', [$difficulty->chart, $difficulty]), ['code' => '4,5,6,7,']);
+    $byEditor = $difficulty->revisions()->first();
+
+    // ...the owner changes the code again...
+    $this->actingAs($owner)->patch(route('charts.difficulties.update', [$difficulty->chart, $difficulty]), ['code' => '9,9,9,9,']);
+
+    // ...and then restores the revision the *editor* authored.
+    $this->actingAs($owner)
+        ->post(route('charts.difficulties.revisions.restore', [$difficulty->chart, $difficulty, $byEditor]))
+        ->assertRedirect(route('charts.difficulties.show', [$difficulty->chart, $difficulty]));
+
+    expect($difficulty->fresh()->code)->toBe('4,5,6,7,');
+});
