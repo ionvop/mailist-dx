@@ -2,6 +2,7 @@
     'revision',
     'chart',
     'difficulty',
+    'focus' => false,
 ])
 
 @php
@@ -12,8 +13,10 @@
     Collapsible diff panel for a single revision. The `diffViewer` Alpine
     component (resources/js/diff.js) lazily fetches the revision and its
     predecessor and renders a side-by-side diff with a unified fallback.
+    When `focus` is true the panel opens (and loads) on mount, so a deep link
+    from the Improvements tab lands with the changes already expanded.
 --}}
-<div x-data="diffViewer(@js($diffUrl))">
+<div x-data="diffViewer(@js($diffUrl), @js($focus))">
     <div class="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 px-4 py-2.5">
         <button type="button" @click="toggle()"
             class="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground-accent transition hover:text-foreground">
