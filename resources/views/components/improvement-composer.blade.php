@@ -59,7 +59,7 @@
                 <input type="hidden" name="line_end" :value="lineEnd ?? ''">
 
                 <x-textarea name="body" label="Your suggestion" rows="4"
-                    placeholder="e.g. The note placements here don't match the song. I suggest 1,2,3,,8,7,6," required />
+                    placeholder="e.g. The note placements here don't match the song. I suggest 1,1,4,5,1,1,4," required />
 
                 <div class="flex items-center justify-end gap-3">
                     <button type="button" @click="open = false"
