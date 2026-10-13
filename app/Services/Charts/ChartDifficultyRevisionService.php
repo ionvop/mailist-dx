@@ -21,6 +21,7 @@ class ChartDifficultyRevisionService
     {
         return $difficulty->revisions()->create([
             'user_id' => $userId,
+            'revision_number' => $this->nextRevisionNumber($difficulty),
             'code' => $code,
             'is_original' => true,
         ]);
@@ -49,8 +50,17 @@ class ChartDifficultyRevisionService
 
         return $difficulty->revisions()->create([
             'user_id' => $userId,
+            'revision_number' => $this->nextRevisionNumber($difficulty),
             'code' => $after,
             'is_original' => false,
         ]);
+    }
+
+    /**
+     * The next per-difficulty sequence number (1, 2, 3, ...).
+     */
+    private function nextRevisionNumber(ChartDifficulty $difficulty): int
+    {
+        return ((int) $difficulty->revisions()->max('revision_number')) + 1;
     }
 }
