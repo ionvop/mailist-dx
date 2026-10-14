@@ -43,6 +43,24 @@
                 </button>
             @endif
 
+            @if ($canEdit && $improvement->status !== \App\Enums\ImprovementStatus::Open)
+                <x-confirm-dialog
+                    :action="route('charts.difficulties.improvements.revoke', [$chart, $difficulty, $improvement])"
+                    method="PATCH"
+                    variant="primary"
+                    title="Revoke this resolution?"
+                    description="This reopens the suggestion and clears the remark and linked revision."
+                    confirm-label="Revoke resolution"
+                >
+                    <x-slot:trigger>
+                        <button type="button" @click="open = true"
+                            class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-foreground">
+                            <x-lucide-undo-2 class="h-3.5 w-3.5" /> Revoke
+                        </button>
+                    </x-slot:trigger>
+                </x-confirm-dialog>
+            @endif
+
             @if ($isAuthor)
                 <x-confirm-dialog
                     :action="route('charts.difficulties.improvements.destroy', [$chart, $difficulty, $improvement])"
