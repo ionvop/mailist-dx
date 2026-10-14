@@ -20,9 +20,7 @@
 
             <div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <span class="text-sm font-semibold text-foreground">
-                        {{ $improvement->user?->username ?? 'Deleted user' }}
-                    </span>
+                    <x-username :user="$improvement->user" class="text-sm font-semibold" />
 
                     <x-status-badge :status="$improvement->status" />
                 </div>
@@ -78,7 +76,7 @@
                 <p class="text-xs font-semibold uppercase tracking-wide text-foreground-accent">
                     {{ $improvement->status === \App\Enums\ImprovementStatus::Resolved ? 'Resolved' : 'Rejected' }}
                     @if ($improvement->resolver)
-                        by {{ $improvement->resolver->username }}
+                        by <x-username :user="$improvement->resolver" />
                     @endif
                 </p>
                 <p class="mt-1 whitespace-pre-line text-foreground">{{ $improvement->resolution_note }}</p>
@@ -91,7 +89,7 @@
                             revision #{{ $improvement->revision->revision_number }}
                         </a>
                         @if ($improvement->revision->user)
-                            by {{ $improvement->revision->user->username }}
+                            by <x-username :user="$improvement->revision->user" />
                         @endif
                     </p>
                 @endif
