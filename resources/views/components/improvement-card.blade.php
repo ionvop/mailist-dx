@@ -44,14 +44,19 @@
             @endif
 
             @if ($isAuthor)
-                <form method="POST" action="{{ route('charts.difficulties.improvements.destroy', [$chart, $difficulty, $improvement]) }}">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit"
-                        class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-destructive">
-                        <x-lucide-trash-2 class="h-3.5 w-3.5" /> Delete
-                    </button>
-                </form>
+                <x-confirm-dialog
+                    :action="route('charts.difficulties.improvements.destroy', [$chart, $difficulty, $improvement])"
+                    title="Delete this suggestion?"
+                    description="This permanently removes your improvement suggestion. This cannot be undone."
+                    confirm-label="Delete suggestion"
+                >
+                    <x-slot:trigger>
+                        <button type="button" @click="open = true"
+                            class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-destructive">
+                            <x-lucide-trash-2 class="h-3.5 w-3.5" /> Delete
+                        </button>
+                    </x-slot:trigger>
+                </x-confirm-dialog>
             @endif
         </div>
     </div>
