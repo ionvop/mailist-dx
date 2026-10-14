@@ -161,15 +161,19 @@
                                 <x-username :user="$collaborator" class="truncate text-sm" />
                             </div>
 
-                            <form method="POST"
-                                action="{{ route('charts.settings.collaborators.destroy', [$chart, $collaborator]) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                    class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background-accent px-3 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/10">
-                                    <x-lucide-x class="h-3.5 w-3.5" /> Remove
-                                </button>
-                            </form>
+                            <x-confirm-dialog
+                                :action="route('charts.settings.collaborators.destroy', [$chart, $collaborator])"
+                                title="Remove this collaborator?"
+                                description="They will lose access to this chart. This cannot be undone."
+                                confirm-label="Remove"
+                            >
+                                <x-slot:trigger>
+                                    <button type="button" @click="open = true"
+                                        class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background-accent px-3 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/10">
+                                        <x-lucide-x class="h-3.5 w-3.5" /> Remove
+                                    </button>
+                                </x-slot:trigger>
+                            </x-confirm-dialog>
                         </li>
                     @endforeach
                 </ul>
@@ -236,7 +240,7 @@
         </form>
 
         {{-- Danger zone --}}
-        <div class="rounded-2xl border border-destructive/40 bg-destructive/5 p-6 sm:p-8" x-data="{ confirm: false }">
+        <div class="rounded-2xl border border-destructive/40 bg-destructive/5 p-6 sm:p-8">
             <div class="flex items-start gap-3">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/15">
                     <x-lucide-alert-triangle class="h-5 w-5 text-destructive" />
@@ -250,36 +254,19 @@
             </div>
 
             <div class="mt-6 flex justify-end">
-                <button type="button" @click="confirm = true"
-                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-destructive/50 bg-background px-4 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/10">
-                    <x-lucide-trash-2 class="h-4 w-4" /> Delete chart
-                </button>
-            </div>
-
-            {{-- Confirmation modal --}}
-            <div x-show="confirm" x-cloak x-transition.opacity
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-                @keydown.escape.window="confirm = false">
-                <div class="w-full max-w-md rounded-2xl border border-border bg-background p-6 shadow-2xl" @click.outside="confirm = false">
-                    <h2 class="text-lg font-bold text-foreground">Delete “{{ $chart->title }}”?</h2>
-                    <p class="mt-1 text-sm text-foreground-accent">
-                        This permanently removes the chart and all of its files. This cannot be undone.
-                    </p>
-
-                    <form method="POST" action="{{ route('charts.destroy', $chart) }}" class="mt-6 flex items-center justify-end gap-3">
-                        @csrf
-                        @method('DELETE')
-
-                        <button type="button" @click="confirm = false"
-                            class="inline-flex items-center justify-center rounded-lg border border-border bg-background-accent px-4 py-2.5 text-sm font-semibold text-foreground transition hover:bg-accent">
-                            Cancel
+                <x-confirm-dialog
+                    :action="route('charts.destroy', $chart)"
+                    title="Delete “{{ $chart->title }}”?"
+                    description="This permanently removes the chart and all of its files. This cannot be undone."
+                    confirm-label="Delete chart"
+                >
+                    <x-slot:trigger>
+                        <button type="button" @click="open = true"
+                            class="inline-flex items-center justify-center gap-2 rounded-lg border border-destructive/50 bg-background px-4 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/10">
+                            <x-lucide-trash-2 class="h-4 w-4" /> Delete chart
                         </button>
-                        <button type="submit"
-                            class="inline-flex items-center justify-center rounded-lg bg-destructive px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110">
-                            Delete chart
-                        </button>
-                    </form>
-                </div>
+                    </x-slot:trigger>
+                </x-confirm-dialog>
             </div>
         </div>
     </div>
