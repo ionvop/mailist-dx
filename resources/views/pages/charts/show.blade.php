@@ -85,12 +85,6 @@
                             <x-local-time :value="$chart->created_at" />
                         </dd>
                     </div>
-                    <div>
-                        <dt class="text-foreground-accent">Uploaded</dt>
-                        <dd class="font-medium text-foreground">
-                            <x-local-time :value="$chart->created_at" />
-                        </dd>
-                    </div>
                 </dl>
             </div>
 
