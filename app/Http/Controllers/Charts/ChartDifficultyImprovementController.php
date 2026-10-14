@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Charts;
 
+use App\Enums\ImprovementStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Charts\StoreImprovementRequest;
 use App\Http\Requests\Charts\UpdateImprovementRequest;
@@ -70,6 +71,26 @@ class ChartDifficultyImprovementController extends Controller
         ]);
 
         return back()->with('status', 'The suggestion has been updated.');
+    }
+
+    /**
+     * Revoke a resolution, reopening the suggestion. Editors only.
+     */
+    public function revoke(Request $request, Chart $chart, ChartDifficulty $difficulty, ChartDifficultyImprovement $improvement): RedirectResponse
+    {
+        $this->ensureEditable($request, $chart);
+        $this->ensureBelongsToChart($chart, $difficulty);
+        $this->ensureImprovementBelongsToDifficulty($difficulty, $improvement);
+
+        $improvement->update([
+            'status' => ImprovementStatus::Open,
+            'resolution_note' => null,
+            'resolved_by' => null,
+            'resolved_at' => null,
+            'revision_id' => null,
+        ]);
+
+        return back()->with('status', 'The resolution has been revoked.');
     }
 
     /**
