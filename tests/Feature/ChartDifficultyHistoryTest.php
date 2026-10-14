@@ -266,3 +266,107 @@ test('a collaborator can restore a revision authored by another user', function 
 
     expect($difficulty->fresh()->code)->toBe('4,5,6,7,');
 });
+
+test('the author can add a note to their revision', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner, '1,2,3,4,');
+    $this->actingAs($owner)->patch(route('charts.difficulties.update', [$difficulty->chart, $difficulty]), ['code' => '4,5,6,7,']);
+
+    $revision = $difficulty->revisions()->first();
+
+    $this->actingAs($owner)
+        ->patch(route('charts.difficulties.revisions.note.update', [$difficulty->chart, $difficulty, $revision]), [
+            'note' => 'Fixed the final stream.',
+        ])
+        ->assertRedirect();
+
+    expect($revision->fresh()->note)->toBe('Fixed the final stream.');
+});
+
+test('the author can update and clear a note', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner, '1,2,3,4,');
+    $revision = ChartDifficultyRevision::factory()->for($difficulty, 'difficulty')->for($owner)->withNote('First note')->create();
+
+    $this->actingAs($owner)
+        ->patch(route('charts.difficulties.revisions.note.update', [$difficulty->chart, $difficulty, $revision]), [
+            'note' => 'Second note',
+        ])
+        ->assertRedirect();
+
+    expect($revision->fresh()->note)->toBe('Second note');
+
+    $this->actingAs($owner)
+        ->patch(route('charts.difficulties.revisions.note.update', [$difficulty->chart, $difficulty, $revision]), [
+            'note' => null,
+        ])
+        ->assertRedirect();
+
+    expect($revision->fresh()->note)->toBeNull();
+});
+
+test('a user who did not author the revision cannot edit its note', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner, '1,2,3,4,');
+    $revision = ChartDifficultyRevision::factory()->for($difficulty, 'difficulty')->create();
+
+    $this->actingAs(User::factory()->create())
+        ->patch(route('charts.difficulties.revisions.note.update', [$difficulty->chart, $difficulty, $revision]), [
+            'note' => 'Not mine to edit.',
+        ])
+        ->assertForbidden();
+
+    expect($revision->fresh()->note)->toBeNull();
+});
+
+test('a note longer than 255 characters is rejected', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner, '1,2,3,4,');
+    $revision = ChartDifficultyRevision::factory()->for($difficulty, 'difficulty')->for($owner)->create();
+
+    $this->actingAs($owner)
+        ->patch(route('charts.difficulties.revisions.note.update', [$difficulty->chart, $difficulty, $revision]), [
+            'note' => str_repeat('a', 256),
+        ])
+        ->assertSessionHasErrors('note');
+
+    expect($revision->fresh()->note)->toBeNull();
+});
+
+test('a revision belonging to another difficulty cannot have its note edited', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner);
+    $foreign = ChartDifficultyRevision::factory()
+        ->for(ChartDifficulty::factory()->for(Chart::factory()->for($owner, 'uploader')), 'difficulty')
+        ->create();
+
+    $this->actingAs($owner)
+        ->patch(route('charts.difficulties.revisions.note.update', [$difficulty->chart, $difficulty, $foreign]), [
+            'note' => 'Wrong difficulty.',
+        ])
+        ->assertNotFound();
+});
+
+test('the history tab shows the note and an edit affordance to its author', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner, '1,2,3,4,');
+    $revision = ChartDifficultyRevision::factory()->for($difficulty, 'difficulty')->for($owner)->withNote('Tweaked the intro.')->create();
+
+    $this->actingAs($owner)
+        ->get(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'history']))
+        ->assertOk()
+        ->assertSee('Tweaked the intro.')
+        ->assertSee('Edit note');
+});
+
+test('the history tab shows a note to other viewers without an edit affordance', function () {
+    $owner = User::factory()->create();
+    $difficulty = difficultyFor($owner, '1,2,3,4,');
+    ChartDifficultyRevision::factory()->for($difficulty, 'difficulty')->withNote('Tweaked the intro.')->create();
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'history']))
+        ->assertOk()
+        ->assertSee('Tweaked the intro.')
+        ->assertDontSee('Edit note');
+});
