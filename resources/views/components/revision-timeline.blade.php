@@ -31,7 +31,7 @@
                     <div>
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="text-sm font-semibold text-foreground">
-                                #{{ $revision->revision_number }} · {{ $revision->user?->username ?? 'Deleted user' }}
+                                #{{ $revision->revision_number }} · <x-username :user="$revision->user" />
                             </span>
 
                             @if ($revision->is_original)
