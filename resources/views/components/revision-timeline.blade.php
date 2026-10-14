@@ -9,7 +9,9 @@
 {{--
     Timeline of code snapshots for a difficulty. Each entry shows who saved the
     change and when, and (for editors) offers a confirm-guarded restore action
-    plus an expandable diff against the previous snapshot.
+    plus an expandable diff against the previous snapshot. The author of a
+    revision may also annotate it with an optional note, like a git commit
+    message, which can be filled in after the change was saved.
 --}}
 <div {{ $attributes->class(['space-y-3']) }}>
     @foreach ($revisions as $revision)
@@ -17,11 +19,12 @@
             $isLatestRevision = $loop->first && $revisions->onFirstPage();
             $isCurrentCode = $revision->code === $difficulty->code;
             $isFocused = $focusRevisionId !== null && (int) $focusRevisionId === $revision->id;
+            $isAuthor = $revision->user_id !== null && $revision->user_id === $currentUser?->id;
             $lines = substr_count($revision->code, "\n") + 1;
             $lineLabel = number_format($lines).' '.($lines === 1 ? 'line' : 'lines');
         @endphp
 
-        <article id="revision-{{ $revision->id }}" x-data="{ confirm: false, focused: @js($isFocused) }"
+        <article id="revision-{{ $revision->id }}" x-data="{ confirm: false, editing: false, focused: @js($isFocused) }"
             x-init="if (focused) $nextTick(() => $el.scrollIntoView({ behavior: 'smooth', block: 'start' }))"
             class="overflow-hidden rounded-2xl border border-border bg-background-accent/20 scroll-mt-24">
             <div class="flex flex-wrap items-start justify-between gap-3 p-4">
@@ -55,6 +58,48 @@
                         class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground-accent transition hover:border-primary-accent/50 hover:text-foreground">
                         <x-lucide-history class="h-3.5 w-3.5" /> Restore
                     </button>
+                @endif
+            </div>
+
+            {{-- Optional author note, editable inline by the revision's author --}}
+            <div class="px-4 pb-4">
+                @if ($isAuthor)
+                    <div x-show="! editing" class="space-y-1.5">
+                        @if ($revision->note)
+                            <p class="whitespace-pre-line text-sm text-foreground">{{ $revision->note }}</p>
+                        @endif
+
+                        <button type="button" @click="editing = true"
+                            class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-foreground">
+                            <x-lucide-pencil class="h-3.5 w-3.5" /> {{ $revision->note ? 'Edit note' : 'Add a note' }}
+                        </button>
+                    </div>
+
+                    <form x-show="editing" x-cloak method="POST"
+                        action="{{ route('charts.difficulties.revisions.note.update', [$chart, $difficulty, $revision]) }}"
+                        class="space-y-2">
+                        @csrf
+                        @method('PATCH')
+
+                        <x-input name="note" :value="$revision->note" maxlength="255"
+                            placeholder="Summarise this change (optional)" />
+
+                        @error('note')
+                            <x-alert variant="error">{{ $message }}</x-alert>
+                        @enderror
+
+                        <div class="flex justify-end gap-2">
+                            <button type="button" @click="editing = false"
+                                class="inline-flex items-center justify-center rounded-lg border border-border bg-background-accent px-3 py-1.5 text-xs font-semibold text-foreground transition hover:bg-accent">
+                                Cancel
+                            </button>
+                            <x-button type="submit" class="w-auto">
+                                <x-lucide-save class="h-3.5 w-3.5" /> Save note
+                            </x-button>
+                        </div>
+                    </form>
+                @elseif ($revision->note)
+                    <p class="whitespace-pre-line text-sm text-foreground">{{ $revision->note }}</p>
                 @endif
             </div>
 
