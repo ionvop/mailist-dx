@@ -43,14 +43,20 @@
                         <x-local-time :value="$comment->created_at" class="text-foreground-accent" />
 
                         @if ($comment->user_id === $currentUser?->id)
-                            <form method="POST" action="{{ route('charts.comments.destroy', [$chart, $comment]) }}" class="ml-auto">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                    class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-destructive">
-                                    <x-lucide-trash-2 class="h-3.5 w-3.5" /> Delete
-                                </button>
-                            </form>
+                            <x-confirm-dialog
+                                :action="route('charts.comments.destroy', [$chart, $comment])"
+                                title="Delete this comment?"
+                                description="This permanently removes your comment from the chart. This cannot be undone."
+                                confirm-label="Delete comment"
+                                class="ml-auto"
+                            >
+                                <x-slot:trigger>
+                                    <button type="button" @click="open = true"
+                                        class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-destructive">
+                                        <x-lucide-trash-2 class="h-3.5 w-3.5" /> Delete
+                                    </button>
+                                </x-slot:trigger>
+                            </x-confirm-dialog>
                         @endif
                     </div>
 
