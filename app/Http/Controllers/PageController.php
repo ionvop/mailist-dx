@@ -63,7 +63,7 @@ class PageController extends Controller
 
         return view('pages.settings', [
             'canChangeUsername' => $user?->canChangeUsername() ?? false,
-            'usernameAvailableAt' => $user?->usernameChangeAvailableAt()->toIso8601String(),
+            'usernameAvailableAt' => $user?->usernameChangeAvailableAt()->utc()->toIso8601String(),
         ]);
     }
 
