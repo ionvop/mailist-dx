@@ -97,7 +97,7 @@ declared once rather than behind a `.dark` class.
 @theme {
     --font-sans: 'THICCCBOI', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-mono: 'RenoMono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
     --color-background: hsl(210 100% 4%);
     --color-background-accent: hsl(210 41% 9%);
