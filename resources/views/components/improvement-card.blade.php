@@ -26,10 +26,7 @@
                 </div>
 
                 <p class="mt-0.5 text-xs text-foreground-accent">
-                    <time datetime="{{ $improvement->created_at?->toIso8601String() }}"
-                        title="{{ $improvement->created_at?->toDayDateTimeString() }}">
-                        {{ $improvement->created_at?->diffForHumans() ?? 'Unknown time' }}
-                    </time>
+                    <x-local-time :value="$improvement->created_at" />
                 </p>
             </div>
         </div>
