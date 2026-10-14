@@ -24,6 +24,7 @@ class ChartDifficultyRevisionFactory extends Factory
             'user_id' => User::factory(),
             'revision_number' => 1,
             'code' => '(120){1}1,2,3,4,',
+            'note' => null,
             'is_original' => false,
         ];
     }
@@ -35,6 +36,16 @@ class ChartDifficultyRevisionFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'is_original' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the revision carries an author note.
+     */
+    public function withNote(string $note): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'note' => $note,
         ]);
     }
 }
