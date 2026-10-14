@@ -15,12 +15,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * attributed to the uploader. A revision is then recorded every time the code
  * changes. Restoring an old revision does not rewrite history — it appends a
  * new revision.
+ *
+ * The `note` is the one field that may be changed after creation: the author
+ * can annotate their own revision with a short summary, like a git commit
+ * message, at any time.
  */
 #[Fillable([
     'difficulty_id',
     'user_id',
     'revision_number',
     'code',
+    'note',
     'is_original',
 ])]
 class ChartDifficultyRevision extends Model
