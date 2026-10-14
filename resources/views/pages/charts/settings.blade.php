@@ -158,7 +158,7 @@
                                         {{ $collaborator->initial() }}
                                     </span>
                                 @endif
-                                <span class="truncate text-sm font-medium text-foreground">{{ $collaborator->username }}</span>
+                                <x-username :user="$collaborator" class="truncate text-sm" />
                             </div>
 
                             <form method="POST"
