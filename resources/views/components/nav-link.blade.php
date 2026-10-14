@@ -31,7 +31,9 @@
         'default' => 'h-5 w-5 shrink-0',
         'emphasized' => 'h-5 w-5 shrink-0',
         'compact' => 'h-5 w-5 shrink-0',
-        'circle' => 'h-6 w-6 shrink-0 text-primary-accent',
+        'circle' => $active
+            ? 'h-6 w-6 shrink-0 text-primary-foreground'
+            : 'h-6 w-6 shrink-0 text-primary-accent',
     ];
 
     $layout = $layouts[$variant] ?? $layouts['default'];
