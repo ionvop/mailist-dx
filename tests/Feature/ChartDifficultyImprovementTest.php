@@ -198,6 +198,51 @@ test('a non-editor cannot resolve a suggestion', function () {
     expect($improvement->refresh()->status)->toBe(ImprovementStatus::Open);
 });
 
+test('an editor can revoke a resolution and reopen the suggestion', function () {
+    $owner = User::factory()->create();
+    $difficulty = improvementDifficultyFor($owner);
+    $revision = ChartDifficultyRevision::factory()->for($difficulty, 'difficulty')->create();
+    $improvement = ChartDifficultyImprovement::factory()->for($difficulty, 'difficulty')->resolved()->create([
+        'revision_id' => $revision->id,
+    ]);
+
+    $this->actingAs($owner)
+        ->patch(route('charts.difficulties.improvements.revoke', [$difficulty->chart, $difficulty, $improvement]))
+        ->assertRedirect()
+        ->assertSessionHas('status');
+
+    $improvement->refresh();
+
+    expect($improvement->status)->toBe(ImprovementStatus::Open)
+        ->and($improvement->resolution_note)->toBeNull()
+        ->and($improvement->resolved_by)->toBeNull()
+        ->and($improvement->resolved_at)->toBeNull()
+        ->and($improvement->revision_id)->toBeNull();
+});
+
+test('an editor can revoke a rejection', function () {
+    $owner = User::factory()->create();
+    $difficulty = improvementDifficultyFor($owner);
+    $improvement = ChartDifficultyImprovement::factory()->for($difficulty, 'difficulty')->rejected()->create();
+
+    $this->actingAs($owner)
+        ->patch(route('charts.difficulties.improvements.revoke', [$difficulty->chart, $difficulty, $improvement]))
+        ->assertRedirect();
+
+    expect($improvement->refresh()->status)->toBe(ImprovementStatus::Open);
+});
+
+test('a non-editor cannot revoke a resolution', function () {
+    $difficulty = improvementDifficultyFor();
+    $improvement = ChartDifficultyImprovement::factory()->for($difficulty, 'difficulty')->resolved()->create();
+
+    $this->actingAs(User::factory()->create())
+        ->patch(route('charts.difficulties.improvements.revoke', [$difficulty->chart, $difficulty, $improvement]))
+        ->assertNotFound();
+
+    expect($improvement->refresh()->status)->toBe(ImprovementStatus::Resolved);
+});
+
 test('a revision from another difficulty cannot be linked', function () {
     $owner = User::factory()->create();
     $difficulty = improvementDifficultyFor($owner);
