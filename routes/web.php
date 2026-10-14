@@ -75,6 +75,8 @@ Route::middleware('auth')->group(function () {
         ->name('charts.difficulties.improvements.store');
     Route::patch('/charts/{chart}/difficulties/{difficulty}/improvements/{improvement}', [ChartDifficultyImprovementController::class, 'update'])
         ->name('charts.difficulties.improvements.update');
+    Route::patch('/charts/{chart}/difficulties/{difficulty}/improvements/{improvement}/revoke', [ChartDifficultyImprovementController::class, 'revoke'])
+        ->name('charts.difficulties.improvements.revoke');
     Route::delete('/charts/{chart}/difficulties/{difficulty}/improvements/{improvement}', [ChartDifficultyImprovementController::class, 'destroy'])
         ->name('charts.difficulties.improvements.destroy');
 
