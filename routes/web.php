@@ -68,6 +68,8 @@ Route::middleware('auth')->group(function () {
         ->name('charts.difficulties.revisions.diff');
     Route::post('/charts/{chart}/difficulties/{difficulty}/revisions/{revision}/restore', [ChartDifficultyController::class, 'restore'])
         ->name('charts.difficulties.revisions.restore');
+    Route::patch('/charts/{chart}/difficulties/{difficulty}/revisions/{revision}/note', [ChartDifficultyController::class, 'updateNote'])
+        ->name('charts.difficulties.revisions.note.update');
 
     Route::post('/charts/{chart}/difficulties/{difficulty}/improvements', [ChartDifficultyImprovementController::class, 'store'])
         ->name('charts.difficulties.improvements.store');
