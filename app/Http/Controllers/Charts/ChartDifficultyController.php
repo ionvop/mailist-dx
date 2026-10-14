@@ -208,7 +208,7 @@ class ChartDifficultyController extends Controller
             'code' => $revision->code,
             'is_original' => $revision->is_original,
             'author' => $revision->user?->username,
-            'created_at' => $revision->created_at?->toIso8601String(),
+            'created_at' => $revision->created_at?->utc()->toIso8601String(),
         ];
     }
 
