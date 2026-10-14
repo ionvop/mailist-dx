@@ -41,7 +41,7 @@
         {{-- Details --}}
         <div class="space-y-6">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
-                <div class="w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-background-accent/40 sm:w-64">
+                <div class="w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-background-accent/40 sm:w-78">
                     @if ($chart->art_path)
                         <img src="{{ route('charts.files', [$chart, 'art']) }}" alt="{{ $chart->title }} cover"
                             class="aspect-square w-full object-cover">
