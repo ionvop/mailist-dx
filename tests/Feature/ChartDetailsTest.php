@@ -34,6 +34,16 @@ test('the details page shows the note designer', function () {
         ->assertSee('Note Designer Name');
 });
 
+test('the details page shows when the chart was uploaded', function () {
+    $chart = Chart::factory()->create();
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('charts.show', $chart))
+        ->assertOk()
+        ->assertSee('Uploaded')
+        ->assertSee($chart->created_at->toIso8601String(), false);
+});
+
 test('the owner can view their private chart', function () {
     $owner = User::factory()->create();
     $chart = Chart::factory()->for($owner, 'uploader')->private()->create();
