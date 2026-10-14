@@ -38,7 +38,7 @@
                 <div class="rounded-xl border border-border bg-background-accent/40 p-4">
                     <div class="flex items-center gap-2 text-sm">
                         <x-avatar :user="$comment->user" size="sm" />
-                        <span class="font-medium text-foreground">{{ $comment->user->username }}</span>
+                        <x-username :user="$comment->user" />
                         <span class="text-foreground-accent">·</span>
                         <span class="text-foreground-accent">{{ $comment->created_at->diffForHumans() }}</span>
 
