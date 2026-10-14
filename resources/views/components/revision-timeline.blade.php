@@ -44,10 +44,7 @@
                         </div>
 
                         <p class="mt-0.5 text-xs text-foreground-accent">
-                            <time datetime="{{ $revision->created_at?->toIso8601String() }}"
-                                title="{{ $revision->created_at?->toDayDateTimeString() }}">
-                                {{ $revision->created_at?->diffForHumans() ?? 'Unknown time' }}
-                            </time>
+                            <x-local-time :value="$revision->created_at" />
                             · {{ $lineLabel }}
                         </p>
                     </div>
