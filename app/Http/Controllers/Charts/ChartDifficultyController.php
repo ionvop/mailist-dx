@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Charts;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Charts\UpdateChartDifficultyRequest;
+use App\Http\Requests\Charts\UpdateChartDifficultyRevisionNoteRequest;
 use App\Models\Chart;
 use App\Models\ChartDifficulty;
 use App\Models\ChartDifficultyRevision;
@@ -175,6 +176,25 @@ class ChartDifficultyController extends Controller
     }
 
     /**
+     * Set or clear the note on a revision. Only the author may edit it.
+     *
+     * The note is optional and may be filled in after the change was saved,
+     * much like a git commit message.
+     */
+    public function updateNote(UpdateChartDifficultyRevisionNoteRequest $request, Chart $chart, ChartDifficulty $difficulty, ChartDifficultyRevision $revision): RedirectResponse
+    {
+        $this->ensureVisible($request, $chart);
+        $this->ensureBelongsToChart($chart, $difficulty);
+        $this->ensureRevisionBelongsToDifficulty($difficulty, $revision);
+
+        abort_unless($revision->user_id === $request->user()->id, 403);
+
+        $revision->update(['note' => $request->validated('note')]);
+
+        return back()->with('status', 'Your note has been saved.');
+    }
+
+    /**
      * Return a revision and its predecessor for the client-side diff viewer.
      */
     public function diff(Request $request, Chart $chart, ChartDifficulty $difficulty, ChartDifficultyRevision $revision): JsonResponse
@@ -199,13 +219,14 @@ class ChartDifficultyController extends Controller
     /**
      * Shape a revision for the diff viewer JSON response.
      *
-     * @return array{id: int, code: string, is_original: bool, author: string|null, created_at: string|null}
+     * @return array{id: int, code: string, note: string|null, is_original: bool, author: string|null, created_at: string|null}
      */
     private function revisionPayload(ChartDifficultyRevision $revision): array
     {
         return [
             'id' => $revision->id,
             'code' => $revision->code,
+            'note' => $revision->note,
             'is_original' => $revision->is_original,
             'author' => $revision->user?->username,
             'created_at' => $revision->created_at?->utc()->toIso8601String(),
