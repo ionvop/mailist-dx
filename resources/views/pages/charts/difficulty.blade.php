@@ -145,7 +145,7 @@
                             <x-avatar :user="$comment->user" size="sm" />
                             <x-username :user="$comment->user" />
                             <span class="text-foreground-accent">·</span>
-                            <span class="text-foreground-accent">{{ $comment->created_at?->diffForHumans() ?? 'Unknown time' }}</span>
+                            <x-local-time :value="$comment->created_at" class="text-foreground-accent" />
 
                             @if ($comment->user_id === $currentUser?->id)
                                 <form method="POST" action="{{ route('charts.difficulties.comments.destroy', [$chart, $difficulty, $comment]) }}" class="ml-auto">
