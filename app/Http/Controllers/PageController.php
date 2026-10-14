@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ChartStatus;
 use App\Models\Chart;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -9,6 +10,11 @@ use Illuminate\Http\Request;
 
 class PageController extends Controller
 {
+    /**
+     * The number of charts shown per page on the list page.
+     */
+    private const CHARTS_PER_PAGE = 12;
+
     public function home(): View
     {
         return view('pages.home');
@@ -28,18 +34,43 @@ class PageController extends Controller
     {
         $user = $request->user();
 
-        $charts = $user
-            ? Chart::query()
-                ->with(['difficulties', 'uploader'])
-                ->where(fn ($query) => $query
+        $ownership = $request->string('ownership')->toString();
+        $ownership = in_array($ownership, ['all', 'owned', 'shared'], true) ? $ownership : 'all';
+
+        $status = ChartStatus::tryFrom($request->string('status')->toString());
+        $search = trim($request->string('q')->toString());
+
+        $charts = Chart::query()
+            ->with(['difficulties', 'uploader'])
+            ->when(! $user, fn ($query) => $query->whereRaw('1 = 0'))
+            ->when($user, function ($query) use ($user, $ownership) {
+                if ($ownership === 'owned') {
+                    return $query->where('uploader_id', $user->id);
+                }
+
+                if ($ownership === 'shared') {
+                    return $query->whereHas('collaborators', fn ($query) => $query->whereKey($user->id));
+                }
+
+                return $query->where(fn ($query) => $query
                     ->where('uploader_id', $user->id)
-                    ->orWhereHas('collaborators', fn ($query) => $query->whereKey($user->id)))
-                ->latest()
-                ->get()
-            : collect();
+                    ->orWhereHas('collaborators', fn ($query) => $query->whereKey($user->id)));
+            })
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
+                ->where('title', 'like', "%{$search}%")
+                ->orWhere('artist', 'like', "%{$search}%")))
+            ->latest()
+            ->paginate(self::CHARTS_PER_PAGE)
+            ->withQueryString();
 
         return view('pages.list', [
             'charts' => $charts,
+            'filters' => [
+                'ownership' => $ownership,
+                'status' => $status?->value,
+                'q' => $search,
+            ],
         ]);
     }
 
