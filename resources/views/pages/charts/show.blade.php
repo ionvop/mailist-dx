@@ -110,16 +110,33 @@
                 </div>
             @endif
 
-            @if ($chart->download_path)
-                <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap gap-2">
+                @if ($isLiked)
+                    <form method="POST" action="{{ route('charts.likes.destroy', $chart) }}">
+                        @csrf
+                        @method('DELETE')
+                        <x-button type="submit" variant="secondary" class="w-auto" aria-pressed="true">
+                            <x-lucide-heart class="h-4 w-4 fill-current text-primary-accent" /> Liked ({{ $chart->likes_count }})
+                        </x-button>
+                    </form>
+                @else
+                    <form method="POST" action="{{ route('charts.likes.store', $chart) }}">
+                        @csrf
+                        <x-button type="submit" variant="secondary" class="w-auto" aria-pressed="false">
+                            <x-lucide-heart class="h-4 w-4" /> Like ({{ $chart->likes_count }})
+                        </x-button>
+                    </form>
+                @endif
+
+                @if ($chart->download_path)
                     <x-button href="{{ route('charts.files', [$chart, 'download']) }}" variant="secondary" class="w-auto">
                         <x-lucide-download class="h-4 w-4" /> Download package
                     </x-button>
                     <x-button href="{{ route('charts.files', [$chart, 'adx']) }}" variant="secondary" class="w-auto">
                         <x-lucide-download class="h-4 w-4" /> Download ADX
                     </x-button>
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
     </div>
 @endsection
