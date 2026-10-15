@@ -7,10 +7,19 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('a guest cannot view a chart\'s comments', function () {
+test('a guest can view a chart\'s comments', function () {
     $chart = Chart::factory()->create();
+    Comment::factory()->for($chart)->create(['body' => 'Great chart!']);
 
-    $this->get(route('charts.comments.index', $chart))->assertRedirect(route('login'));
+    $this->get(route('charts.comments.index', $chart))
+        ->assertOk()
+        ->assertSee('Great chart!');
+});
+
+test('a guest cannot view a private chart\'s comments', function () {
+    $chart = Chart::factory()->private()->create();
+
+    $this->get(route('charts.comments.index', $chart))->assertNotFound();
 });
 
 test('a user can view a chart\'s comments', function () {
