@@ -82,6 +82,16 @@ class User extends Authenticatable
     }
 
     /**
+     * The comments other users have left on this user's profile, newest first.
+     *
+     * @return HasMany<UserComment, $this>
+     */
+    public function receivedProfileComments(): HasMany
+    {
+        return $this->hasMany(UserComment::class, 'profile_user_id')->latest('id');
+    }
+
+    /**
      * The users this user follows.
      *
      * @return BelongsToMany<User, $this>
