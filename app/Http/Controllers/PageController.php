@@ -15,6 +15,11 @@ class PageController extends Controller
      */
     private const CHARTS_PER_PAGE = 12;
 
+    /**
+     * The number of users shown per page on the follower and following pages.
+     */
+    private const USERS_PER_PAGE = 20;
+
     public function home(): View
     {
         return view('pages.home');
@@ -110,14 +115,52 @@ class PageController extends Controller
     public function profile(Request $request): View
     {
         return view('pages.profile', [
-            'profileUser' => $request->user(),
+            'profileUser' => $request->user()?->loadCount(['followers', 'following']),
         ]);
     }
 
     public function user(User $user): View
     {
         return view('pages.profile', [
+            'profileUser' => $user->loadCount(['followers', 'following']),
+        ]);
+    }
+
+    /**
+     * The users following the given user.
+     */
+    public function followers(Request $request, User $user): View
+    {
+        return $this->followList($request, $user, 'followers');
+    }
+
+    /**
+     * The users the given user follows.
+     */
+    public function following(Request $request, User $user): View
+    {
+        return $this->followList($request, $user, 'following');
+    }
+
+    /**
+     * Render a paginated list of a user's followers or followed users.
+     */
+    private function followList(Request $request, User $user, string $mode): View
+    {
+        $currentUser = $request->user();
+
+        $users = $user->{$mode}()
+            ->withCount(['followers', 'following'])
+            ->withExists(['followers as is_followed_by_current_user' => fn ($query) => $query
+                ->whereKey($currentUser?->id ?? 0)])
+            ->orderBy('username')
+            ->paginate(self::USERS_PER_PAGE)
+            ->withQueryString();
+
+        return view('pages.follows', [
             'profileUser' => $user,
+            'users' => $users,
+            'mode' => $mode,
         ]);
     }
 
