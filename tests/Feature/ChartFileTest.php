@@ -11,10 +11,18 @@ beforeEach(function () {
     Storage::fake('local');
 });
 
-test('a guest cannot download a chart file', function () {
+test('a guest can download a public chart file', function () {
     $chart = Chart::factory()->create(['art_path' => 'charts/1/art.jpg']);
+    Storage::disk('local')->put('charts/1/art.jpg', fakeJpegBytes());
 
-    $this->get(route('charts.files', [$chart, 'art']))->assertRedirect(route('login'));
+    $this->get(route('charts.files', [$chart, 'art']))->assertOk();
+});
+
+test('a guest cannot download a private chart file', function () {
+    $chart = Chart::factory()->private()->create(['art_path' => 'charts/1/art.jpg']);
+    Storage::disk('local')->put('charts/1/art.jpg', fakeJpegBytes());
+
+    $this->get(route('charts.files', [$chart, 'art']))->assertNotFound();
 });
 
 test('a user can download a public chart file', function () {
