@@ -19,6 +19,30 @@ test('the search page lists public charts for a guest', function () {
         ->assertSee('Public Song');
 });
 
+test('the search page shows the like count and upload time on each chart card', function () {
+    $chart = Chart::factory()->create([
+        'title' => 'Liked Song',
+        'created_at' => now()->subDays(2),
+    ]);
+    $chart->likes()->attach(User::factory()->count(3)->create());
+
+    $this->get(route('search'))
+        ->assertOk()
+        ->assertSee('Liked Song')
+        ->assertSee('3')
+        ->assertSee('2 days ago');
+});
+
+test('the search page shows the upload time and like count on each chart card', function () {
+    $chart = Chart::factory()->create(['title' => 'Public Song']);
+    $chart->likes()->attach(User::factory()->count(4)->create());
+
+    $this->get(route('search'))
+        ->assertOk()
+        ->assertSee($chart->created_at->diffForHumans())
+        ->assertSee('4');
+});
+
 test('the search page hides private charts from a guest', function () {
     Chart::factory()->private()->create(['title' => 'Secret Song']);
 
