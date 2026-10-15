@@ -20,6 +20,11 @@ class PageController extends Controller
      */
     private const USERS_PER_PAGE = 20;
 
+    /**
+     * The number of charts previewed in each profile section.
+     */
+    private const PROFILE_PREVIEW_COUNT = 6;
+
     public function home(): View
     {
         return view('pages.home');
@@ -114,16 +119,101 @@ class PageController extends Controller
 
     public function profile(Request $request): View
     {
-        return view('pages.profile', [
-            'profileUser' => $request->user()?->loadCount(['followers', 'following']),
-        ]);
+        return view('pages.profile', $this->profileData($request->user()));
     }
 
     public function user(User $user): View
     {
-        return view('pages.profile', [
-            'profileUser' => $user->loadCount(['followers', 'following']),
+        return view('pages.profile', $this->profileData($user));
+    }
+
+    /**
+     * The charts uploaded by the given user.
+     */
+    public function charts(User $user): View
+    {
+        return $this->chartList($user, 'uploaded');
+    }
+
+    /**
+     * The charts the given user has liked.
+     */
+    public function likedCharts(User $user): View
+    {
+        return $this->chartList($user, 'liked');
+    }
+
+    /**
+     * Render a paginated list of a user's uploaded or liked charts. Private
+     * charts are never shown here, even to the owner.
+     */
+    private function chartList(User $user, string $mode): View
+    {
+        $charts = $mode === 'liked'
+            ? $user->likedCharts()
+                ->where('is_private', false)
+                ->with(['difficulties', 'uploader'])
+                ->withCount('likes')
+                ->orderByDesc('chart_likes.created_at')
+                ->paginate(self::CHARTS_PER_PAGE)
+                ->withQueryString()
+            : $user->charts()
+                ->where('is_private', false)
+                ->with(['difficulties', 'uploader'])
+                ->withCount('likes')
+                ->latest()
+                ->paginate(self::CHARTS_PER_PAGE)
+                ->withQueryString();
+
+        return view('pages.user-charts', [
+            'profileUser' => $user,
+            'charts' => $charts,
+            'mode' => $mode,
         ]);
+    }
+
+    /**
+     * The data shared by the own-profile and public-profile pages.
+     *
+     * @return array<string, mixed>
+     */
+    private function profileData(?User $profileUser): array
+    {
+        if ($profileUser === null) {
+            return [
+                'profileUser' => null,
+                'uploadedCharts' => collect(),
+                'uploadedCount' => 0,
+                'likedCharts' => collect(),
+                'likedCount' => 0,
+                'profileComments' => collect(),
+                'commentsCount' => 0,
+            ];
+        }
+
+        $profileUser->loadCount(['followers', 'following']);
+
+        $uploaded = $profileUser->charts()
+            ->where('is_private', false)
+            ->with(['difficulties', 'uploader'])
+            ->withCount('likes')
+            ->latest();
+
+        $liked = $profileUser->likedCharts()
+            ->where('is_private', false)
+            ->with(['difficulties', 'uploader'])
+            ->withCount('likes')
+            ->orderByDesc('chart_likes.created_at');
+
+        return [
+            'profileUser' => $profileUser,
+            'uploadedCharts' => $uploaded->limit(self::PROFILE_PREVIEW_COUNT)->get(),
+            'uploadedCount' => $profileUser->charts()->where('is_private', false)->count(),
+            'likedCharts' => $liked->limit(self::PROFILE_PREVIEW_COUNT)->get(),
+            'likedCount' => $profileUser->likedCharts()->where('is_private', false)->count(),
+            'profileComments' => $profileUser->receivedProfileComments()->with('user')->get(),
+            'commentsCount' => $profileUser->receivedProfileComments()->count(),
+        ];
     }
 
     /**
