@@ -18,6 +18,7 @@ use App\Http\Controllers\Charts\ChartUploadController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\UserCommentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
@@ -26,6 +27,8 @@ Route::get('/feed', [PageController::class, 'feed'])->name('feed');
 Route::get('/list', [PageController::class, 'list'])->name('list');
 Route::get('/profile', [PageController::class, 'profile'])->name('profile');
 Route::get('/users/{user:username}', [PageController::class, 'user'])->name('users.show');
+Route::get('/users/{user:username}/charts', [PageController::class, 'charts'])->name('users.charts');
+Route::get('/users/{user:username}/liked', [PageController::class, 'likedCharts'])->name('users.liked');
 Route::get('/users/{user:username}/followers', [PageController::class, 'followers'])->name('users.followers');
 Route::get('/users/{user:username}/following', [PageController::class, 'following'])->name('users.following');
 Route::get('/settings', [PageController::class, 'settings'])->name('settings');
@@ -117,4 +120,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/users/{user:username}/follow', [FollowController::class, 'store'])->name('users.follow.store');
     Route::delete('/users/{user:username}/follow', [FollowController::class, 'destroy'])->name('users.follow.destroy');
+
+    Route::post('/users/{user:username}/comments', [UserCommentController::class, 'store'])->name('users.comments.store');
+    Route::delete('/users/{user:username}/comments/{comment}', [UserCommentController::class, 'destroy'])->name('users.comments.destroy');
 });
