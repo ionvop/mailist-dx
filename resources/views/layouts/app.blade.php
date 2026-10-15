@@ -7,7 +7,7 @@
 
         <title>@yield('title', config('app.name', 'mailist DX'))</title>
 
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="icon" type="image/svg+xml" href="/favicon.ico">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
