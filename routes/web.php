@@ -29,6 +29,21 @@ Route::get('/settings', [PageController::class, 'settings'])->name('settings');
 Route::get('/notifications', [PageController::class, 'notifications'])->name('notifications');
 
 /*
+ * Public chart browsing. These read-only routes are reachable by guests; the
+ * controllers still hide private charts from anyone who cannot edit them.
+ */
+Route::get('/charts/{chart}', [ChartController::class, 'show'])
+    ->whereNumber('chart')->name('charts.show');
+Route::get('/charts/{chart}/files/{type}', [ChartFileController::class, 'show'])
+    ->whereNumber('chart')->name('charts.files');
+Route::get('/charts/{chart}/difficulties/{difficulty}/{tab?}', [ChartDifficultyController::class, 'show'])
+    ->whereNumber('chart')->name('charts.difficulties.show');
+Route::get('/charts/{chart}/difficulties/{difficulty}/revisions/{revision}/diff', [ChartDifficultyController::class, 'diff'])
+    ->whereNumber('chart')->name('charts.difficulties.revisions.diff');
+Route::get('/charts/{chart}/comments', [ChartCommentController::class, 'index'])
+    ->whereNumber('chart')->name('charts.comments.index');
+
+/*
  * Passwordless authentication: a one-time email code or Google OAuth.
  */
 Route::middleware('guest')->group(function () {
@@ -58,15 +73,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/charts/upload', [ChartUploadController::class, 'create'])->name('charts.upload');
     Route::post('/charts', [ChartUploadController::class, 'store'])->name('charts.store');
-    Route::get('/charts/{chart}', [ChartController::class, 'show'])->name('charts.show');
-    Route::get('/charts/{chart}/files/{type}', [ChartFileController::class, 'show'])->name('charts.files');
 
-    Route::get('/charts/{chart}/difficulties/{difficulty}/{tab?}', [ChartDifficultyController::class, 'show'])
-        ->name('charts.difficulties.show');
     Route::patch('/charts/{chart}/difficulties/{difficulty}', [ChartDifficultyController::class, 'update'])
         ->name('charts.difficulties.update');
-    Route::get('/charts/{chart}/difficulties/{difficulty}/revisions/{revision}/diff', [ChartDifficultyController::class, 'diff'])
-        ->name('charts.difficulties.revisions.diff');
     Route::post('/charts/{chart}/difficulties/{difficulty}/revisions/{revision}/restore', [ChartDifficultyController::class, 'restore'])
         ->name('charts.difficulties.revisions.restore');
     Route::patch('/charts/{chart}/difficulties/{difficulty}/revisions/{revision}/note', [ChartDifficultyController::class, 'updateNote'])
@@ -97,7 +106,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/charts/{chart}/settings/collaborators/{user}', [ChartCollaboratorController::class, 'destroy'])->name('charts.settings.collaborators.destroy');
     Route::delete('/charts/{chart}', [ChartSettingsController::class, 'destroy'])->name('charts.destroy');
 
-    Route::get('/charts/{chart}/comments', [ChartCommentController::class, 'index'])->name('charts.comments.index');
     Route::post('/charts/{chart}/comments', [ChartCommentController::class, 'store'])->name('charts.comments.store');
     Route::delete('/charts/{chart}/comments/{comment}', [ChartCommentController::class, 'destroy'])->name('charts.comments.destroy');
 
