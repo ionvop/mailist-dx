@@ -17,7 +17,7 @@
 
             <select name="status"
                 class="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary-accent focus:ring-2 focus:ring-primary-accent/40">
-                <option value="">All statuses</option>
+                <option value="">All</option>
                 @foreach (\App\Enums\ChartStatus::cases() as $status)
                     <option value="{{ $status->value }}" @selected($filters['status'] === $status->value)>
                         {{ $status->label() }}
