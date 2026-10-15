@@ -21,10 +21,25 @@
                 @endif
 
                 <div class="mt-3 flex gap-6 text-sm">
-                    <span class="text-foreground-accent"><span class="font-semibold text-foreground">0</span> Following</span>
-                    <span class="text-foreground-accent"><span class="font-semibold text-foreground">0</span> Followers</span>
+                    @if ($profileUser)
+                        <a href="{{ route('users.following', $profileUser) }}"
+                            class="text-foreground-accent transition hover:text-foreground">
+                            <span class="font-semibold text-foreground">{{ $profileUser->following_count }}</span> Following
+                        </a>
+                        <a href="{{ route('users.followers', $profileUser) }}"
+                            class="text-foreground-accent transition hover:text-foreground">
+                            <span class="font-semibold text-foreground">{{ $profileUser->followers_count }}</span> Followers
+                        </a>
+                    @else
+                        <span class="text-foreground-accent"><span class="font-semibold text-foreground">0</span> Following</span>
+                        <span class="text-foreground-accent"><span class="font-semibold text-foreground">0</span> Followers</span>
+                    @endif
                 </div>
             </div>
+
+            @if ($profileUser)
+                <x-follow-button :user="$profileUser" :is-following="$profileUser->isFollowedBy($currentUser)" />
+            @endif
         </div>
 
         @if ($profileUser?->bioHtml)
