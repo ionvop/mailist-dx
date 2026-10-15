@@ -72,6 +72,16 @@ class User extends Authenticatable
     }
 
     /**
+     * The charts the user has liked.
+     *
+     * @return BelongsToMany<Chart, $this>
+     */
+    public function likedCharts(): BelongsToMany
+    {
+        return $this->belongsToMany(Chart::class, 'chart_likes')->withTimestamps();
+    }
+
+    /**
      * The difficulty revisions saved by the user.
      *
      * @return HasMany<ChartDifficultyRevision, $this>
