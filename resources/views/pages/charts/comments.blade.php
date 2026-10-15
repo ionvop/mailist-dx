@@ -11,19 +11,28 @@
 
     <div class="space-y-6">
         {{-- Comment form --}}
-        <form method="POST" action="{{ route('charts.comments.store', $chart) }}"
-            class="space-y-3 rounded-2xl border border-border bg-background-accent/40 p-6">
-            @csrf
+        @if ($currentUser)
+            <form method="POST" action="{{ route('charts.comments.store', $chart) }}"
+                class="space-y-3 rounded-2xl border border-border bg-background-accent/40 p-6">
+                @csrf
 
-            <x-textarea name="body" label="Add a comment" rows="3"
-                placeholder="Share your thoughts on this chart..." required />
+                <x-textarea name="body" label="Add a comment" rows="3"
+                    placeholder="Share your thoughts on this chart..." required />
 
-            <div class="flex justify-end">
-                <x-button type="submit" class="w-auto">
-                    <x-lucide-send class="h-4 w-4" /> Post comment
+                <div class="flex justify-end">
+                    <x-button type="submit" class="w-auto">
+                        <x-lucide-send class="h-4 w-4" /> Post comment
+                    </x-button>
+                </div>
+            </form>
+        @else
+            <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-background-accent/40 p-6">
+                <p class="text-sm text-foreground-accent">Log in to join the conversation.</p>
+                <x-button href="{{ route('login') }}" class="w-auto">
+                    <x-lucide-log-in class="h-4 w-4" /> Log in
                 </x-button>
             </div>
-        </form>
+        @endif
 
         {{-- Comment list --}}
         <div class="space-y-4">
