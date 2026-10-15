@@ -66,41 +66,7 @@
         @else
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($charts as $chart)
-                    <a href="{{ route('charts.show', $chart) }}"
-                        class="group relative flex flex-col rounded-2xl border border-border bg-background-accent/40 transition hover:border-primary-accent/50">
-                        <div class="relative aspect-square w-full overflow-hidden rounded-t-2xl bg-background">
-                            @if ($chart->art_path)
-                                <img src="{{ route('charts.files', [$chart, 'art']) }}" alt="{{ $chart->title }} cover"
-                                    class="h-full w-full object-cover transition group-hover:scale-105">
-                            @else
-                                <div class="flex h-full w-full items-center justify-center">
-                                    <x-lucide-image class="h-8 w-8 text-foreground-accent" />
-                                </div>
-                            @endif
-
-                            <x-status-badge :status="$chart->status" class="absolute right-2 top-2 z-10" />
-                        </div>
-
-                        @if ($chart->difficulties->isNotEmpty())
-                            <div class="z-10 mx-4 -mb-4 -mt-4 h-8">
-                                <x-difficulty-badge-list :difficulties="$chart->difficulties" />
-                            </div>
-                        @endif
-
-                        <div class="flex grow flex-col gap-1 rounded-b-2xl p-4 {{ $chart->difficulties->isNotEmpty() ? 'pt-6' : '' }}">
-                            <div class="flex items-start justify-between gap-2">
-                                <p class="truncate text-sm font-bold text-foreground">{{ $chart->title }}</p>
-                                @if ($chart->is_private)
-                                    <x-lucide-lock class="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground-accent" />
-                                @endif
-                            </div>
-                            <p class="truncate text-xs text-foreground-accent">{{ $chart->artist }}</p>
-                            <div class="mt-1 flex items-center gap-1.5 text-xs text-foreground-accent">
-                                <x-avatar :user="$chart->uploader" size="xs" />
-                                <span class="truncate">{{ $chart->uploader->username }}</span>
-                            </div>
-                        </div>
-                    </a>
+                    <x-chart-card :chart="$chart" />
                 @endforeach
             </div>
 
