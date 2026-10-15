@@ -31,9 +31,18 @@
             @endif
         </div>
         <p class="truncate text-xs text-foreground-accent">{{ $chart->artist }}</p>
-        <div class="mt-1 flex items-center gap-1.5 text-xs text-foreground-accent">
-            <x-avatar :user="$chart->uploader" size="xs" />
-            <span class="truncate">{{ $chart->uploader->username }}</span>
+        <div class="mt-1 flex items-center justify-between gap-2 text-xs text-foreground-accent">
+            <div class="flex min-w-0 items-center gap-1.5">
+                <x-avatar :user="$chart->uploader" size="xs" />
+                <span class="truncate">{{ $chart->uploader->username }}</span>
+            </div>
+            <div class="flex shrink-0 items-center gap-2">
+                <x-local-time :value="$chart->created_at" />
+                <span class="inline-flex items-center gap-1">
+                    <x-lucide-heart class="h-3.5 w-3.5" />
+                    {{ $chart->likes_count }}
+                </span>
+            </div>
         </div>
     </div>
 </a>
