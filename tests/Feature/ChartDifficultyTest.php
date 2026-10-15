@@ -8,12 +8,24 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-test('a guest cannot view a chart difficulty', function () {
+test('a guest can view a public chart difficulty', function () {
     $chart = Chart::factory()->create();
+    $difficulty = ChartDifficulty::factory()->for($chart)->create([
+        'code' => '(179){1}4,5,6,',
+    ]);
+
+    $this->get(route('charts.difficulties.show', [$chart, $difficulty]))
+        ->assertOk()
+        ->assertSee('Code')
+        ->assertSee('(179){1}4,5,6,', false);
+});
+
+test('a guest cannot view a difficulty of a private chart', function () {
+    $chart = Chart::factory()->private()->create();
     $difficulty = ChartDifficulty::factory()->for($chart)->create();
 
     $this->get(route('charts.difficulties.show', [$chart, $difficulty]))
-        ->assertRedirect(route('login'));
+        ->assertNotFound();
 });
 
 test('a user can view a public chart difficulty and its code', function () {
