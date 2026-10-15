@@ -7,10 +7,18 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('a guest cannot view a chart', function () {
-    $chart = Chart::factory()->create();
+test('a guest can view a public chart', function () {
+    $chart = Chart::factory()->create(['title' => 'Public Song']);
 
-    $this->get(route('charts.show', $chart))->assertRedirect(route('login'));
+    $this->get(route('charts.show', $chart))
+        ->assertOk()
+        ->assertSee('Public Song');
+});
+
+test('a guest cannot view a private chart', function () {
+    $chart = Chart::factory()->private()->create();
+
+    $this->get(route('charts.show', $chart))->assertNotFound();
 });
 
 test('a user can view a public chart', function () {
