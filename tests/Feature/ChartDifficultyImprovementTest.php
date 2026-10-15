@@ -22,11 +22,13 @@ function improvementDifficultyFor(?User $owner = null, string $code = "1,2,3,\n4
         ->create(['code' => $code]);
 }
 
-test('a guest cannot view a difficulty\'s improvements', function () {
+test('a guest can view a difficulty\'s improvements', function () {
     $difficulty = improvementDifficultyFor();
+    ChartDifficultyImprovement::factory()->for($difficulty, 'difficulty')->create(['body' => 'Timing feels off here']);
 
     $this->get(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'improvements']))
-        ->assertRedirect(route('login'));
+        ->assertOk()
+        ->assertSee('Timing feels off here');
 });
 
 test('a user can view a difficulty\'s improvements', function () {
