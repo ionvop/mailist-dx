@@ -176,11 +176,11 @@ test('the history tab shows an empty state when there are no snapshots', functio
         ->assertSee('No history yet');
 });
 
-test('a guest cannot open the history tab', function () {
+test('a guest can open the history tab of a public chart', function () {
     $difficulty = difficultyFor();
 
     $this->get(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'history']))
-        ->assertRedirect(route('login'));
+        ->assertOk();
 });
 
 test('revisions are numbered sequentially per difficulty', function () {
