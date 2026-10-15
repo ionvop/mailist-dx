@@ -56,7 +56,6 @@
     >
         <x-lucide-play class="h-12 w-12" />
         <span class="text-sm font-semibold">Load chart preview</span>
-        <span class="text-xs text-foreground-accent">Runs in your browser · ~32 MB</span>
-        <span class="text-xs text-foreground-accent">(Can only preview saved changes)</span>
+        <span class="text-xs text-foreground-accent">Can only preview saved changes · ~32 MB</span>
     </button>
 </div>
