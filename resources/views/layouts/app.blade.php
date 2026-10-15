@@ -16,7 +16,7 @@
             {{-- Left navigation panel (desktop) --}}
             <aside class="hidden w-64 shrink-0 flex-col border-r border-border bg-background-accent lg:sticky lg:top-0 lg:flex lg:h-screen lg:overflow-y-auto">
                 <a href="{{ route('home') }}" class="flex items-center gap-2 px-5 py-5">
-                    <x-lucide-music class="h-7 w-7 text-primary-accent" />
+                    <img src="/logo.png" alt="" class="h-7 w-7 shrink-0 object-contain0 object-contain" />
                     <span class="text-lg font-bold tracking-tight text-foreground">{{ config('app.name', 'mailist DX') }}</span>
                 </a>
 
@@ -41,7 +41,7 @@
                     <div class="flex h-16 items-center justify-between gap-4 px-4 sm:px-6">
                         {{-- Brand (mobile only) --}}
                         <a href="{{ route('home') }}" class="flex items-center gap-2 lg:hidden">
-                            <x-lucide-music class="h-6 w-6 text-primary-accent" />
+                            <img src="/logo.png" alt="" class="h-6 w-6 shrink-0 object-contain0 object-contain" />
                             <span class="text-base font-bold tracking-tight text-foreground">{{ config('app.name', 'mailist DX') }}</span>
                         </a>
 
