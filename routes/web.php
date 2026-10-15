@@ -12,6 +12,7 @@ use App\Http\Controllers\Charts\ChartDifficultyController;
 use App\Http\Controllers\Charts\ChartDifficultyImprovementController;
 use App\Http\Controllers\Charts\ChartDifficultySettingsController;
 use App\Http\Controllers\Charts\ChartFileController;
+use App\Http\Controllers\Charts\ChartLikeController;
 use App\Http\Controllers\Charts\ChartSettingsController;
 use App\Http\Controllers\Charts\ChartUploadController;
 use App\Http\Controllers\PageController;
@@ -99,4 +100,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/charts/{chart}/comments', [ChartCommentController::class, 'index'])->name('charts.comments.index');
     Route::post('/charts/{chart}/comments', [ChartCommentController::class, 'store'])->name('charts.comments.store');
     Route::delete('/charts/{chart}/comments/{comment}', [ChartCommentController::class, 'destroy'])->name('charts.comments.destroy');
+
+    Route::post('/charts/{chart}/likes', [ChartLikeController::class, 'store'])->name('charts.likes.store');
+    Route::delete('/charts/{chart}/likes', [ChartLikeController::class, 'destroy'])->name('charts.likes.destroy');
 });
