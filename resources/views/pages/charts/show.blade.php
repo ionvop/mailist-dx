@@ -111,21 +111,27 @@
             @endif
 
             <div class="flex flex-wrap gap-2">
-                @if ($isLiked)
-                    <form method="POST" action="{{ route('charts.likes.destroy', $chart) }}">
-                        @csrf
-                        @method('DELETE')
-                        <x-button type="submit" variant="secondary" class="w-auto" aria-pressed="true">
-                            <x-lucide-heart class="h-4 w-4 fill-current text-primary-accent" /> Liked ({{ $chart->likes_count }})
-                        </x-button>
-                    </form>
+                @if ($currentUser)
+                    @if ($isLiked)
+                        <form method="POST" action="{{ route('charts.likes.destroy', $chart) }}">
+                            @csrf
+                            @method('DELETE')
+                            <x-button type="submit" variant="secondary" class="w-auto" aria-pressed="true">
+                                <x-lucide-heart class="h-4 w-4 fill-current text-primary-accent" /> Liked ({{ $chart->likes_count }})
+                            </x-button>
+                        </form>
+                    @else
+                        <form method="POST" action="{{ route('charts.likes.store', $chart) }}">
+                            @csrf
+                            <x-button type="submit" variant="secondary" class="w-auto" aria-pressed="false">
+                                <x-lucide-heart class="h-4 w-4" /> Like ({{ $chart->likes_count }})
+                            </x-button>
+                        </form>
+                    @endif
                 @else
-                    <form method="POST" action="{{ route('charts.likes.store', $chart) }}">
-                        @csrf
-                        <x-button type="submit" variant="secondary" class="w-auto" aria-pressed="false">
-                            <x-lucide-heart class="h-4 w-4" /> Like ({{ $chart->likes_count }})
-                        </x-button>
-                    </form>
+                    <x-button href="{{ route('login') }}" variant="secondary" class="w-auto">
+                        <x-lucide-heart class="h-4 w-4" /> Log in to like ({{ $chart->likes_count }})
+                    </x-button>
                 @endif
 
                 @if ($chart->download_path)
