@@ -56,6 +56,18 @@ test('the list page shows the difficulty values for each chart', function () {
         ->assertSee('13+');
 });
 
+test('the list page shows the upload time and like count on each chart card', function () {
+    $user = User::factory()->create();
+    $chart = Chart::factory()->for($user, 'uploader')->create();
+    $chart->likes()->attach(User::factory()->count(3)->create());
+
+    $this->actingAs($user)
+        ->get(route('list'))
+        ->assertOk()
+        ->assertSee($chart->created_at->diffForHumans())
+        ->assertSee('3');
+});
+
 test('the list page shows an overflow count when a chart has more than five difficulties', function () {
     $user = User::factory()->create();
     $chart = Chart::factory()->for($user, 'uploader')->create();
@@ -65,6 +77,22 @@ test('the list page shows an overflow count when a chart has more than five diff
         ->get(route('list'))
         ->assertOk()
         ->assertSee('+2');
+});
+
+test('the list page shows the like count and upload time on each chart card', function () {
+    $user = User::factory()->create();
+    $chart = Chart::factory()->for($user, 'uploader')->create([
+        'title' => 'Liked Chart',
+        'created_at' => now()->subDays(3),
+    ]);
+    $chart->likes()->attach(User::factory()->count(4)->create());
+
+    $this->actingAs($user)
+        ->get(route('list'))
+        ->assertOk()
+        ->assertSee('Liked Chart')
+        ->assertSee('4')
+        ->assertSee('3 days ago');
 });
 
 test('the list page can filter to charts owned by the user', function () {
