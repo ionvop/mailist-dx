@@ -82,6 +82,38 @@ class User extends Authenticatable
     }
 
     /**
+     * The users this user follows.
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'followed_id')->withTimestamps();
+    }
+
+    /**
+     * The users following this user.
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'followed_id', 'follower_id')->withTimestamps();
+    }
+
+    /**
+     * Whether the given user follows this user.
+     */
+    public function isFollowedBy(?User $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        return $this->followers()->whereKey($user->id)->exists();
+    }
+
+    /**
      * The difficulty revisions saved by the user.
      *
      * @return HasMany<ChartDifficultyRevision, $this>
