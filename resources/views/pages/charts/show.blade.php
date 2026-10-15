@@ -136,7 +136,7 @@
 
                 @if ($chart->download_path)
                     <x-button href="{{ route('charts.files', [$chart, 'download']) }}" variant="secondary" class="w-auto">
-                        <x-lucide-download class="h-4 w-4" /> Download package
+                        <x-lucide-download class="h-4 w-4" /> Download ZIP
                     </x-button>
                     <x-button href="{{ route('charts.files', [$chart, 'adx']) }}" variant="secondary" class="w-auto">
                         <x-lucide-download class="h-4 w-4" /> Download ADX
