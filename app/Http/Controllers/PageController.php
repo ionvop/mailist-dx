@@ -31,13 +31,13 @@ class PageController extends Controller
         $charts = Chart::query()
             ->where('is_private', false)
             ->with(['difficulties', 'uploader'])
+            ->withCount('likes')
             ->when($status, fn ($query) => $query->where('status', $status))
             ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
                 ->where('title', 'like', "%{$search}%")
                 ->orWhere('artist', 'like', "%{$search}%")
                 ->orWhere('note_designer', 'like', "%{$search}%")))
             ->when($sort === 'popularity', fn ($query) => $query
-                ->withCount('likes')
                 ->orderByDesc('likes_count'))
             ->when($sort === 'trending', fn ($query) => $query
                 ->withCount(['likes as weekly_likes_count' => fn ($query) => $query
@@ -74,6 +74,7 @@ class PageController extends Controller
 
         $charts = Chart::query()
             ->with(['difficulties', 'uploader'])
+            ->withCount('likes')
             ->when(! $user, fn ($query) => $query->whereRaw('1 = 0'))
             ->when($user, function ($query) use ($user, $ownership) {
                 if ($ownership === 'owned') {
