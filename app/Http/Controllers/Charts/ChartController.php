@@ -19,10 +19,11 @@ class ChartController extends Controller
             throw new NotFoundHttpException;
         }
 
-        $chart->load(['uploader', 'difficulties']);
+        $chart->load(['uploader', 'difficulties'])->loadCount('likes');
 
         return view('pages.charts.show', [
             'chart' => $chart,
+            'isLiked' => $chart->isLikedBy($request->user()),
         ]);
     }
 }
