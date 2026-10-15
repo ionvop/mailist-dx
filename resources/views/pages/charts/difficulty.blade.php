@@ -58,7 +58,9 @@
             @endif
         </div>
 
-        <x-improvement-composer :chart="$chart" :difficulty="$difficulty" />
+        @if ($currentUser)
+            <x-improvement-composer :chart="$chart" :difficulty="$difficulty" />
+        @endif
     @elseif ($activeTab === 'history')
         @if ($revisions->isEmpty())
             <x-placeholder
@@ -76,23 +78,32 @@
     @elseif ($activeTab === 'improvements')
         <div class="space-y-6">
             {{-- General suggestion form (no code selection required) --}}
-            <form method="POST" action="{{ route('charts.difficulties.improvements.store', [$chart, $difficulty]) }}"
-                class="space-y-3 rounded-2xl border border-border bg-background-accent/40 p-6">
-                @csrf
+            @if ($currentUser)
+                <form method="POST" action="{{ route('charts.difficulties.improvements.store', [$chart, $difficulty]) }}"
+                    class="space-y-3 rounded-2xl border border-border bg-background-accent/40 p-6">
+                    @csrf
 
-                <x-textarea name="body" label="Suggest an improvement" rows="3"
-                    placeholder="Point out a flaw or propose a change to this chart..." required />
+                    <x-textarea name="body" label="Suggest an improvement" rows="3"
+                        placeholder="Point out a flaw or propose a change to this chart..." required />
 
-                <p class="text-xs text-foreground-accent">
-                    Tip: select code on the Code tab to attach a snippet with line numbers for context.
-                </p>
+                    <p class="text-xs text-foreground-accent">
+                        Tip: select code on the Code tab to attach a snippet with line numbers for context.
+                    </p>
 
-                <div class="flex justify-end">
-                    <x-button type="submit" class="w-auto">
-                        <x-lucide-send class="h-4 w-4" /> Post suggestion
+                    <div class="flex justify-end">
+                        <x-button type="submit" class="w-auto">
+                            <x-lucide-send class="h-4 w-4" /> Post suggestion
+                        </x-button>
+                    </div>
+                </form>
+            @else
+                <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-background-accent/40 p-6">
+                    <p class="text-sm text-foreground-accent">Log in to suggest an improvement.</p>
+                    <x-button href="{{ route('login') }}" class="w-auto">
+                        <x-lucide-log-in class="h-4 w-4" /> Log in
                     </x-button>
                 </div>
-            </form>
+            @endif
 
             {{-- Suggestion list --}}
             <div class="space-y-4">
@@ -116,19 +127,28 @@
     @elseif ($activeTab === 'comments')
         <div class="space-y-6">
             {{-- Comment form --}}
-            <form method="POST" action="{{ route('charts.difficulties.comments.store', [$chart, $difficulty]) }}"
-                class="space-y-3 rounded-2xl border border-border bg-background-accent/40 p-6">
-                @csrf
+            @if ($currentUser)
+                <form method="POST" action="{{ route('charts.difficulties.comments.store', [$chart, $difficulty]) }}"
+                    class="space-y-3 rounded-2xl border border-border bg-background-accent/40 p-6">
+                    @csrf
 
-                <x-textarea name="body" label="Add a comment" rows="3"
-                    placeholder="Share your thoughts on this difficulty..." required />
+                    <x-textarea name="body" label="Add a comment" rows="3"
+                        placeholder="Share your thoughts on this difficulty..." required />
 
-                <div class="flex justify-end">
-                    <x-button type="submit" class="w-auto">
-                        <x-lucide-send class="h-4 w-4" /> Post comment
+                    <div class="flex justify-end">
+                        <x-button type="submit" class="w-auto">
+                            <x-lucide-send class="h-4 w-4" /> Post comment
+                        </x-button>
+                    </div>
+                </form>
+            @else
+                <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-background-accent/40 p-6">
+                    <p class="text-sm text-foreground-accent">Log in to join the conversation.</p>
+                    <x-button href="{{ route('login') }}" class="w-auto">
+                        <x-lucide-log-in class="h-4 w-4" /> Log in
                     </x-button>
                 </div>
-            </form>
+            @endif
 
             {{-- Comment list --}}
             <div class="space-y-4">
