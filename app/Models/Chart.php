@@ -96,6 +96,16 @@ class Chart extends Model
     }
 
     /**
+     * The users who have liked this chart.
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function likes(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'chart_likes')->withTimestamps();
+    }
+
+    /**
      * The chart description rendered from Markdown, or null when none is set.
      *
      * Raw HTML is stripped and unsafe links are disallowed to keep the
@@ -143,6 +153,18 @@ class Chart extends Model
         }
 
         return $this->collaborators()->whereKey($user->id)->exists();
+    }
+
+    /**
+     * Whether the given user has liked this chart.
+     */
+    public function isLikedBy(?User $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        return $this->likes()->whereKey($user->id)->exists();
     }
 
     /**
