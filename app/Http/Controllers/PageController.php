@@ -23,7 +23,7 @@ class PageController extends Controller
     /**
      * The number of charts previewed in each profile section.
      */
-    private const PROFILE_PREVIEW_COUNT = 6;
+    private const PROFILE_PREVIEW_COUNT = 3;
 
     public function home(): View
     {
