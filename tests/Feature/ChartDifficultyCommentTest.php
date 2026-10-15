@@ -20,11 +20,13 @@ function commentDifficultyFor(?User $owner = null): ChartDifficulty
         ->create();
 }
 
-test('a guest cannot view a difficulty\'s comments', function () {
+test('a guest can view a difficulty\'s comments', function () {
     $difficulty = commentDifficultyFor();
+    ChartDifficultyComment::factory()->for($difficulty, 'difficulty')->create(['body' => 'Great chart!']);
 
     $this->get(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'comments']))
-        ->assertRedirect(route('login'));
+        ->assertOk()
+        ->assertSee('Great chart!');
 });
 
 test('a user can view a difficulty\'s comments', function () {
