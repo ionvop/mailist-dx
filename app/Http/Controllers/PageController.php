@@ -20,9 +20,41 @@ class PageController extends Controller
         return view('pages.home');
     }
 
-    public function search(): View
+    public function search(Request $request): View
     {
-        return view('pages.search');
+        $search = trim($request->string('q')->toString());
+        $status = ChartStatus::tryFrom($request->string('status')->toString());
+
+        $sort = $request->string('sort')->toString();
+        $sort = in_array($sort, ['recent', 'trending', 'popularity'], true) ? $sort : 'recent';
+
+        $charts = Chart::query()
+            ->where('is_private', false)
+            ->with(['difficulties', 'uploader'])
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
+                ->where('title', 'like', "%{$search}%")
+                ->orWhere('artist', 'like', "%{$search}%")
+                ->orWhere('note_designer', 'like', "%{$search}%")))
+            ->when($sort === 'popularity', fn ($query) => $query
+                ->withCount('likes')
+                ->orderByDesc('likes_count'))
+            ->when($sort === 'trending', fn ($query) => $query
+                ->withCount(['likes as weekly_likes_count' => fn ($query) => $query
+                    ->where('chart_likes.created_at', '>=', now()->subWeek())])
+                ->orderByDesc('weekly_likes_count'))
+            ->latest()
+            ->paginate(self::CHARTS_PER_PAGE)
+            ->withQueryString();
+
+        return view('pages.search', [
+            'charts' => $charts,
+            'filters' => [
+                'q' => $search,
+                'status' => $status?->value,
+                'sort' => $sort,
+            ],
+        ]);
     }
 
     public function feed(): View
