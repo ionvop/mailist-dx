@@ -95,11 +95,18 @@ test('the owner can view chart settings', function () {
         ->assertSee('Delete chart');
 });
 
-test('the Settings tab is only a link for the owner', function () {
+test('the Settings tab is a link for the owner and collaborators', function () {
     $owner = User::factory()->create();
     $chart = Chart::factory()->for($owner, 'uploader')->create();
+    $collaborator = User::factory()->create();
+    $chart->collaborators()->attach($collaborator->id);
 
     $this->actingAs($owner)
+        ->get(route('charts.show', $chart))
+        ->assertOk()
+        ->assertSee(route('charts.settings', $chart));
+
+    $this->actingAs($collaborator)
         ->get(route('charts.show', $chart))
         ->assertOk()
         ->assertSee(route('charts.settings', $chart));
