@@ -6,6 +6,7 @@ use App\Enums\ChartStatus;
 use App\Models\Chart;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -25,9 +26,43 @@ class PageController extends Controller
      */
     private const PROFILE_PREVIEW_COUNT = 3;
 
+    /**
+     * The number of charts previewed in each home page section.
+     */
+    private const HOME_PREVIEW_COUNT = 3;
+
     public function home(): View
     {
-        return view('pages.home');
+        return view('pages.home', [
+            'trendingApproved' => $this->homeCharts(approved: true, sort: 'trending'),
+            'recentApproved' => $this->homeCharts(approved: true, sort: 'recent'),
+            'trendingNonApproved' => $this->homeCharts(approved: false, sort: 'trending'),
+            'recentNonApproved' => $this->homeCharts(approved: false, sort: 'recent'),
+        ]);
+    }
+
+    /**
+     * The charts shown in a single home page section. Approved charts are
+     * limited to the approved status, while non-approved charts cover every
+     * other status. Private charts are never shown.
+     *
+     * @return Collection<int, Chart>
+     */
+    private function homeCharts(bool $approved, string $sort): Collection
+    {
+        return Chart::query()
+            ->where('is_private', false)
+            ->when($approved, fn ($query) => $query->where('status', ChartStatus::Approved))
+            ->when(! $approved, fn ($query) => $query->where('status', '!=', ChartStatus::Approved))
+            ->with(['difficulties', 'uploader'])
+            ->withCount('likes')
+            ->when($sort === 'trending', fn ($query) => $query
+                ->withCount(['likes as weekly_likes_count' => fn ($query) => $query
+                    ->where('chart_likes.created_at', '>=', now()->subWeek())])
+                ->orderByDesc('weekly_likes_count'))
+            ->latest()
+            ->limit(self::HOME_PREVIEW_COUNT)
+            ->get();
     }
 
     public function search(Request $request): View
