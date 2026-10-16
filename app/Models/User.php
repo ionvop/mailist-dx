@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -38,7 +39,16 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'username_changed_at' => 'datetime',
+            'role' => UserRole::class,
         ];
+    }
+
+    /**
+     * Whether the user may approve charts submitted by other users.
+     */
+    public function isApprover(): bool
+    {
+        return $this->role === UserRole::Approver;
     }
 
     /**
