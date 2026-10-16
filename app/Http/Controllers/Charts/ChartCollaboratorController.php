@@ -46,6 +46,24 @@ class ChartCollaboratorController extends Controller
     }
 
     /**
+     * Remove the current user's own edit access to the chart. Collaborator only.
+     */
+    public function leave(Request $request, Chart $chart): RedirectResponse
+    {
+        $user = $request->user();
+
+        if (! $chart->isCollaborator($user)) {
+            throw new NotFoundHttpException;
+        }
+
+        $chart->collaborators()->detach($user->id);
+
+        return redirect()
+            ->route('list')
+            ->with('status', "You no longer have edit access to “{$chart->title}”.");
+    }
+
+    /**
      * Abort with a 404 when the chart is not owned by the current user.
      */
     private function ensureOwner(Request $request, Chart $chart): void
