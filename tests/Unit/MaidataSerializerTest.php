@@ -134,3 +134,46 @@ test('it preserves a byte order mark and line endings when replacing chart code'
         )
         ->toContain("&lv_2=5\r\n");
 });
+
+test('it removes every header for a chart index, including continuation lines', function () {
+    $contents = implode("\n", [
+        '&title=Song',
+        '&inote_2=(179){1}1,2,3,',
+        '1,2,3,',
+        '&lv_2=5',
+        '&des_2=Designer',
+        '&alias_2=Alias',
+        '&color_2=ff0000',
+        '&smsg_2=Info',
+        '&inote_3=4,5,6,',
+        '&lv_3=9',
+        '',
+    ]);
+
+    $result = (new MaidataSerializer)->removeChart($contents, '2');
+
+    expect($result)
+        ->not->toContain('&inote_2=')
+        ->not->toContain('1,2,3,')
+        ->not->toContain('&lv_2=')
+        ->not->toContain('&des_2=')
+        ->not->toContain('&alias_2=')
+        ->not->toContain('&color_2=')
+        ->not->toContain('&smsg_2=')
+        // Other charts and level-wide keys are untouched.
+        ->toContain('&title=Song')
+        ->toContain('&inote_3=4,5,6,')
+        ->toContain('&lv_3=9');
+});
+
+test('it preserves a byte order mark and line endings when removing a chart', function () {
+    $contents = "\xEF\xBB\xBF&title=Song\r\n&inote_2=1,2,3\r\n&lv_2=5\r\n&inote_3=4,5,6\r\n";
+
+    $result = (new MaidataSerializer)->removeChart($contents, '2');
+
+    expect($result)
+        ->toStartWith("\xEF\xBB\xBF")
+        ->not->toContain('&inote_2=')
+        ->not->toContain('&lv_2=')
+        ->toContain("&inote_3=4,5,6\r\n");
+});
