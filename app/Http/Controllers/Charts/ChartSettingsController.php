@@ -42,7 +42,6 @@ class ChartSettingsController extends Controller
         if ($chart->canApprove($request->user())) {
             return view('pages.charts.approval', [
                 'chart' => $chart,
-                'revertStatuses' => [ChartStatus::ForReview, ChartStatus::Completed],
             ]);
         }
 
