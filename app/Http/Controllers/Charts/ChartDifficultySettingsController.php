@@ -40,6 +40,33 @@ class ChartDifficultySettingsController extends Controller
     }
 
     /**
+     * Delete a difficulty. Owner only.
+     *
+     * The chart must keep at least one difficulty, so deleting the last one is
+     * refused. Otherwise the difficulty's headers are stripped from the maidata
+     * file and the downloadable package is rebuilt.
+     */
+    public function destroy(Request $request, Chart $chart, ChartDifficulty $difficulty): RedirectResponse
+    {
+        $this->ensureOwner($request, $chart);
+        $this->ensureBelongsToChart($chart, $difficulty);
+
+        if ($chart->difficulties()->count() <= 1) {
+            return redirect()
+                ->route('charts.difficulties.show', [$chart, $difficulty, 'settings'])
+                ->withErrors(['difficulty' => 'A chart must keep at least one difficulty.']);
+        }
+
+        $name = $difficulty->displayName();
+
+        $this->difficulties->delete($chart, $difficulty);
+
+        return redirect()
+            ->route('charts.show', $chart)
+            ->with('status', "“{$name}” has been deleted.");
+    }
+
+    /**
      * Abort with a 404 when the chart is not owned by the current user.
      */
     private function ensureOwner(Request $request, Chart $chart): void
