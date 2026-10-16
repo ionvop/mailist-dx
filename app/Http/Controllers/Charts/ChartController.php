@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Charts;
 
+use App\Enums\ChartDifficultyName;
 use App\Http\Controllers\Controller;
 use App\Models\Chart;
 use Illuminate\Contracts\View\View;
@@ -21,9 +22,18 @@ class ChartController extends Controller
 
         $chart->load(['uploader', 'difficulties'])->loadCount('likes');
 
+        $existingTypes = $chart->difficulties->pluck('difficulty')
+            ->map(fn (ChartDifficultyName $name) => $name->value);
+
+        $availableDifficulties = collect(ChartDifficultyName::cases())
+            ->reject(fn (ChartDifficultyName $name) => $name === ChartDifficultyName::Custom)
+            ->reject(fn (ChartDifficultyName $name) => $existingTypes->contains($name->value))
+            ->values();
+
         return view('pages.charts.show', [
             'chart' => $chart,
             'isLiked' => $chart->isLikedBy($request->user()),
+            'availableDifficulties' => $availableDifficulties,
         ]);
     }
 }
