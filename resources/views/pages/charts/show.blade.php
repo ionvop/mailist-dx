@@ -5,6 +5,10 @@
 @section('content')
     @include('pages.charts._header', ['chart' => $chart, 'activeTab' => 'details'])
 
+    @if (session('status'))
+        <x-alert variant="success" class="mb-6">{{ session('status') }}</x-alert>
+    @endif
+
     <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
         {{-- Difficulties --}}
         <div class="space-y-3">
@@ -36,6 +40,29 @@
             @empty
                 <x-placeholder title="No difficulties" description="This chart has no difficulties." icon="music" height="h-32" />
             @endforelse
+
+            @if ($chart->isOwnedBy($currentUser ?? null) && $availableDifficulties->isNotEmpty())
+                <form method="POST" action="{{ route('charts.difficulties.store', $chart) }}" class="space-y-3 rounded-xl border border-border bg-background-accent/40 p-4">
+                    @csrf
+                    <label for="difficulty" class="block text-sm font-medium text-foreground">Add difficulty</label>
+
+                    <div class="flex items-center gap-2">
+                        <select name="difficulty" id="difficulty" required
+                            class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary-accent focus:ring-2 focus:ring-primary-accent/40">
+                            <option value="" disabled @selected(old('difficulty') === null)>Select difficulty…</option>
+                            @foreach ($availableDifficulties as $name)
+                                <option value="{{ $name->value }}" @selected(old('difficulty') === $name->value)>{{ $name->label() }}</option>
+                            @endforeach
+                        </select>
+
+                        <x-button type="submit" class="shrink-0">Add</x-button>
+                    </div>
+
+                    @error('difficulty')
+                        <p class="text-xs text-destructive">{{ $message }}</p>
+                    @enderror
+                </form>
+            @endif
         </div>
 
         {{-- Details --}}
