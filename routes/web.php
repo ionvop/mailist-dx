@@ -102,6 +102,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/charts/{chart}/difficulties/{difficulty}/comments/{comment}', [ChartDifficultyCommentController::class, 'destroy'])
         ->name('charts.difficulties.comments.destroy');
 
+    Route::post('/charts/{chart}/difficulties', [ChartDifficultySettingsController::class, 'store'])
+        ->name('charts.difficulties.store');
+
     Route::patch('/charts/{chart}/difficulties/{difficulty}/settings', [ChartDifficultySettingsController::class, 'update'])
         ->name('charts.difficulties.settings.update');
     Route::delete('/charts/{chart}/difficulties/{difficulty}', [ChartDifficultySettingsController::class, 'destroy'])
