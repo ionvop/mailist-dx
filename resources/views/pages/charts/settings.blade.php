@@ -234,6 +234,18 @@
                 </label>
             </div>
 
+            @if (($currentUser ?? null)?->isApprover())
+                <div class="flex flex-col gap-2 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="text-sm text-foreground-accent">
+                        As an approver you can approve other users' charts, but not your own.
+                    </p>
+                    <button type="button" disabled title="You can't approve your own chart."
+                        class="inline-flex w-auto cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-primary-gradient px-4 py-2.5 text-sm font-semibold text-primary-foreground opacity-50 shadow-lg shadow-primary/20">
+                        <x-lucide-badge-check class="h-4 w-4" /> Approve chart
+                    </button>
+                </div>
+            @endif
+
             <div class="flex items-center justify-end gap-3 border-t border-border pt-6">
                 <x-button type="submit" class="w-auto">Save visibility</x-button>
             </div>
