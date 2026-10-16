@@ -107,6 +107,30 @@ class ChartDifficultyService
     }
 
     /**
+     * Delete a difficulty, removing its headers from the maidata file and
+     * rebuilding the downloadable package.
+     *
+     * The difficulty's revisions, improvements, and comments are removed by the
+     * database's cascading foreign keys.
+     */
+    public function delete(Chart $chart, ChartDifficulty $difficulty): void
+    {
+        $disk = Storage::disk('local');
+        $maidataPath = $chart->maidata_path;
+
+        if ($maidataPath !== null && $disk->exists($maidataPath)) {
+            $disk->put($maidataPath, $this->serializer->removeChart(
+                $disk->get($maidataPath),
+                $difficulty->chart_index,
+            ));
+        }
+
+        $difficulty->delete();
+
+        $this->rebuildDownload($disk, $chart);
+    }
+
+    /**
      * Rebuild the chart's downloadable package from its current files.
      */
     private function rebuildDownload(Filesystem $disk, Chart $chart): void
