@@ -156,6 +156,54 @@ class MaidataSerializer
     }
 
     /**
+     * Remove every per-difficulty header for the given chart index.
+     *
+     * Drops the `&inote_#` body (including its continuation lines) together with
+     * the matching `&lv_#`, `&des_#`, `&alias_#`, `&color_#`, and `&smsg_#`
+     * headers, so the difficulty no longer appears in the file. Headers for
+     * other indices and the level-wide keys are left untouched. The original
+     * UTF-8 BOM and line-ending style are preserved.
+     */
+    public function removeChart(string $contents, string $index): string
+    {
+        $hasBom = str_starts_with($contents, "\xEF\xBB\xBF");
+
+        if ($hasBom) {
+            $contents = substr($contents, 3);
+        }
+
+        $eol = str_contains($contents, "\r\n") ? "\r\n" : "\n";
+        $lines = explode("\n", str_replace(["\r\n", "\r"], "\n", $contents));
+
+        $pattern = '/^&[A-Za-z0-9]+_'.preg_quote($index, '/').'=/';
+
+        $output = [];
+        $skipContinuation = false;
+
+        foreach ($lines as $line) {
+            if ($skipContinuation) {
+                if (preg_match('/^&[A-Za-z0-9_]+=/', $line) === 1) {
+                    $skipContinuation = false;
+                } else {
+                    continue;
+                }
+            }
+
+            if (preg_match($pattern, $line) === 1) {
+                $skipContinuation = true;
+
+                continue;
+            }
+
+            $output[] = $line;
+        }
+
+        $result = implode($eol, $output);
+
+        return $hasBom ? "\xEF\xBB\xBF".$result : $result;
+    }
+
+    /**
      * Normalise a header value so it cannot break out onto a new line.
      */
     private function sanitize(string $value): string
