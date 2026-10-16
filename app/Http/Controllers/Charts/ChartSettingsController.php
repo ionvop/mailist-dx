@@ -26,17 +26,27 @@ class ChartSettingsController extends Controller
     ) {}
 
     /**
-     * Show the chart settings page. Owner only.
+     * Show the chart settings page. Owners see the full settings; approvers
+     * who do not own the chart see only the approval controls.
      */
     public function edit(Request $request, Chart $chart): View
     {
-        $this->ensureOwner($request, $chart);
+        if ($chart->isOwnedBy($request->user())) {
+            $chart->load(['difficulties', 'collaborators']);
 
-        $chart->load(['difficulties', 'collaborators']);
+            return view('pages.charts.settings', [
+                'chart' => $chart,
+            ]);
+        }
 
-        return view('pages.charts.settings', [
-            'chart' => $chart,
-        ]);
+        if ($chart->canApprove($request->user())) {
+            return view('pages.charts.approval', [
+                'chart' => $chart,
+                'revertStatuses' => [ChartStatus::ForReview, ChartStatus::Completed],
+            ]);
+        }
+
+        throw new NotFoundHttpException;
     }
 
     /**
@@ -73,7 +83,7 @@ class ChartSettingsController extends Controller
 
         if ($validated['status'] === ChartStatus::Approved->value && $chart->status !== ChartStatus::Approved) {
             throw ValidationException::withMessages([
-                'status' => 'Only staff can approve a chart.',
+                'status' => 'Only approvers can approve a chart.',
             ]);
         }
 
