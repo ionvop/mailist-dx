@@ -104,6 +104,8 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('/charts/{chart}/difficulties/{difficulty}/settings', [ChartDifficultySettingsController::class, 'update'])
         ->name('charts.difficulties.settings.update');
+    Route::delete('/charts/{chart}/difficulties/{difficulty}', [ChartDifficultySettingsController::class, 'destroy'])
+        ->name('charts.difficulties.destroy');
 
     Route::patch('/charts/{chart}/approval', [ChartApprovalController::class, 'approve'])
         ->name('charts.approval.approve');
