@@ -69,38 +69,28 @@ test('an approver can revert an approved chart to for review', function () {
     $chart = Chart::factory()->status(ChartStatus::Approved)->create();
 
     $this->actingAs(User::factory()->approver()->create())
-        ->patch(route('charts.approval.revert', $chart), ['status' => ChartStatus::ForReview->value])
+        ->patch(route('charts.approval.revert', $chart))
         ->assertRedirect()
         ->assertSessionHas('status');
 
     expect($chart->refresh()->status)->toBe(ChartStatus::ForReview);
 });
 
-test('an approver can revert an approved chart to completed', function () {
+test('reverting an approved chart always sets it to for review', function () {
     $chart = Chart::factory()->status(ChartStatus::Approved)->create();
 
     $this->actingAs(User::factory()->approver()->create())
-        ->patch(route('charts.approval.revert', $chart), ['status' => ChartStatus::Completed->value])
+        ->patch(route('charts.approval.revert', $chart))
         ->assertRedirect();
 
-    expect($chart->refresh()->status)->toBe(ChartStatus::Completed);
-});
-
-test('reverting rejects a status that is not reviewable', function () {
-    $chart = Chart::factory()->status(ChartStatus::Approved)->create();
-
-    $this->actingAs(User::factory()->approver()->create())
-        ->patch(route('charts.approval.revert', $chart), ['status' => ChartStatus::Wip->value])
-        ->assertSessionHasErrors('status');
-
-    expect($chart->refresh()->status)->toBe(ChartStatus::Approved);
+    expect($chart->refresh()->status)->toBe(ChartStatus::ForReview);
 });
 
 test('an approver cannot revert a chart that is not approved', function () {
     $chart = Chart::factory()->status(ChartStatus::ForReview)->create();
 
     $this->actingAs(User::factory()->approver()->create())
-        ->patch(route('charts.approval.revert', $chart), ['status' => ChartStatus::Completed->value])
+        ->patch(route('charts.approval.revert', $chart))
         ->assertSessionHasErrors('status');
 
     expect($chart->refresh()->status)->toBe(ChartStatus::ForReview);
@@ -134,6 +124,7 @@ test('an approver sees a revert control on an already approved chart', function 
         ->get(route('charts.settings', $chart))
         ->assertOk()
         ->assertSee('Revert approval')
+        ->assertDontSee('Revert to')
         ->assertDontSee('Approve chart');
 });
 
