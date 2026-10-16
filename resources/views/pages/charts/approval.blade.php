@@ -55,5 +55,9 @@
                 </form>
             @endif
         </div>
+
+        @if ($canLeave ?? false)
+            @include('pages.charts._leave_edit_access', ['chart' => $chart])
+        @endif
     </div>
 @endsection
