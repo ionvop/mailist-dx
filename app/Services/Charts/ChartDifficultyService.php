@@ -2,12 +2,14 @@
 
 namespace App\Services\Charts;
 
+use App\Enums\ChartDifficultyName;
 use App\Models\Chart;
 use App\Models\ChartDifficulty;
 use App\Services\Maidata\MaidataParser;
 use App\Services\Maidata\MaidataSerializer;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Updates a single difficulty's simai chart code, keeping the stored maidata
@@ -15,12 +17,96 @@ use Illuminate\Support\Facades\Storage;
  */
 class ChartDifficultyService
 {
+    /**
+     * The chart body a new difficulty starts with until the owner replaces it
+     * on the difficulty's Code tab.
+     */
+    public const PLACEHOLDER_CODE = '|| insert code here';
+
+    /**
+     * Canonical maidata chart index for each addable difficulty type.
+     *
+     * @var array<string, string>
+     */
+    private const CANONICAL_INDEXES = [
+        'easy' => '1',
+        'basic' => '2',
+        'advanced' => '3',
+        'expert' => '4',
+        'master' => '5',
+        'remaster' => '6',
+        'utage' => '7',
+    ];
+
     public function __construct(
         private readonly MaidataSerializer $serializer,
         private readonly MaidataParser $parser,
         private readonly ChartAssetService $assets,
         private readonly ChartDifficultyRevisionService $revisions,
     ) {}
+
+    /**
+     * Add a difficulty to a chart, keeping the stored maidata file in sync.
+     *
+     * The new difficulty starts with the placeholder level value "-", a
+     * charter falling back to the chart's note designer, and
+     * {@see PLACEHOLDER_CODE} as its chart body, so the maidata parser
+     * recognises it immediately and the settings tab keeps working. An
+     * original revision records the placeholder code.
+     *
+     * @throws ChartUploadException when the rewritten maidata fails to parse.
+     * @throws ValidationException when no chart index is available.
+     */
+    public function create(Chart $chart, ChartDifficultyName $difficulty): ChartDifficulty
+    {
+        $index = $this->resolveChartIndex($chart, $difficulty);
+        $charter = $chart->note_designer ?: '-';
+
+        $disk = Storage::disk('local');
+        $maidataPath = $chart->maidata_path;
+        $updated = null;
+
+        if ($maidataPath !== null && $disk->exists($maidataPath)) {
+            $values = [
+                "lv_{$index}" => '-',
+                "des_{$index}" => $charter,
+            ];
+
+            if ((self::CANONICAL_INDEXES[$difficulty->value] ?? null) !== $index) {
+                $values["alias_{$index}"] = $difficulty->value;
+            }
+
+            $updated = $this->serializer->replaceChartCode(
+                $this->serializer->replaceHeaderValues($disk->get($maidataPath), $values),
+                $index,
+                self::PLACEHOLDER_CODE,
+            );
+
+            $parsed = $this->parser->parse($updated);
+
+            if ($parsed->logs->hasErrors()) {
+                throw new ChartUploadException($parsed->logs->errors);
+            }
+        }
+
+        $created = $chart->difficulties()->create([
+            'chart_index' => $index,
+            'difficulty' => $difficulty,
+            'difficulty_value' => '-',
+            'charter' => $charter,
+            'code' => self::PLACEHOLDER_CODE,
+        ]);
+
+        $this->revisions->recordOriginal($created, self::PLACEHOLDER_CODE, $chart->uploader_id);
+
+        if ($updated !== null) {
+            $disk->put($maidataPath, $updated);
+
+            $this->rebuildDownload($disk, $chart);
+        }
+
+        return $created;
+    }
 
     /**
      * Replace the given difficulty's code.
@@ -128,6 +214,32 @@ class ChartDifficultyService
         $difficulty->delete();
 
         $this->rebuildDownload($disk, $chart);
+    }
+
+    /**
+     * Pick the maidata chart index for a new difficulty: its canonical index
+     * when that slot is free, otherwise the first free index from 1 to 9.
+     *
+     * @throws ValidationException when every chart index is already taken.
+     */
+    private function resolveChartIndex(Chart $chart, ChartDifficultyName $difficulty): string
+    {
+        $taken = $chart->difficulties()->pluck('chart_index')->all();
+        $canonical = self::CANONICAL_INDEXES[$difficulty->value] ?? null;
+
+        if ($canonical !== null && ! in_array($canonical, $taken, true)) {
+            return $canonical;
+        }
+
+        foreach (range('1', '9') as $candidate) {
+            if (! in_array($candidate, $taken, true)) {
+                return $candidate;
+            }
+        }
+
+        throw ValidationException::withMessages([
+            'difficulty' => 'This chart already uses all nine available difficulty slots.',
+        ]);
     }
 
     /**
