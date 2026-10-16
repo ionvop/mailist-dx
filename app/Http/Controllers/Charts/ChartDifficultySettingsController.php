@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Charts;
 
+use App\Enums\ChartDifficultyName;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Charts\StoreChartDifficultyRequest;
 use App\Http\Requests\Charts\UpdateChartDifficultySettingsRequest;
 use App\Models\Chart;
 use App\Models\ChartDifficulty;
@@ -17,6 +19,30 @@ class ChartDifficultySettingsController extends Controller
     public function __construct(
         private readonly ChartDifficultyService $difficulties,
     ) {}
+
+    /**
+     * Add a difficulty to a chart. Owner only.
+     *
+     * The dropdown only offers difficulty types the chart does not have yet;
+     * the level starts as "-" and the charter falls back to the chart's note
+     * designer, both editable later in the difficulty's Settings tab.
+     */
+    public function store(StoreChartDifficultyRequest $request, Chart $chart): RedirectResponse
+    {
+        $this->ensureOwner($request, $chart);
+
+        try {
+            $this->difficulties->create($chart, ChartDifficultyName::from($request->validated('difficulty')));
+        } catch (ChartUploadException $exception) {
+            return back()
+                ->withInput()
+                ->withErrors(['difficulty' => $exception->errors]);
+        }
+
+        return redirect()
+            ->route('charts.show', $chart)
+            ->with('status', 'Difficulty added successfully.');
+    }
 
     /**
      * Update a difficulty's level value and charter. Owner only.
