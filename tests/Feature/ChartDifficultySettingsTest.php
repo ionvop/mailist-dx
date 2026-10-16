@@ -2,6 +2,9 @@
 
 use App\Models\Chart;
 use App\Models\ChartDifficulty;
+use App\Models\ChartDifficultyComment;
+use App\Models\ChartDifficultyImprovement;
+use App\Models\ChartDifficultyRevision;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -55,7 +58,7 @@ test('a non-owner cannot open the settings tab', function () {
         ->assertNotFound();
 });
 
-test('the owner sees the settings form with a disabled delete button', function () {
+test('the owner sees the settings form with a disabled delete button when it is the last difficulty', function () {
     $owner = User::factory()->create();
     $difficulty = ChartDifficulty::factory()->for(Chart::factory()->for($owner, 'uploader'))->create();
 
@@ -65,6 +68,98 @@ test('the owner sees the settings form with a disabled delete button', function 
         ->assertSee('Difficulty details')
         ->assertSee('Delete difficulty')
         ->assertSee('disabled', false);
+});
+
+test('the owner sees an enabled delete button when the chart has more than one difficulty', function () {
+    $owner = User::factory()->create();
+    $chart = Chart::factory()->for($owner, 'uploader')->create();
+    ChartDifficulty::factory()->for($chart)->create(['chart_index' => '4']);
+    $difficulty = ChartDifficulty::factory()->for($chart)->create(['chart_index' => '5']);
+
+    $this->actingAs($owner)
+        ->get(route('charts.difficulties.show', [$chart, $difficulty, 'settings']))
+        ->assertOk()
+        ->assertSee(route('charts.difficulties.destroy', [$chart, $difficulty]))
+        ->assertDontSee('disabled', false);
+});
+
+test('the owner can delete a difficulty, removing it from the maidata file', function () {
+    $owner = User::factory()->create();
+    $chart = difficultySettingsChart($owner);
+    $difficulty = $chart->difficulties()->where('chart_index', '5')->firstOrFail();
+
+    $this->actingAs($owner)
+        ->delete(route('charts.difficulties.destroy', [$chart, $difficulty]))
+        ->assertRedirect(route('charts.show', $chart))
+        ->assertSessionHas('status');
+
+    expect(ChartDifficulty::find($difficulty->id))->toBeNull();
+
+    $maidata = Storage::disk('local')->get($chart->maidata_path);
+
+    expect($maidata)
+        ->not->toContain('&inote_5=')
+        ->not->toContain('&lv_5=')
+        ->not->toContain('&des_5=')
+        // Other difficulties are untouched.
+        ->toContain('&inote_4=')
+        ->toContain('&lv_4=12');
+});
+
+test('deleting a difficulty cascades to its revisions, improvements, and comments', function () {
+    $owner = User::factory()->create();
+    $chart = Chart::factory()->for($owner, 'uploader')->create();
+    ChartDifficulty::factory()->for($chart)->create(['chart_index' => '4']);
+    $difficulty = ChartDifficulty::factory()->for($chart)->create(['chart_index' => '5']);
+
+    $revision = ChartDifficultyRevision::factory()->for($difficulty, 'difficulty')->create();
+    $improvement = ChartDifficultyImprovement::factory()->for($difficulty, 'difficulty')->create();
+    $comment = ChartDifficultyComment::factory()->for($difficulty, 'difficulty')->create();
+
+    $this->actingAs($owner)
+        ->delete(route('charts.difficulties.destroy', [$chart, $difficulty]))
+        ->assertRedirect(route('charts.show', $chart));
+
+    expect(ChartDifficultyRevision::find($revision->id))->toBeNull()
+        ->and(ChartDifficultyImprovement::find($improvement->id))->toBeNull()
+        ->and(ChartDifficultyComment::find($comment->id))->toBeNull();
+});
+
+test('the last difficulty cannot be deleted', function () {
+    $owner = User::factory()->create();
+    $difficulty = ChartDifficulty::factory()->for(Chart::factory()->for($owner, 'uploader'))->create();
+
+    $this->actingAs($owner)
+        ->delete(route('charts.difficulties.destroy', [$difficulty->chart, $difficulty]))
+        ->assertRedirect(route('charts.difficulties.show', [$difficulty->chart, $difficulty, 'settings']))
+        ->assertSessionHasErrors('difficulty');
+
+    expect(ChartDifficulty::find($difficulty->id))->not->toBeNull();
+});
+
+test('a non-owner cannot delete a difficulty', function () {
+    $chart = Chart::factory()->create();
+    ChartDifficulty::factory()->for($chart)->create(['chart_index' => '4']);
+    $difficulty = ChartDifficulty::factory()->for($chart)->create(['chart_index' => '5']);
+
+    $this->actingAs(User::factory()->create())
+        ->delete(route('charts.difficulties.destroy', [$chart, $difficulty]))
+        ->assertNotFound();
+
+    expect(ChartDifficulty::find($difficulty->id))->not->toBeNull();
+});
+
+test('a difficulty from another chart cannot be deleted through the settings route', function () {
+    $owner = User::factory()->create();
+    $chart = Chart::factory()->for($owner, 'uploader')->create();
+    ChartDifficulty::factory()->for($chart)->create(['chart_index' => '4']);
+    $otherDifficulty = ChartDifficulty::factory()->for(Chart::factory()->for($owner, 'uploader'))->create();
+
+    $this->actingAs($owner)
+        ->delete(route('charts.difficulties.destroy', [$chart, $otherDifficulty]))
+        ->assertNotFound();
+
+    expect(ChartDifficulty::find($otherDifficulty->id))->not->toBeNull();
 });
 
 test('a non-owner cannot update difficulty settings', function () {
