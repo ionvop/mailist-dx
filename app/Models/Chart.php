@@ -175,4 +175,21 @@ class Chart extends Model
     {
         return $this->isOwnedBy($user) || $this->isCollaborator($user);
     }
+
+    /**
+     * Whether the chart has been approved.
+     */
+    public function isApproved(): bool
+    {
+        return $this->status === ChartStatus::Approved;
+    }
+
+    /**
+     * Whether the given user may approve or revert this chart. Approvers may
+     * only act on charts they do not own, so they cannot approve their own.
+     */
+    public function canApprove(?User $user): bool
+    {
+        return $user !== null && $user->isApprover() && ! $this->isOwnedBy($user);
+    }
 }
