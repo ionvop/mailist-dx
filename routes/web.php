@@ -116,6 +116,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/charts/{chart}/settings/visibility', [ChartSettingsController::class, 'updateVisibility'])->name('charts.settings.visibility');
     Route::post('/charts/{chart}/settings/collaborators', [ChartCollaboratorController::class, 'store'])->name('charts.settings.collaborators.store');
     Route::delete('/charts/{chart}/settings/collaborators/{user}', [ChartCollaboratorController::class, 'destroy'])->name('charts.settings.collaborators.destroy');
+    Route::delete('/charts/{chart}/settings/edit-access', [ChartCollaboratorController::class, 'leave'])->name('charts.settings.collaborators.leave');
     Route::delete('/charts/{chart}', [ChartSettingsController::class, 'destroy'])->name('charts.destroy');
 
     Route::post('/charts/{chart}/comments', [ChartCommentController::class, 'store'])->name('charts.comments.store');
