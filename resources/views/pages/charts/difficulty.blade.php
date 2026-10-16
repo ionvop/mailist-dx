@@ -256,11 +256,27 @@
                     </div>
 
                     <div class="mt-6 flex justify-end">
-                        <button type="button" disabled
-                            title="Deleting a difficulty is not available yet."
-                            class="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-destructive/30 bg-background px-4 py-2.5 text-sm font-semibold text-destructive/50 opacity-60">
-                            <x-lucide-trash-2 class="h-4 w-4" /> Delete difficulty
-                        </button>
+                        @if ($chart->difficulties->count() > 1)
+                            <x-confirm-dialog
+                                :action="route('charts.difficulties.destroy', [$chart, $difficulty])"
+                                title="Delete “{{ $difficulty->displayName() }}”?"
+                                description="This permanently removes this difficulty and its code. This cannot be undone."
+                                confirm-label="Delete difficulty"
+                            >
+                                <x-slot:trigger>
+                                    <button type="button" @click="open = true"
+                                        class="inline-flex items-center justify-center gap-2 rounded-lg border border-destructive/50 bg-background px-4 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/10">
+                                        <x-lucide-trash-2 class="h-4 w-4" /> Delete difficulty
+                                    </button>
+                                </x-slot:trigger>
+                            </x-confirm-dialog>
+                        @else
+                            <button type="button" disabled
+                                title="A chart must keep at least one difficulty."
+                                class="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-destructive/30 bg-background px-4 py-2.5 text-sm font-semibold text-destructive/50 opacity-60">
+                                <x-lucide-trash-2 class="h-4 w-4" /> Delete difficulty
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
