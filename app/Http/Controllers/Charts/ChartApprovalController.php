@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Chart;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -52,14 +51,7 @@ class ChartApprovalController extends Controller
             ]);
         }
 
-        $validated = $request->validate([
-            'status' => ['required', Rule::in(array_map(
-                fn (ChartStatus $status): string => $status->value,
-                self::APPROVABLE_STATUSES,
-            ))],
-        ]);
-
-        $chart->status = ChartStatus::from($validated['status']);
+        $chart->status = ChartStatus::ForReview;
         $chart->save();
 
         return back()->with('status', 'Chart approval reverted successfully.');
