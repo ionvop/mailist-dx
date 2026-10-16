@@ -128,6 +128,19 @@ test('an approver sees a revert control on an already approved chart', function 
         ->assertDontSee('Approve chart');
 });
 
+test('an approver who is also a collaborator sees both approval and leave controls', function () {
+    $chart = Chart::factory()->status(ChartStatus::ForReview)->create();
+    $approver = User::factory()->approver()->create();
+    $chart->collaborators()->attach($approver->id);
+
+    $this->actingAs($approver)
+        ->get(route('charts.settings', $chart))
+        ->assertOk()
+        ->assertSee('Approve chart')
+        ->assertSee('Remove my edit access')
+        ->assertDontSee('Delete chart');
+});
+
 test('a regular member cannot view the approval settings page', function () {
     $chart = Chart::factory()->status(ChartStatus::ForReview)->create();
 
