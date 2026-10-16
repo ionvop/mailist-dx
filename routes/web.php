@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\EmailLoginController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Charts\ChartApprovalController;
 use App\Http\Controllers\Charts\ChartCollaboratorController;
 use App\Http\Controllers\Charts\ChartCommentController;
 use App\Http\Controllers\Charts\ChartController;
@@ -103,6 +104,11 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('/charts/{chart}/difficulties/{difficulty}/settings', [ChartDifficultySettingsController::class, 'update'])
         ->name('charts.difficulties.settings.update');
+
+    Route::patch('/charts/{chart}/approval', [ChartApprovalController::class, 'approve'])
+        ->name('charts.approval.approve');
+    Route::patch('/charts/{chart}/approval/revert', [ChartApprovalController::class, 'revert'])
+        ->name('charts.approval.revert');
 
     Route::get('/charts/{chart}/settings', [ChartSettingsController::class, 'edit'])->name('charts.settings');
     Route::patch('/charts/{chart}/settings', [ChartSettingsController::class, 'update'])->name('charts.settings.update');
