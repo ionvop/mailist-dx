@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Charts\StoreCommentRequest;
 use App\Models\Chart;
 use App\Models\Comment;
+use App\Notifications\ChartCommentCreated;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,10 +38,14 @@ class ChartCommentController extends Controller
 
         $validated = $request->validated();
 
-        $chart->comments()->create([
+        $comment = $chart->comments()->create([
             'user_id' => $request->user()->id,
             'body' => $validated['body'],
         ]);
+
+        if (! $chart->isOwnedBy($request->user())) {
+            $chart->uploader->notify(new ChartCommentCreated($comment));
+        }
 
         return back()->with('status', 'Your comment has been posted.');
     }
