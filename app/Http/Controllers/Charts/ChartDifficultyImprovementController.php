@@ -9,6 +9,8 @@ use App\Http\Requests\Charts\UpdateImprovementRequest;
 use App\Models\Chart;
 use App\Models\ChartDifficulty;
 use App\Models\ChartDifficultyImprovement;
+use App\Notifications\ImprovementResolved;
+use App\Notifications\ImprovementSuggested;
 use App\Services\Charts\ChartDifficultyImprovementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,13 +35,17 @@ class ChartDifficultyImprovementController extends Controller
         $lineStart = $validated['line_start'] ?? null;
         $lineEnd = $validated['line_end'] ?? null;
 
-        $difficulty->improvements()->create([
+        $improvement = $difficulty->improvements()->create([
             'user_id' => $request->user()->id,
             'body' => $validated['body'],
             'line_start' => $lineStart,
             'line_end' => $lineEnd,
             'snippet' => $this->improvements->extractSnippet($difficulty->code, $lineStart, $lineEnd),
         ]);
+
+        if (! $chart->isOwnedBy($request->user())) {
+            $chart->uploader->notify(new ImprovementSuggested($improvement));
+        }
 
         return redirect()
             ->route('charts.difficulties.show', [$chart, $difficulty, 'improvements'])
@@ -69,6 +75,10 @@ class ChartDifficultyImprovementController extends Controller
             'resolved_at' => now(),
             'revision_id' => $revisionId,
         ]);
+
+        if (! $improvement->user->is($request->user())) {
+            $improvement->user->notify(new ImprovementResolved($improvement));
+        }
 
         return back()->with('status', 'The suggestion has been updated.');
     }
