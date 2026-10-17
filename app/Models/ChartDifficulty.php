@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'chart_id',
@@ -61,6 +62,16 @@ class ChartDifficulty extends Model
     public function revisions(): HasMany
     {
         return $this->hasMany(ChartDifficultyRevision::class, 'difficulty_id')->latest('id');
+    }
+
+    /**
+     * The most recent revision recorded for this difficulty.
+     *
+     * @return HasOne<ChartDifficultyRevision, $this>
+     */
+    public function latestRevision(): HasOne
+    {
+        return $this->hasOne(ChartDifficultyRevision::class, 'difficulty_id')->latestOfMany();
     }
 
     /**
