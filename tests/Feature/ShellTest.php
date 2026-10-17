@@ -15,8 +15,12 @@ test('every navigation page renders for a guest', function (string $route) {
     'profile',
     'login',
     'settings',
-    'notifications',
 ]);
+
+test('the notifications page requires authentication', function () {
+    $this->get(route('notifications'))
+        ->assertRedirect(route('login'));
+});
 
 test('every navigation page renders for a signed-in user', function (string $route) {
     $this->actingAs(User::factory()->create());
