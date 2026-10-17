@@ -7,6 +7,7 @@ use App\Http\Requests\Charts\StoreDifficultyCommentRequest;
 use App\Models\Chart;
 use App\Models\ChartDifficulty;
 use App\Models\ChartDifficultyComment;
+use App\Notifications\ChartDifficultyCommentCreated;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -22,10 +23,14 @@ class ChartDifficultyCommentController extends Controller
         $this->ensureVisible($request, $chart);
         $this->ensureBelongsToChart($chart, $difficulty);
 
-        $difficulty->comments()->create([
+        $comment = $difficulty->comments()->create([
             'user_id' => $request->user()->id,
             'body' => $request->validated('body'),
         ]);
+
+        if (! $chart->isOwnedBy($request->user())) {
+            $chart->uploader->notify(new ChartDifficultyCommentCreated($comment));
+        }
 
         return redirect()
             ->route('charts.difficulties.show', [$chart, $difficulty, 'comments'])
