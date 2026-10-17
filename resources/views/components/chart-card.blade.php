@@ -1,5 +1,6 @@
 @props([
     'chart',
+    'revision' => null,
 ])
 
 <a href="{{ route('charts.show', $chart) }}"
@@ -44,5 +45,16 @@
                 </span>
             </div>
         </div>
+
+        @if ($revision)
+            <div class="mt-2 flex flex-wrap items-center gap-x-1 border-t border-border pt-2 text-xs text-foreground-accent">
+                <span class="font-medium text-foreground">revision #{{ $revision->revision_number }}</span>
+                @if ($revision->user)
+                    <span>by {{ $revision->user->username }}</span>
+                @endif
+                <span aria-hidden="true">·</span>
+                <x-local-time :value="$revision->created_at" />
+            </div>
+        @endif
     </div>
 </a>
