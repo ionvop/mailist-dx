@@ -76,6 +76,39 @@ test('an unknown username returns not found', function () {
 
 /*
 |--------------------------------------------------------------------------
+| Edit profile button
+|--------------------------------------------------------------------------
+*/
+
+test('the own profile page shows an edit profile button linking to settings', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('profile'))
+        ->assertOk()
+        ->assertSee(route('settings'))
+        ->assertSee('Edit profile');
+});
+
+test('another user profile does not show the edit profile button', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('users.show', $user))
+        ->assertOk()
+        ->assertDontSee('Edit profile');
+});
+
+test('a guest does not see the edit profile button', function () {
+    $user = User::factory()->create();
+
+    $this->get(route('users.show', $user))
+        ->assertOk()
+        ->assertDontSee('Edit profile');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Charts uploaded and liked
 |--------------------------------------------------------------------------
 */
