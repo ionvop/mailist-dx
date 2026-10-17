@@ -37,7 +37,11 @@
                 </div>
             </div>
 
-            @if ($profileUser)
+            @if ($isOwnProfile)
+                <x-button :href="route('settings')" variant="secondary" class="w-auto">
+                    <x-lucide-pencil class="h-4 w-4" /> Edit profile
+                </x-button>
+            @elseif ($profileUser)
                 <x-follow-button :user="$profileUser" :is-following="$profileUser->isFollowedBy($currentUser)" />
             @endif
         </div>
