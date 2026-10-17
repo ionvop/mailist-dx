@@ -102,9 +102,37 @@ class PageController extends Controller
         ]);
     }
 
-    public function feed(): View
+    /**
+     * The charts the user has liked and charts uploaded by users they follow,
+     * deduplicated and sorted by the most recent revision across any of the
+     * chart's difficulties. Private charts are never shown.
+     */
+    public function feed(Request $request): View
     {
-        return view('pages.feed');
+        $user = $request->user();
+
+        $charts = Chart::query()
+            ->where('is_private', false)
+            ->when($user, fn ($query) => $query->where(fn ($query) => $query
+                ->whereIn('charts.id', fn ($sub) => $sub
+                    ->select('chart_id')
+                    ->from('chart_likes')
+                    ->where('user_id', $user->id))
+                ->orWhereIn('charts.uploader_id', fn ($sub) => $sub
+                    ->select('followed_id')
+                    ->from('follows')
+                    ->where('follower_id', $user->id))))
+            ->when(! $user, fn ($query) => $query->whereRaw('1 = 0'))
+            ->with(['difficulties.latestRevision.user', 'uploader'])
+            ->withCount('likes')
+            ->withMax('revisions', 'created_at')
+            ->orderByDesc('revisions_max_created_at')
+            ->paginate(self::CHARTS_PER_PAGE)
+            ->withQueryString();
+
+        return view('pages.feed', [
+            'charts' => $charts,
+        ]);
     }
 
     public function list(Request $request): View
