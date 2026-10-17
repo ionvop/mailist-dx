@@ -96,7 +96,9 @@
                         hint="Markdown is supported."
                     />
 
-                    <x-button type="submit" class="w-full">Save changes</x-button>
+                    <div class="flex items-center justify-end gap-3 border-t border-border pt-6">
+                        <x-button type="submit" class="w-auto">Save changes</x-button>
+                    </div>
                 </form>
 
                 {{-- Username change confirmation modal --}}
