@@ -17,6 +17,7 @@ use App\Http\Controllers\Charts\ChartLikeController;
 use App\Http\Controllers\Charts\ChartSettingsController;
 use App\Http\Controllers\Charts\ChartUploadController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\UserCommentController;
@@ -33,7 +34,6 @@ Route::get('/users/{user:username}/liked', [PageController::class, 'likedCharts'
 Route::get('/users/{user:username}/followers', [PageController::class, 'followers'])->name('users.followers');
 Route::get('/users/{user:username}/following', [PageController::class, 'following'])->name('users.following');
 Route::get('/settings', [PageController::class, 'settings'])->name('settings');
-Route::get('/notifications', [PageController::class, 'notifications'])->name('notifications');
 
 /*
  * Public chart browsing. These read-only routes are reachable by guests; the
@@ -77,6 +77,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', LogoutController::class)->name('logout');
 
     Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('settings.profile.update');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 
     Route::get('/charts/upload', [ChartUploadController::class, 'create'])->name('charts.upload');
     Route::post('/charts', [ChartUploadController::class, 'store'])->name('charts.store');
