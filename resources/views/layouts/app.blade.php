@@ -51,9 +51,16 @@
                             <a
                                 href="{{ route('notifications') }}"
                                 title="Notifications"
+                                aria-label="{{ $unreadNotificationCount > 0 ? $unreadNotificationCount.' unread notifications' : 'Notifications' }}"
                                 class="relative flex h-9 w-9 items-center justify-center rounded-full text-foreground-accent transition hover:bg-accent hover:text-foreground"
                             >
                                 <x-lucide-bell class="h-5 w-5" />
+
+                                @if ($unreadNotificationCount > 0)
+                                    <span class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-white">
+                                        {{ $unreadNotificationCount > 9 ? '9+' : $unreadNotificationCount }}
+                                    </span>
+                                @endif
                             </a>
 
                             <x-avatar-dropdown :user="$currentUser" />
