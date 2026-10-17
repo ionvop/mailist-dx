@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\UserFollowed;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -16,7 +17,14 @@ class FollowController extends Controller
     {
         $this->ensureNotSelf($request, $user);
 
-        $request->user()->following()->syncWithoutDetaching([$user->id]);
+        $follower = $request->user();
+        $alreadyFollowing = $follower->following()->whereKey($user->id)->exists();
+
+        $follower->following()->syncWithoutDetaching([$user->id]);
+
+        if (! $alreadyFollowing) {
+            $user->notify(new UserFollowed($follower->username));
+        }
 
         return back()->with('status', "You are now following {$user->username}.");
     }
