@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Str;
 
 #[Fillable([
@@ -103,6 +104,38 @@ class Chart extends Model
     public function likes(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'chart_likes')->withTimestamps();
+    }
+
+    /**
+     * Every code revision recorded across the chart's difficulties.
+     *
+     * @return HasManyThrough<ChartDifficultyRevision, ChartDifficulty, $this>
+     */
+    public function revisions(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ChartDifficultyRevision::class,
+            ChartDifficulty::class,
+            'chart_id',
+            'difficulty_id',
+            'id',
+            'id',
+        );
+    }
+
+    /**
+     * The most recent revision across all of the chart's difficulties, or null
+     * when the chart has no revisions yet.
+     *
+     * Requires the `difficulties.latestRevision` relation to be eager loaded.
+     */
+    public function mostRecentRevision(): ?ChartDifficultyRevision
+    {
+        return $this->difficulties
+            ->map(fn (ChartDifficulty $difficulty) => $difficulty->latestRevision)
+            ->filter()
+            ->sortByDesc('created_at')
+            ->first();
     }
 
     /**
