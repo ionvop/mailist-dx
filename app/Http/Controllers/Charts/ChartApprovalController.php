@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Charts;
 use App\Enums\ChartStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Chart;
+use App\Notifications\ChartStatusChanged;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -35,6 +36,12 @@ class ChartApprovalController extends Controller
         $chart->status = ChartStatus::Approved;
         $chart->save();
 
+        $chart->uploader->notify(new ChartStatusChanged(
+            $chart,
+            'Chart approved',
+            "\"{$chart->title}\" has been approved.",
+        ));
+
         return back()->with('status', 'Chart approved successfully.');
     }
 
@@ -53,6 +60,12 @@ class ChartApprovalController extends Controller
 
         $chart->status = ChartStatus::ForReview;
         $chart->save();
+
+        $chart->uploader->notify(new ChartStatusChanged(
+            $chart,
+            'Chart approval reverted',
+            "\"{$chart->title}\" was reverted to For Review.",
+        ));
 
         return back()->with('status', 'Chart approval reverted successfully.');
     }
