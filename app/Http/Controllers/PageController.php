@@ -326,9 +326,4 @@ class PageController extends Controller
             'usernameAvailableAt' => $user?->usernameChangeAvailableAt()->utc()->toIso8601String(),
         ]);
     }
-
-    public function notifications(): View
-    {
-        return view('pages.notifications');
-    }
 }
