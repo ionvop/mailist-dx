@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\UserComment;
+use App\Notifications\ProfileCommentCreated;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -23,10 +24,14 @@ class UserCommentController extends Controller
             'body.max' => 'Your comment may not be longer than 5000 characters.',
         ]);
 
-        $user->receivedProfileComments()->create([
+        $comment = $user->receivedProfileComments()->create([
             'user_id' => $request->user()->id,
             'body' => $validated['body'],
         ]);
+
+        if (! $user->is($request->user())) {
+            $user->notify(new ProfileCommentCreated($comment));
+        }
 
         return back()->with('status', 'Your comment has been posted.');
     }
