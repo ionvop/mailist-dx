@@ -214,9 +214,7 @@
                             @if ($status === \App\Enums\ChartStatus::Approved && $chart->status !== \App\Enums\ChartStatus::Approved)
                                 @continue
                             @endif
-                            <option value="{{ $status->value }}"
-                                data-description="{{ $status->description() }}"
-                                @selected(old('status', $chart->status->value) === $status->value)>
+                            <option value="{{ $status->value }}" @selected(old('status', $chart->status->value) === $status->value)>
                                 {{ $status->label() }}
                             </option>
                         @endforeach
@@ -224,9 +222,6 @@
                     @error('status')
                         <p class="text-xs text-destructive">{{ $message }}</p>
                     @enderror
-                    <p id="status-description" class="text-xs text-foreground-accent">
-                        {{ \App\Enums\ChartStatus::from(old('status', $chart->status->value))->description() }}
-                    </p>
                 </div>
 
                 <label class="flex items-start gap-3 sm:pt-8">
