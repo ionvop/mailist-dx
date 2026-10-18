@@ -14,11 +14,18 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class ChartApprovalController extends Controller
 {
     /**
-     * Statuses an approver may approve from, or revert an approved chart to.
+     * Statuses an approver may approve from.
      *
      * @var list<ChartStatus>
      */
     private const APPROVABLE_STATUSES = [ChartStatus::ForReview, ChartStatus::Completed];
+
+    /**
+     * Statuses an approver may revert back to For Review.
+     *
+     * @var list<ChartStatus>
+     */
+    private const REVERTIBLE_STATUSES = [ChartStatus::Completed, ChartStatus::Approved];
 
     /**
      * Approve a chart. Approvers only, and never their own charts.
@@ -46,28 +53,32 @@ class ChartApprovalController extends Controller
     }
 
     /**
-     * Revert an approved chart back to a reviewable status.
+     * Revert an approved or completed chart back to For Review.
      */
     public function revert(Request $request, Chart $chart): RedirectResponse
     {
         $this->ensureApprover($request, $chart);
 
-        if (! $chart->isApproved()) {
+        if (! in_array($chart->status, self::REVERTIBLE_STATUSES, true)) {
             throw ValidationException::withMessages([
-                'status' => 'Only approved charts can be reverted.',
+                'status' => 'Only charts that are completed or approved can be reverted.',
             ]);
         }
+
+        $wasApproved = $chart->status === ChartStatus::Approved;
 
         $chart->status = ChartStatus::ForReview;
         $chart->save();
 
         $chart->uploader->notify(new ChartStatusChanged(
             $chart,
-            'Chart approval reverted',
+            $wasApproved ? 'Chart approval reverted' : 'Chart reverted to For Review',
             "\"{$chart->title}\" was reverted to For Review.",
         ));
 
-        return back()->with('status', 'Chart approval reverted successfully.');
+        return back()->with('status', $wasApproved
+            ? 'Chart approval reverted successfully.'
+            : 'Chart reverted to For Review successfully.');
     }
 
     /**
