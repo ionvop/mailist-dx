@@ -79,16 +79,16 @@
 
         {{-- Bottom navigation bar (mobile) --}}
         <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background-accent lg:hidden">
-            <div class="flex items-center justify-around px-2 py-2">
-                <x-nav-link :href="route('home')" icon="home" label="Home" :active="request()->routeIs('home')" variant="compact" />
-                <x-nav-link :href="route('search')" icon="search" label="Search" :active="request()->routeIs('search')" variant="compact" />
-                <x-nav-link :href="route('list')" icon="layout-list" label="List" :active="request()->routeIs('list')" variant="circle" class="-mt-6 translate-y-3" />
-                <x-nav-link :href="route('feed')" icon="rss" label="Feed" :active="request()->routeIs('feed')" variant="compact" />
+            <div class="flex items-center justify-around px-2 py-2" data-nav-highlight>
+                <x-nav-link :href="route('home')" icon="home" label="Home" :active="request()->routeIs('home')" variant="compact" data-nav-item="home" data-nav-variant="compact" />
+                <x-nav-link :href="route('search')" icon="search" label="Search" :active="request()->routeIs('search')" variant="compact" data-nav-item="search" data-nav-variant="compact" />
+                <x-nav-link :href="route('list')" icon="layout-list" label="List" :active="request()->routeIs('list')" variant="circle" class="-mt-6 translate-y-3" data-nav-item="list" data-nav-variant="circle" />
+                <x-nav-link :href="route('feed')" icon="rss" label="Feed" :active="request()->routeIs('feed')" variant="compact" data-nav-item="feed" data-nav-variant="compact" />
 
                 @if ($currentUser)
-                    <x-nav-link :href="route('profile')" icon="user" label="Profile" :active="request()->routeIs('profile')" variant="compact" />
+                    <x-nav-link :href="route('profile')" icon="user" label="Profile" :active="request()->routeIs('profile')" variant="compact" data-nav-item="profile" data-nav-variant="compact" />
                 @else
-                    <x-nav-link :href="route('login')" icon="log-in" label="Login" :active="request()->routeIs('login')" variant="compact" />
+                    <x-nav-link :href="route('login')" icon="log-in" label="Login" :active="request()->routeIs('login')" variant="compact" data-nav-item="login" data-nav-variant="compact" />
                 @endif
             </div>
         </nav>
