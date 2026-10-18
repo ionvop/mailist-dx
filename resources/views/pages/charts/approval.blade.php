@@ -24,7 +24,7 @@
             <div>
                 <h2 class="text-lg font-bold text-foreground">Approval</h2>
                 <p class="mt-1 text-sm text-foreground-accent">
-                    Review this chart and approve it, or revert an approved chart back to a reviewable status.
+                    Review this chart and approve it, or revert a completed or approved chart back to For Review.
                 </p>
             </div>
 
@@ -43,6 +43,26 @@
                         <x-lucide-undo-2 class="h-4 w-4" /> Revert approval
                     </x-button>
                 </form>
+            @elseif ($chart->status === \App\Enums\ChartStatus::Completed)
+                <div class="flex items-center justify-end gap-3 border-t border-border pt-6">
+                    <form method="POST" action="{{ route('charts.approval.revert', $chart) }}">
+                        @csrf
+                        @method('PATCH')
+
+                        <x-button type="submit" variant="secondary" class="w-auto">
+                            <x-lucide-undo-2 class="h-4 w-4" /> Revert to For Review
+                        </x-button>
+                    </form>
+
+                    <form method="POST" action="{{ route('charts.approval.approve', $chart) }}">
+                        @csrf
+                        @method('PATCH')
+
+                        <x-button type="submit" class="w-auto">
+                            <x-lucide-badge-check class="h-4 w-4" /> Approve chart
+                        </x-button>
+                    </form>
+                </div>
             @else
                 <form method="POST" action="{{ route('charts.approval.approve', $chart) }}"
                     class="flex justify-end border-t border-border pt-6">
