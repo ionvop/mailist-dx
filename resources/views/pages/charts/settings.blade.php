@@ -214,7 +214,9 @@
                             @if ($status === \App\Enums\ChartStatus::Approved && $chart->status !== \App\Enums\ChartStatus::Approved)
                                 @continue
                             @endif
-                            <option value="{{ $status->value }}" @selected(old('status', $chart->status->value) === $status->value)>
+                            <option value="{{ $status->value }}"
+                                data-description="{{ $status->description() }}"
+                                @selected(old('status', $chart->status->value) === $status->value)>
                                 {{ $status->label() }}
                             </option>
                         @endforeach
@@ -222,6 +224,9 @@
                     @error('status')
                         <p class="text-xs text-destructive">{{ $message }}</p>
                     @enderror
+                    <p id="status-description" class="text-xs text-foreground-accent">
+                        {{ \App\Enums\ChartStatus::from(old('status', $chart->status->value))->description() }}
+                    </p>
                 </div>
 
                 <label class="flex items-start gap-3 sm:pt-8">
@@ -283,3 +288,24 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.getElementById('status');
+            const description = document.getElementById('status-description');
+            if (! select || ! description) {
+                return;
+            }
+
+            const sync = () => {
+                const option = select.selectedOptions[0];
+                if (option?.dataset.description) {
+                    description.textContent = option.dataset.description;
+                }
+            };
+
+            select.addEventListener('change', sync);
+        });
+    </script>
+@endpush
