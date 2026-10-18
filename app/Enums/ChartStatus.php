@@ -23,19 +23,6 @@ enum ChartStatus: string
     }
 
     /**
-     * Description of what the status means for a chart.
-     */
-    public function description(): string
-    {
-        return match ($this) {
-            self::Wip => 'Chart is unfinished and may end abruptly in the middle of the song, or other difficulties are planned to be added.',
-            self::ForReview => 'Chart is finished but may require polish and requests the community for improvement suggestions.',
-            self::Completed => 'Owner feels satisfied with the state of the chart and marks it as playable, and optionally, may seek for approval from an approver.',
-            self::Approved => 'Has been evaluated by someone more experienced in charting or quality control and found no issues.',
-        };
-    }
-
-    /**
      * Tailwind border/text/background classes used to tint a status badge.
      */
     public function colorClasses(): string
