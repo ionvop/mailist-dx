@@ -96,6 +96,48 @@ test('an approver cannot revert a chart that is not approved', function () {
     expect($chart->refresh()->status)->toBe(ChartStatus::ForReview);
 });
 
+test('an approver can revert a completed chart to for review', function () {
+    $chart = Chart::factory()->status(ChartStatus::Completed)->create();
+
+    $this->actingAs(User::factory()->approver()->create())
+        ->patch(route('charts.approval.revert', $chart))
+        ->assertRedirect()
+        ->assertSessionHas('status', 'Chart reverted to For Review successfully.');
+
+    expect($chart->refresh()->status)->toBe(ChartStatus::ForReview);
+});
+
+test('an approver cannot revert a work in progress chart', function () {
+    $chart = Chart::factory()->status(ChartStatus::Wip)->create();
+
+    $this->actingAs(User::factory()->approver()->create())
+        ->patch(route('charts.approval.revert', $chart))
+        ->assertSessionHasErrors('status');
+
+    expect($chart->refresh()->status)->toBe(ChartStatus::Wip);
+});
+
+test('a regular member cannot revert a completed chart', function () {
+    $chart = Chart::factory()->status(ChartStatus::Completed)->create();
+
+    $this->actingAs(User::factory()->create())
+        ->patch(route('charts.approval.revert', $chart))
+        ->assertNotFound();
+
+    expect($chart->refresh()->status)->toBe(ChartStatus::Completed);
+});
+
+test('an approver cannot revert their own completed chart', function () {
+    $approver = User::factory()->approver()->create();
+    $chart = Chart::factory()->for($approver, 'uploader')->status(ChartStatus::Completed)->create();
+
+    $this->actingAs($approver)
+        ->patch(route('charts.approval.revert', $chart))
+        ->assertNotFound();
+
+    expect($chart->refresh()->status)->toBe(ChartStatus::Completed);
+});
+
 test('the Settings tab is a link for an approver on a chart they do not own', function () {
     $chart = Chart::factory()->create();
 
@@ -126,6 +168,26 @@ test('an approver sees a revert control on an already approved chart', function 
         ->assertSee('Revert approval')
         ->assertDontSee('Revert to')
         ->assertDontSee('Approve chart');
+});
+
+test('an approver sees both approve and revert controls on a completed chart', function () {
+    $chart = Chart::factory()->status(ChartStatus::Completed)->create();
+
+    $this->actingAs(User::factory()->approver()->create())
+        ->get(route('charts.settings', $chart))
+        ->assertOk()
+        ->assertSee('Approve chart')
+        ->assertSee('Revert to For Review');
+});
+
+test('an approver sees only the approve control on a for review chart', function () {
+    $chart = Chart::factory()->status(ChartStatus::ForReview)->create();
+
+    $this->actingAs(User::factory()->approver()->create())
+        ->get(route('charts.settings', $chart))
+        ->assertOk()
+        ->assertSee('Approve chart')
+        ->assertDontSee('Revert to For Review');
 });
 
 test('an approver who is also a collaborator sees both approval and leave controls', function () {
