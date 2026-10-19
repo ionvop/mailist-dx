@@ -63,6 +63,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Whether the user is a moderator with content moderation powers.
+     */
+    public function isModerator(): bool
+    {
+        return $this->role === UserRole::Moderator;
+    }
+
+    /**
      * The charts uploaded by the user.
      *
      * @return HasMany<Chart, $this>
