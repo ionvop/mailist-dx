@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\NotificationType;
 use App\Models\Chart;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\SerializesModels;
@@ -31,7 +32,9 @@ class ChartStatusChanged extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return $notifiable->wantsNotification(NotificationType::ChartStatusChanged->value)
+            ? ['database']
+            : [];
     }
 
     /**
