@@ -11,6 +11,7 @@ enum NotificationType: string
     case ImprovementResolved = 'improvement_resolved';
     case ProfileComment = 'profile_comment';
     case UserFollowed = 'user_followed';
+    case ContentRemoved = 'content_removed';
 
     /**
      * Human-readable label for the notification type.
@@ -25,6 +26,7 @@ enum NotificationType: string
             self::ImprovementResolved => 'Improvement resolutions',
             self::ProfileComment => 'Profile comments',
             self::UserFollowed => 'New followers',
+            self::ContentRemoved => 'Content removals',
         };
     }
 
@@ -41,6 +43,7 @@ enum NotificationType: string
             self::ImprovementResolved => 'An improvement you suggested is resolved.',
             self::ProfileComment => 'Someone comments on your profile.',
             self::UserFollowed => 'Someone starts following you.',
+            self::ContentRemoved => 'A moderator removes one of your comments or suggestions.',
         };
     }
 
