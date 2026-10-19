@@ -138,6 +138,41 @@
         @endif
 
         <x-placeholder title="Account" description="Username, email address, and password." icon="user" />
-        <x-placeholder title="Notifications" description="Choose which activity sends you a notification." icon="bell" />
+
+        @if ($currentUser)
+            <div class="rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8">
+                <h2 class="text-lg font-bold text-foreground">Notifications</h2>
+                <p class="mt-1 text-sm text-foreground-accent">Choose which activity sends you a notification.</p>
+
+                <form method="POST" action="{{ route('settings.notifications.update') }}" class="mt-6 space-y-4">
+                    @csrf
+                    @method('PATCH')
+
+                    @foreach (\App\Enums\NotificationType::cases() as $type)
+                        <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-background p-4 transition hover:border-primary-accent/50">
+                            {{-- Hidden zero so unchecked boxes still submit a value --}}
+                            <input type="hidden" name="preferences[{{ $type->value }}]" value="0">
+                            <input
+                                type="checkbox"
+                                name="preferences[{{ $type->value }}]"
+                                value="1"
+                                @checked($currentUser->wantsNotification($type->value))
+                                class="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-primary"
+                            >
+                            <span>
+                                <span class="block text-sm font-semibold text-foreground">{{ $type->label() }}</span>
+                                <span class="mt-0.5 block text-xs text-foreground-accent">{{ $type->description() }}</span>
+                            </span>
+                        </label>
+                    @endforeach
+
+                    <div class="flex items-center justify-end gap-3 border-t border-border pt-6">
+                        <x-button type="submit" class="w-auto">Save preferences</x-button>
+                    </div>
+                </form>
+            </div>
+        @else
+            <x-placeholder title="Notifications" description="Sign in to choose which activity sends you a notification." icon="bell" />
+        @endif
     </div>
 @endsection
