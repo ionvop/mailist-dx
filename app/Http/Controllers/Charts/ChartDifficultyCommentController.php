@@ -8,6 +8,7 @@ use App\Models\Chart;
 use App\Models\ChartDifficulty;
 use App\Models\ChartDifficultyComment;
 use App\Notifications\ChartDifficultyCommentCreated;
+use App\Notifications\ContentRemoved;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -38,7 +39,8 @@ class ChartDifficultyCommentController extends Controller
     }
 
     /**
-     * Delete a comment. Only the author may delete their own comment.
+     * Delete a comment. The author may delete their own comment, and
+     * moderators may delete any comment.
      */
     public function destroy(Request $request, Chart $chart, ChartDifficulty $difficulty, ChartDifficultyComment $comment): RedirectResponse
     {
@@ -46,9 +48,23 @@ class ChartDifficultyCommentController extends Controller
         $this->ensureBelongsToChart($chart, $difficulty);
         $this->ensureCommentBelongsToDifficulty($difficulty, $comment);
 
-        abort_unless($comment->user_id === $request->user()->id, 403);
+        $isModeration = $comment->user_id !== $request->user()->id;
+
+        if ($isModeration) {
+            abort_unless($request->user()->isModerator(), 403);
+        }
 
         $comment->delete();
+
+        if ($isModeration) {
+            $comment->user->notify(new ContentRemoved(
+                'Comment removed',
+                "Your comment on {$difficulty->displayName()} of \"{$chart->title}\" was removed by a moderator.",
+                route('charts.difficulties.show', [$chart, $difficulty, 'comments']),
+            ));
+
+            return back()->with('status', 'The comment has been removed.');
+        }
 
         return back()->with('status', 'Your comment has been deleted.');
     }
