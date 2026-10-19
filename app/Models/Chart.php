@@ -31,6 +31,7 @@ use Illuminate\Support\Str;
     'tags',
     'status',
     'is_private',
+    'is_delisted',
     'art_path',
     'track_path',
     'pv_path',
@@ -53,6 +54,7 @@ class Chart extends Model
             'tags' => 'array',
             'status' => ChartStatus::class,
             'is_private' => 'boolean',
+            'is_delisted' => 'boolean',
         ];
     }
 
@@ -157,15 +159,30 @@ class Chart extends Model
     }
 
     /**
-     * Whether the given user is allowed to view this chart.
+     * Whether the given user is allowed to view this chart. Delisted charts
+     * are hidden from everyone except their owner, collaborators, and
+     * moderators.
      */
     public function isVisibleTo(?User $user): bool
     {
+        if ($this->is_delisted) {
+            return $this->canEdit($user) || ($user !== null && $user->isModerator());
+        }
+
         if (! $this->is_private) {
             return true;
         }
 
         return $this->canEdit($user);
+    }
+
+    /**
+     * Whether the given user may moderate this chart, i.e. delist or restore
+     * it. Moderators may not moderate charts they own.
+     */
+    public function canModerate(?User $user): bool
+    {
+        return $user !== null && $user->isModerator() && ! $this->isOwnedBy($user);
     }
 
     /**
