@@ -52,6 +52,7 @@ class PageController extends Controller
     {
         return Chart::query()
             ->where('is_private', false)
+            ->where('is_delisted', false)
             ->when($approved, fn ($query) => $query->where('status', ChartStatus::Approved))
             ->when(! $approved, fn ($query) => $query->where('status', '!=', ChartStatus::Approved))
             ->with(['difficulties', 'uploader'])
@@ -75,6 +76,7 @@ class PageController extends Controller
 
         $charts = Chart::query()
             ->where('is_private', false)
+            ->where('is_delisted', false)
             ->with(['difficulties', 'uploader'])
             ->withCount('likes')
             ->when($status, fn ($query) => $query->where('status', $status))
@@ -113,6 +115,7 @@ class PageController extends Controller
 
         $charts = Chart::query()
             ->where('is_private', false)
+            ->where('is_delisted', false)
             ->when($user, fn ($query) => $query->where(fn ($query) => $query
                 ->whereIn('charts.id', fn ($sub) => $sub
                     ->select('chart_id')
@@ -215,6 +218,7 @@ class PageController extends Controller
         $charts = $mode === 'liked'
             ? $user->likedCharts()
                 ->where('is_private', false)
+                ->where('is_delisted', false)
                 ->with(['difficulties', 'uploader'])
                 ->withCount('likes')
                 ->orderByDesc('chart_likes.created_at')
@@ -222,6 +226,7 @@ class PageController extends Controller
                 ->withQueryString()
             : $user->charts()
                 ->where('is_private', false)
+                ->where('is_delisted', false)
                 ->with(['difficulties', 'uploader'])
                 ->withCount('likes')
                 ->latest()
@@ -258,12 +263,14 @@ class PageController extends Controller
 
         $uploaded = $profileUser->charts()
             ->where('is_private', false)
+            ->where('is_delisted', false)
             ->with(['difficulties', 'uploader'])
             ->withCount('likes')
             ->latest();
 
         $liked = $profileUser->likedCharts()
             ->where('is_private', false)
+            ->where('is_delisted', false)
             ->with(['difficulties', 'uploader'])
             ->withCount('likes')
             ->orderByDesc('chart_likes.created_at');
@@ -271,9 +278,9 @@ class PageController extends Controller
         return [
             'profileUser' => $profileUser,
             'uploadedCharts' => $uploaded->limit(self::PROFILE_PREVIEW_COUNT)->get(),
-            'uploadedCount' => $profileUser->charts()->where('is_private', false)->count(),
+            'uploadedCount' => $profileUser->charts()->where('is_private', false)->where('is_delisted', false)->count(),
             'likedCharts' => $liked->limit(self::PROFILE_PREVIEW_COUNT)->get(),
-            'likedCount' => $profileUser->likedCharts()->where('is_private', false)->count(),
+            'likedCount' => $profileUser->likedCharts()->where('is_private', false)->where('is_delisted', false)->count(),
             'profileComments' => $profileUser->receivedProfileComments()->with('user')->get(),
             'commentsCount' => $profileUser->receivedProfileComments()->count(),
         ];
