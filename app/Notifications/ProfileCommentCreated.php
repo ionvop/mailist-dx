@@ -3,17 +3,15 @@
 namespace App\Notifications;
 
 use App\Models\UserComment;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Notify a user that another user has commented on their profile.
  */
-class ProfileCommentCreated extends Notification implements ShouldQueue
+class ProfileCommentCreated extends Notification
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
 
     public function __construct(
         private readonly UserComment $comment,
