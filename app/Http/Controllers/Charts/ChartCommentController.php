@@ -7,6 +7,7 @@ use App\Http\Requests\Charts\StoreCommentRequest;
 use App\Models\Chart;
 use App\Models\Comment;
 use App\Notifications\ChartCommentCreated;
+use App\Notifications\ContentRemoved;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,16 +52,32 @@ class ChartCommentController extends Controller
     }
 
     /**
-     * Delete a comment. Only the author may delete their own comment.
+     * Delete a comment. The author may delete their own comment, and
+     * moderators may delete any comment.
      */
     public function destroy(Request $request, Chart $chart, Comment $comment): RedirectResponse
     {
         $this->ensureVisible($request, $chart);
 
         abort_unless($comment->chart_id === $chart->id, 404);
-        abort_unless($comment->user_id === $request->user()->id, 403);
+
+        $isModeration = $comment->user_id !== $request->user()->id;
+
+        if ($isModeration) {
+            abort_unless($request->user()->isModerator(), 403);
+        }
 
         $comment->delete();
+
+        if ($isModeration) {
+            $comment->user->notify(new ContentRemoved(
+                'Comment removed',
+                "Your comment on \"{$chart->title}\" was removed by a moderator.",
+                route('charts.show', $chart),
+            ));
+
+            return back()->with('status', 'The comment has been removed.');
+        }
 
         return back()->with('status', 'Your comment has been deleted.');
     }
