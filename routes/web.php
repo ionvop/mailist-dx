@@ -14,6 +14,7 @@ use App\Http\Controllers\Charts\ChartDifficultyImprovementController;
 use App\Http\Controllers\Charts\ChartDifficultySettingsController;
 use App\Http\Controllers\Charts\ChartFileController;
 use App\Http\Controllers\Charts\ChartLikeController;
+use App\Http\Controllers\Charts\ChartModerationController;
 use App\Http\Controllers\Charts\ChartSettingsController;
 use App\Http\Controllers\Charts\ChartUploadController;
 use App\Http\Controllers\FollowController;
@@ -120,6 +121,11 @@ Route::middleware('auth')->group(function () {
         ->name('charts.approval.approve');
     Route::patch('/charts/{chart}/approval/revert', [ChartApprovalController::class, 'revert'])
         ->name('charts.approval.revert');
+
+    Route::patch('/charts/{chart}/moderation/delist', [ChartModerationController::class, 'delist'])
+        ->name('charts.moderation.delist');
+    Route::patch('/charts/{chart}/moderation/restore', [ChartModerationController::class, 'restore'])
+        ->name('charts.moderation.restore');
 
     Route::get('/charts/{chart}/settings', [ChartSettingsController::class, 'edit'])->name('charts.settings');
     Route::patch('/charts/{chart}/settings', [ChartSettingsController::class, 'update'])->name('charts.settings.update');
