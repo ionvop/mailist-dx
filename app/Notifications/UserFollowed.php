@@ -2,17 +2,15 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Notify a user that another user has started following them.
  */
-class UserFollowed extends Notification implements ShouldQueue
+class UserFollowed extends Notification
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
 
     /**
      * @param  string  $actorUsername  Username of the follower, captured at send time.
