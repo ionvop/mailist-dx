@@ -40,7 +40,18 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'username_changed_at' => 'datetime',
             'role' => UserRole::class,
+            'notification_preferences' => 'array',
         ];
+    }
+
+    /**
+     * Whether the user wants to receive notifications of the given type.
+     * Unset preferences default to enabled.
+     */
+    public function wantsNotification(string $type): bool
+    {
+        return ! array_key_exists($type, $this->notification_preferences ?? [])
+            || (bool) $this->notification_preferences[$type];
     }
 
     /**
