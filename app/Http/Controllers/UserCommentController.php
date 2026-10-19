@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\UserComment;
+use App\Notifications\ContentRemoved;
 use App\Notifications\ProfileCommentCreated;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,7 +38,8 @@ class UserCommentController extends Controller
     }
 
     /**
-     * Delete a comment. Only the author may delete their own comment.
+     * Delete a comment. The author may delete their own comment, and
+     * moderators may delete any comment.
      */
     public function destroy(Request $request, User $user, UserComment $comment): RedirectResponse
     {
@@ -45,9 +47,23 @@ class UserCommentController extends Controller
             throw new NotFoundHttpException;
         }
 
-        abort_unless($comment->user_id === $request->user()->id, 403);
+        $isModeration = $comment->user_id !== $request->user()->id;
+
+        if ($isModeration) {
+            abort_unless($request->user()->isModerator(), 403);
+        }
 
         $comment->delete();
+
+        if ($isModeration) {
+            $comment->user->notify(new ContentRemoved(
+                'Comment removed',
+                "Your comment on {$user->username}'s profile was removed by a moderator.",
+                route('users.show', $user),
+            ));
+
+            return back()->with('status', 'The comment has been removed.');
+        }
 
         return back()->with('status', 'Your comment has been deleted.');
     }
