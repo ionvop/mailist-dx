@@ -177,6 +177,21 @@
                                             </button>
                                         </x-slot:trigger>
                                     </x-confirm-dialog>
+                                @elseif ($currentUser?->isModerator())
+                                    <x-confirm-dialog
+                                        :action="route('users.comments.destroy', [$profileUser, $comment])"
+                                        title="Remove this comment?"
+                                        description="This permanently removes the comment from the profile and notifies its author. This cannot be undone."
+                                        confirm-label="Remove comment"
+                                        class="ml-auto"
+                                    >
+                                        <x-slot:trigger>
+                                            <button type="button" @click="open = true"
+                                                class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-destructive">
+                                                <x-lucide-shield class="h-3.5 w-3.5" /> Remove
+                                            </button>
+                                        </x-slot:trigger>
+                                    </x-confirm-dialog>
                                 @endif
                             </div>
 
