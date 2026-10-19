@@ -3,8 +3,6 @@
 namespace App\Notifications;
 
 use App\Models\Chart;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\SerializesModels;
 
@@ -12,9 +10,9 @@ use Illuminate\Queue\SerializesModels;
  * Notify a chart's uploader that an approver has approved or reverted their
  * chart's status.
  */
-class ChartStatusChanged extends Notification implements ShouldQueue
+class ChartStatusChanged extends Notification
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
 
     /**
      * @param  string  $title  Short heading shown in the notification list.
