@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\NotificationType;
 use App\Models\ChartDifficultyComment;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\SerializesModels;
@@ -25,7 +26,9 @@ class ChartDifficultyCommentCreated extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return $notifiable->wantsNotification(NotificationType::ChartDifficultyComment->value)
+            ? ['database']
+            : [];
     }
 
     /**
