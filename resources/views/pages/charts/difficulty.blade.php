@@ -116,7 +116,8 @@
 
                 @forelse ($improvements as $improvement)
                     <x-improvement-card :improvement="$improvement" :chart="$chart" :difficulty="$difficulty"
-                        :can-edit="$canEdit" :revision-options="$revisionOptions" />
+                        :can-edit="$canEdit" :can-moderate="($currentUser ?? null)?->isModerator() ?? false"
+                        :revision-options="$revisionOptions" />
                 @empty
                     <x-placeholder title="No suggestions yet"
                         description="Be the first to suggest an improvement to this chart."
@@ -179,6 +180,21 @@
                                         <button type="button" @click="open = true"
                                             class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-destructive">
                                             <x-lucide-trash-2 class="h-3.5 w-3.5" /> Delete
+                                        </button>
+                                    </x-slot:trigger>
+                                </x-confirm-dialog>
+                            @elseif ($currentUser?->isModerator())
+                                <x-confirm-dialog
+                                    :action="route('charts.difficulties.comments.destroy', [$chart, $difficulty, $comment])"
+                                    title="Remove this comment?"
+                                    description="This permanently removes the comment from this difficulty and notifies its author. This cannot be undone."
+                                    confirm-label="Remove comment"
+                                    class="ml-auto"
+                                >
+                                    <x-slot:trigger>
+                                        <button type="button" @click="open = true"
+                                            class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-destructive">
+                                            <x-lucide-shield class="h-3.5 w-3.5" /> Remove
                                         </button>
                                     </x-slot:trigger>
                                 </x-confirm-dialog>
