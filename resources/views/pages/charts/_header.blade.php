@@ -17,6 +17,11 @@
     </div>
 
     <div class="flex items-center gap-2">
+        @if ($chart->is_delisted)
+            <span class="inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive">
+                <x-lucide-eye-off class="h-3.5 w-3.5" /> Delisted
+            </span>
+        @endif
         @if ($chart->is_private)
             <span class="inline-flex items-center gap-1 rounded-full border border-border bg-background-accent px-3 py-1 text-xs font-semibold text-foreground-accent">
                 <x-lucide-lock class="h-3.5 w-3.5" /> Private
