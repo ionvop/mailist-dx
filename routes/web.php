@@ -19,6 +19,7 @@ use App\Http\Controllers\Charts\ChartUploadController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Settings\NotificationPreferencesController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\UserCommentController;
 use Illuminate\Support\Facades\Route;
@@ -77,6 +78,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', LogoutController::class)->name('logout');
 
     Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('settings.profile.update');
+    Route::patch('/settings/notifications', [NotificationPreferencesController::class, 'update'])
+        ->name('settings.notifications.update');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
     Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
