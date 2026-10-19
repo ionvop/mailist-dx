@@ -137,8 +137,6 @@
             <x-placeholder title="Profile" description="Sign in to edit your avatar, username, and bio." icon="file-text" />
         @endif
 
-        <x-placeholder title="Account" description="Username, email address, and password." icon="user" />
-
         @if ($currentUser)
             <div class="rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8">
                 <h2 class="text-lg font-bold text-foreground">Notifications</h2>
