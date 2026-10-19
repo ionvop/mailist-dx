@@ -9,6 +9,7 @@ use App\Http\Requests\Charts\UpdateImprovementRequest;
 use App\Models\Chart;
 use App\Models\ChartDifficulty;
 use App\Models\ChartDifficultyImprovement;
+use App\Notifications\ContentRemoved;
 use App\Notifications\ImprovementResolved;
 use App\Notifications\ImprovementSuggested;
 use App\Services\Charts\ChartDifficultyImprovementService;
@@ -104,7 +105,8 @@ class ChartDifficultyImprovementController extends Controller
     }
 
     /**
-     * Delete a suggestion. Only the author may delete their own suggestion.
+     * Delete a suggestion. The author may delete their own suggestion, and
+     * moderators may delete any suggestion.
      */
     public function destroy(Request $request, Chart $chart, ChartDifficulty $difficulty, ChartDifficultyImprovement $improvement): RedirectResponse
     {
@@ -112,9 +114,23 @@ class ChartDifficultyImprovementController extends Controller
         $this->ensureBelongsToChart($chart, $difficulty);
         $this->ensureImprovementBelongsToDifficulty($difficulty, $improvement);
 
-        abort_unless($improvement->user_id === $request->user()->id, 403);
+        $isModeration = $improvement->user_id !== $request->user()->id;
+
+        if ($isModeration) {
+            abort_unless($request->user()->isModerator(), 403);
+        }
 
         $improvement->delete();
+
+        if ($isModeration) {
+            $improvement->user->notify(new ContentRemoved(
+                'Suggestion removed',
+                "Your improvement suggestion on {$difficulty->displayName()} of \"{$chart->title}\" was removed by a moderator.",
+                route('charts.difficulties.show', [$chart, $difficulty, 'improvements']),
+            ));
+
+            return back()->with('status', 'The suggestion has been removed.');
+        }
 
         return back()->with('status', 'Your suggestion has been deleted.');
     }
