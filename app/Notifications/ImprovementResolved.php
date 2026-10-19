@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\NotificationType;
 use App\Models\ChartDifficultyImprovement;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\SerializesModels;
@@ -25,7 +26,9 @@ class ImprovementResolved extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return $notifiable->wantsNotification(NotificationType::ImprovementResolved->value)
+            ? ['database']
+            : [];
     }
 
     /**
