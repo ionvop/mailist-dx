@@ -3,8 +3,6 @@
 namespace App\Notifications;
 
 use App\Models\ChartDifficultyImprovement;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\SerializesModels;
 
@@ -12,9 +10,9 @@ use Illuminate\Queue\SerializesModels;
  * Notify a chart's uploader that another user has suggested an improvement on
  * one of its difficulties.
  */
-class ImprovementSuggested extends Notification implements ShouldQueue
+class ImprovementSuggested extends Notification
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
 
     public function __construct(
         private readonly ChartDifficultyImprovement $improvement,
