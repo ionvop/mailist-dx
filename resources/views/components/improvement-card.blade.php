@@ -3,6 +3,7 @@
     'chart',
     'difficulty',
     'canEdit' => false,
+    'canModerate' => false,
     'revisionOptions' => null,
 ])
 
@@ -72,6 +73,20 @@
                         <button type="button" @click="open = true"
                             class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-destructive">
                             <x-lucide-trash-2 class="h-3.5 w-3.5" /> Delete
+                        </button>
+                    </x-slot:trigger>
+                </x-confirm-dialog>
+            @elseif ($canModerate ?? false)
+                <x-confirm-dialog
+                    :action="route('charts.difficulties.improvements.destroy', [$chart, $difficulty, $improvement])"
+                    title="Remove this suggestion?"
+                    description="This permanently removes the improvement suggestion and notifies its author. This cannot be undone."
+                    confirm-label="Remove suggestion"
+                >
+                    <x-slot:trigger>
+                        <button type="button" @click="open = true"
+                            class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-destructive">
+                            <x-lucide-shield class="h-3.5 w-3.5" /> Remove
                         </button>
                     </x-slot:trigger>
                 </x-confirm-dialog>
