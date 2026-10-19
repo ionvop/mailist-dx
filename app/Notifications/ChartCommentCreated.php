@@ -3,17 +3,15 @@
 namespace App\Notifications;
 
 use App\Models\Comment;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Notify a chart's uploader that another user has commented on their chart.
  */
-class ChartCommentCreated extends Notification implements ShouldQueue
+class ChartCommentCreated extends Notification
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
 
     public function __construct(
         private readonly Comment $comment,
