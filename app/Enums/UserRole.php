@@ -6,6 +6,7 @@ enum UserRole: string
 {
     case Member = 'member';
     case Approver = 'approver';
+    case Moderator = 'moderator';
 
     /**
      * Human-readable label for the role.
@@ -15,6 +16,7 @@ enum UserRole: string
         return match ($this) {
             self::Member => 'Member',
             self::Approver => 'Approver',
+            self::Moderator => 'Moderator',
         };
     }
 }
