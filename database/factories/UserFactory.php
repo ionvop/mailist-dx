@@ -46,4 +46,14 @@ class UserFactory extends Factory
             'role' => UserRole::Approver,
         ]);
     }
+
+    /**
+     * Indicate that the user is a moderator.
+     */
+    public function moderator(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRole::Moderator,
+        ]);
+    }
 }
