@@ -148,3 +148,26 @@ test('the feed shows the revision number and author of the latest revision', fun
         ->assertSee('revision #3')
         ->assertSee('by chart_author');
 });
+
+test('the feed shows the difficulty of the latest revision', function () {
+    $user = User::factory()->create();
+    $followed = User::factory()->create();
+    $user->following()->attach($followed->id);
+
+    $chart = Chart::factory()->for($followed, 'uploader')->create(['title' => 'Multi Difficulty Chart']);
+    $first = ChartDifficulty::factory()->for($chart)->create();
+    $second = ChartDifficulty::factory()->for($chart)->create(['difficulty_alias' => 'INSANE']);
+
+    Carbon::setTestNow(Carbon::parse('2026-01-01 00:00:00'));
+    ChartDifficultyRevision::factory()->for($first, 'difficulty')->create(['revision_number' => 1]);
+
+    Carbon::setTestNow(Carbon::parse('2026-06-01 00:00:00'));
+    ChartDifficultyRevision::factory()->for($second, 'difficulty')->create(['revision_number' => 5]);
+    Carbon::setTestNow();
+
+    $this->actingAs($user)
+        ->get(route('feed'))
+        ->assertOk()
+        ->assertSee('INSANE')
+        ->assertSee('revision #5');
+});
