@@ -117,101 +117,22 @@
         </section>
 
         {{-- Profile comments --}}
-        <section class="space-y-4">
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-foreground-accent">
-                Profile comments
-                @if ($commentsCount > 0)
-                    <span class="text-foreground-accent/60">({{ $commentsCount }})</span>
-                @endif
-            </h2>
-
-            @if (session('status'))
-                <x-alert variant="success">{{ session('status') }}</x-alert>
-            @endif
-
-            @if ($profileUser)
-                @if ($currentUser)
-                    <form method="POST" action="{{ route('users.comments.store', $profileUser) }}"
-                        class="space-y-3 rounded-2xl border border-border bg-background-accent/40 p-6">
-                        @csrf
-
-                        <x-textarea name="body" label="Leave a comment" rows="3"
-                            placeholder="Say something nice..." required />
-
-                        <div class="flex justify-end">
-                            <x-button type="submit" class="w-auto">
-                                <x-lucide-send class="h-4 w-4" /> Post comment
-                            </x-button>
-                        </div>
-                    </form>
-                @else
-                    <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-background-accent/40 p-6">
-                        <p class="text-sm text-foreground-accent">Log in to leave a comment.</p>
-                        <x-button href="{{ route('login') }}" class="w-auto">
-                            <x-lucide-log-in class="h-4 w-4" /> Log in
-                        </x-button>
-                    </div>
-                @endif
-
-                <div class="space-y-4">
-                    @forelse ($profileComments as $comment)
-                        <div class="rounded-xl border border-border bg-background-accent/40 p-4">
-                            <div class="flex flex-wrap items-start justify-between gap-3">
-                                <div class="flex items-start gap-3">
-                                    <x-avatar :user="$comment->user" size="sm" />
-
-                                    <div>
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <x-username :user="$comment->user" class="text-sm font-semibold" />
-                                        </div>
-
-                                        <p class="mt-0.5 text-xs text-foreground-accent">
-                                            <x-local-time :value="$comment->created_at" />
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center gap-2">
-                                    @if ($comment->user_id === $currentUser?->id)
-                                        <x-confirm-dialog
-                                            :action="route('users.comments.destroy', [$profileUser, $comment])"
-                                            title="Delete this comment?"
-                                            description="This permanently removes your comment from the profile. This cannot be undone."
-                                            confirm-label="Delete comment"
-                                        >
-                                            <x-slot:trigger>
-                                                <button type="button" @click="open = true"
-                                                    class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-destructive">
-                                                    <x-lucide-trash-2 class="h-3.5 w-3.5" /> Delete
-                                                </button>
-                                            </x-slot:trigger>
-                                        </x-confirm-dialog>
-                                    @elseif ($currentUser?->isModerator())
-                                        <x-confirm-dialog
-                                            :action="route('users.comments.destroy', [$profileUser, $comment])"
-                                            title="Remove this comment?"
-                                            description="This permanently removes the comment from the profile and notifies its author. This cannot be undone."
-                                            confirm-label="Remove comment"
-                                        >
-                                            <x-slot:trigger>
-                                                <button type="button" @click="open = true"
-                                                    class="inline-flex items-center gap-1 text-xs font-medium text-foreground-accent transition hover:text-destructive">
-                                                    <x-lucide-shield class="h-3.5 w-3.5" /> Remove
-                                                </button>
-                                            </x-slot:trigger>
-                                        </x-confirm-dialog>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <p class="mt-3 whitespace-pre-line text-sm text-foreground">{{ $comment->body }}</p>
-                        </div>
-                    @empty
-                        <x-placeholder title="No comments yet" description="Be the first to leave a comment on this profile."
-                            icon="message-square" height="h-32" />
-                    @endforelse
-                </div>
-            @endif
-        </section>
+        @if ($profileUser)
+            <x-comment-section
+                :comments="$profileComments"
+                :status="session('status')"
+                heading="Profile comments"
+                :store-route="'users.comments.store'"
+                :store-params="[$profileUser]"
+                :destroy-route="'users.comments.destroy'"
+                :destroy-params="[$profileUser]"
+                form-label="Leave a comment"
+                placeholder="Say something nice..."
+                guest-prompt="Log in to leave a comment."
+                empty-description="Be the first to leave a comment on this profile."
+                delete-description="This permanently removes your comment from the profile. This cannot be undone."
+                remove-description="This permanently removes the comment from the profile and notifies its author. This cannot be undone."
+            />
+        @endif
     </div>
 @endsection
