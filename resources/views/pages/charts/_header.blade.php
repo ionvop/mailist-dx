@@ -1,12 +1,13 @@
 @php
     $canManage = $chart->isOwnedBy($currentUser ?? null);
     $canApprove = $chart->canApprove($currentUser ?? null);
+    $canModerate = $chart->canModerate($currentUser ?? null);
     $canLeave = $chart->isCollaborator($currentUser ?? null);
 
     $tabs = [
         ['label' => 'Details', 'route' => route('charts.show', $chart), 'active' => $activeTab === 'details'],
         ['label' => 'Comments', 'route' => route('charts.comments.index', $chart), 'active' => $activeTab === 'comments'],
-        ['label' => 'Settings', 'route' => ($canManage || $canApprove || $canLeave) ? route('charts.settings', $chart) : null, 'active' => $activeTab === 'settings'],
+        ['label' => 'Settings', 'route' => ($canManage || $canApprove || $canModerate || $canLeave) ? route('charts.settings', $chart) : null, 'active' => $activeTab === 'settings'],
     ];
 @endphp
 
