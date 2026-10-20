@@ -251,56 +251,6 @@
             </div>
         </form>
 
-        @if (($currentUser ?? null)?->isModerator() && ! $chart->isOwnedBy($currentUser))
-            {{-- Moderation --}}
-            <div class="rounded-2xl border border-border bg-background-accent/40 p-6 sm:p-8">
-                <div class="flex items-start gap-3">
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15">
-                        <x-lucide-shield class="h-5 w-5 text-primary-accent" />
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-bold text-foreground">Moderation</h2>
-                        <p class="mt-1 text-sm text-foreground-accent">
-                            @if ($chart->is_delisted)
-                                This chart is delisted and hidden from public listings. Restoring it makes it
-                                publicly visible again.
-                            @else
-                                Delisting hides this chart from public listings. The owner cannot undo this; only
-                                moderators can restore the chart.
-                            @endif
-                        </p>
-                    </div>
-                </div>
-
-                <div class="mt-6 flex justify-end">
-                    @if ($chart->is_delisted)
-                        <form method="POST" action="{{ route('charts.moderation.restore', $chart) }}">
-                            @csrf
-                            @method('PATCH')
-
-                            <x-button type="submit" variant="secondary" class="w-auto">
-                                <x-lucide-eye class="h-4 w-4" /> Restore chart
-                            </x-button>
-                        </form>
-                    @else
-                        <x-confirm-dialog
-                            :action="route('charts.moderation.delist', $chart)"
-                            title="Delist “{{ $chart->title }}”?"
-                            description="This hides the chart from public listings. The owner cannot undo this; only moderators can restore it."
-                            confirm-label="Delist chart"
-                        >
-                            <x-slot:trigger>
-                                <button type="button" @click="open = true"
-                                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-destructive/50 bg-background px-4 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/10">
-                                    <x-lucide-eye-off class="h-4 w-4" /> Delist chart
-                                </button>
-                            </x-slot:trigger>
-                        </x-confirm-dialog>
-                    @endif
-                </div>
-            </div>
-        @endif
-
         {{-- Danger zone --}}
         <div class="rounded-2xl border border-destructive/40 bg-destructive/5 p-6 sm:p-8">
             <div class="flex items-start gap-3">
