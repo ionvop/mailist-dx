@@ -43,6 +43,61 @@ test('a non-moderator cannot delist a chart', function () {
     expect($chart->fresh()->is_delisted)->toBeFalse();
 });
 
+test('the Settings tab is a link for a moderator on a chart they do not own', function () {
+    $chart = Chart::factory()->create();
+
+    $this->actingAs(User::factory()->moderator()->create())
+        ->get(route('charts.show', $chart))
+        ->assertOk()
+        ->assertSee(route('charts.settings', $chart));
+});
+
+test('a moderator sees only the moderation controls on a chart they do not own', function () {
+    $chart = Chart::factory()->create();
+
+    $this->actingAs(User::factory()->moderator()->create())
+        ->get(route('charts.settings', $chart))
+        ->assertOk()
+        ->assertSee('Moderation')
+        ->assertSee('Delist chart')
+        ->assertDontSee('Chart details')
+        ->assertDontSee('Delete chart');
+});
+
+test('a moderator sees a restore control on a delisted chart', function () {
+    $chart = Chart::factory()->create(['is_delisted' => true]);
+
+    $this->actingAs(User::factory()->moderator()->create())
+        ->get(route('charts.settings', $chart))
+        ->assertOk()
+        ->assertSee('Restore chart')
+        ->assertDontSee('Delist chart');
+});
+
+test('a moderator who is also a collaborator sees both moderation and leave controls', function () {
+    $chart = Chart::factory()->create();
+    $moderator = User::factory()->moderator()->create();
+    $chart->collaborators()->attach($moderator->id);
+
+    $this->actingAs($moderator)
+        ->get(route('charts.settings', $chart))
+        ->assertOk()
+        ->assertSee('Delist chart')
+        ->assertSee('Remove my edit access')
+        ->assertDontSee('Delete chart');
+});
+
+test('a moderator sees the owner settings on their own chart', function () {
+    $moderator = User::factory()->moderator()->create();
+    $chart = Chart::factory()->for($moderator, 'uploader')->create();
+
+    $this->actingAs($moderator)
+        ->get(route('charts.settings', $chart))
+        ->assertOk()
+        ->assertSee('Chart details')
+        ->assertDontSee('Delist chart');
+});
+
 test('an approver cannot delist a chart', function () {
     $chart = Chart::factory()->create();
 
