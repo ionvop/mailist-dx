@@ -65,6 +65,7 @@
                 @else
                     <x-confirm-dialog
                         :action="route('charts.moderation.delist', $chart)"
+                        method="PATCH"
                         title="Delist “{{ $chart->title }}”?"
                         description="This hides the chart from public listings. The owner cannot undo this; only moderators can restore it."
                         confirm-label="Delist chart"
