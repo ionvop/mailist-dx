@@ -27,7 +27,8 @@ class ChartSettingsController extends Controller
 
     /**
      * Show the chart settings page. Owners see the full settings; approvers
-     * who do not own the chart see only the approval controls; collaborators
+     * who do not own the chart see only the approval controls; moderators who
+     * do not own the chart see only the moderation controls; collaborators
      * see only the control to remove their own edit access.
      */
     public function edit(Request $request, Chart $chart): View
@@ -42,6 +43,13 @@ class ChartSettingsController extends Controller
 
         if ($chart->canApprove($request->user())) {
             return view('pages.charts.approval', [
+                'chart' => $chart,
+                'canLeave' => $chart->isCollaborator($request->user()),
+            ]);
+        }
+
+        if ($chart->canModerate($request->user())) {
+            return view('pages.charts.delisting', [
                 'chart' => $chart,
                 'canLeave' => $chart->isCollaborator($request->user()),
             ]);
