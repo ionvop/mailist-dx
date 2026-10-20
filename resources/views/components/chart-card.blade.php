@@ -47,7 +47,21 @@
         </div>
 
         @if ($revision)
+            @php
+                $revisionDifficulty = $revision->difficulty;
+                $revisionDifficultyColor = $revisionDifficulty?->difficulty_color
+                    ?: 'var(--color-difficulty-'.$revisionDifficulty?->difficulty?->value.')';
+            @endphp
             <div class="mt-2 flex flex-wrap items-center gap-x-1 border-t border-border pt-2 text-xs text-foreground-accent">
+                @if ($revisionDifficulty)
+                    <span class="inline-flex items-center gap-1.5"
+                        style="--difficulty-color: {{ $revisionDifficultyColor }}"
+                        title="{{ $revisionDifficulty->displayName() }}">
+                        <span class="h-2 w-2 shrink-0 rounded-full bg-[var(--difficulty-color)]" aria-hidden="true"></span>
+                        <span class="font-medium text-foreground">{{ $revisionDifficulty->displayName() }}</span>
+                    </span>
+                    <span aria-hidden="true">·</span>
+                @endif
                 <span class="font-medium text-foreground">revision #{{ $revision->revision_number }}</span>
                 @if ($revision->user)
                     <span>by {{ $revision->user->username }}</span>
