@@ -130,11 +130,14 @@ class Chart extends Model
      * when the chart has no revisions yet.
      *
      * Requires the `difficulties.latestRevision` relation to be eager loaded.
+     * The owning difficulty is attached to the returned revision in memory
+     * (the relation is already loaded, so no extra query is issued) to let
+     * callers show which difficulty the revision belongs to.
      */
     public function mostRecentRevision(): ?ChartDifficultyRevision
     {
         return $this->difficulties
-            ->map(fn (ChartDifficulty $difficulty) => $difficulty->latestRevision)
+            ->map(fn (ChartDifficulty $difficulty) => $difficulty->latestRevision?->setRelation('difficulty', $difficulty))
             ->filter()
             ->sortByDesc('created_at')
             ->first();
