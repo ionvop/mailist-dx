@@ -74,6 +74,16 @@ test('a moderator sees a restore control on a delisted chart', function () {
         ->assertDontSee('Delist chart');
 });
 
+test('the delist control submits a PATCH request', function () {
+    $chart = Chart::factory()->create();
+
+    $this->actingAs(User::factory()->moderator()->create())
+        ->get(route('charts.settings', $chart))
+        ->assertOk()
+        ->assertSee('action="'.route('charts.moderation.delist', $chart).'"', false)
+        ->assertSee('name="_method" value="PATCH"', false);
+});
+
 test('a moderator who is also a collaborator sees both moderation and leave controls', function () {
     $chart = Chart::factory()->create();
     $moderator = User::factory()->moderator()->create();
