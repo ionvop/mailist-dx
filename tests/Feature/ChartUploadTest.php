@@ -144,3 +144,34 @@ test('a package without a maidata file is rejected', function () {
 
     expect(Chart::count())->toBe(0);
 });
+
+test('a CRLF maidata file is reencoded to LF on upload', function () {
+    $user = User::factory()->create();
+
+    $package = chartPackageZip([
+        'maidata.txt' => str_replace("\n", "\r\n", sampleMaidata()),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('charts.store'), ['package' => $package])
+        ->assertRedirect();
+
+    $chart = Chart::firstOrFail();
+
+    $stored = Storage::disk('local')->get($chart->maidata_path);
+
+    expect($stored)->not->toContain("\r")
+        ->and($stored)->toContain("&inote_5=(180){4}1,2,3,4,5,\n");
+
+    foreach ($chart->difficulties as $difficulty) {
+        expect($difficulty->code)->not->toContain("\r")
+            ->and($difficulty->revisions()->first()->code)->not->toContain("\r");
+    }
+
+    $zip = new ZipArchive;
+    $zip->open(Storage::disk('local')->path($chart->download_path));
+    $packaged = $zip->getFromName('maidata.txt');
+    $zip->close();
+
+    expect($packaged)->not->toContain("\r");
+});
