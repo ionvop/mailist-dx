@@ -4,6 +4,7 @@ namespace App\Services\Charts;
 
 use App\Models\Chart;
 use App\Models\User;
+use App\Services\Maidata\MaidataLineEndings;
 use App\Services\Maidata\MaidataParser;
 use App\Services\Maidata\ParsedMaidata;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -42,13 +43,15 @@ class ChartUploadService
         $extracted = $this->extractor->extract($package->getRealPath());
 
         try {
-            $maidata = $this->parser->parse(File::get($extracted->maidataPath));
+            // Normalise once so the parsed data and the stored file always agree.
+            $contents = MaidataLineEndings::normalize(File::get($extracted->maidataPath));
+            $maidata = $this->parser->parse($contents);
 
             if ($maidata->logs->hasErrors()) {
                 throw new ChartUploadException($maidata->logs->errors);
             }
 
-            return $this->persist($uploader, $extracted, $maidata, $art, $track, $pv, $attributes);
+            return $this->persist($uploader, $extracted, $contents, $maidata, $art, $track, $pv, $attributes);
         } finally {
             File::deleteDirectory($extracted->tempDir);
         }
@@ -62,6 +65,7 @@ class ChartUploadService
     private function persist(
         User $uploader,
         ExtractedPackage $extracted,
+        string $maidataContents,
         ParsedMaidata $maidata,
         ?UploadedFile $art,
         ?UploadedFile $track,
@@ -93,7 +97,7 @@ class ChartUploadService
         $directory = "charts/{$chart->id}";
 
         try {
-            $paths = $this->storeFiles($disk, $directory, $extracted, $art, $track, $pv);
+            $paths = $this->storeFiles($disk, $directory, $maidataContents, $extracted, $art, $track, $pv);
 
             $chart->fill($paths);
             $chart->save();
@@ -121,13 +125,14 @@ class ChartUploadService
     private function storeFiles(
         Filesystem $disk,
         string $directory,
+        string $maidataContents,
         ExtractedPackage $extracted,
         ?UploadedFile $art,
         ?UploadedFile $track,
         ?UploadedFile $pv,
     ): array {
         $maidataPath = "{$directory}/maidata.txt";
-        $disk->put($maidataPath, File::get($extracted->maidataPath));
+        $disk->put($maidataPath, $maidataContents);
 
         return [
             'maidata_path' => $maidataPath,
