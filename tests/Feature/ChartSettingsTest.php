@@ -197,6 +197,29 @@ test('a negative offset is accepted', function () {
     expect($maidata)->toContain('&first=-0.25');
 });
 
+test('a metadata update reencodes a legacy CRLF maidata file to LF', function () {
+    $owner = User::factory()->create();
+    $chart = uploadedChart($owner);
+
+    // Simulate a file stored before the LF-only invariant existed.
+    Storage::disk('local')->put(
+        $chart->maidata_path,
+        str_replace("\n", "\r\n", Storage::disk('local')->get($chart->maidata_path)),
+    );
+
+    $this->actingAs($owner)
+        ->patch(route('charts.settings.update', $chart), [
+            'title' => 'Renamed Song',
+            'artist' => 'Test Artist',
+        ])
+        ->assertRedirect();
+
+    $maidata = Storage::disk('local')->get($chart->maidata_path);
+
+    expect($maidata)->not->toContain("\r")
+        ->toContain("&title=Renamed Song\n");
+});
+
 test('a non-owner cannot update metadata', function () {
     $chart = Chart::factory()->create();
 
