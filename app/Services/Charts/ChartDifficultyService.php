@@ -5,6 +5,7 @@ namespace App\Services\Charts;
 use App\Enums\ChartDifficultyName;
 use App\Models\Chart;
 use App\Models\ChartDifficulty;
+use App\Services\Maidata\MaidataLineEndings;
 use App\Services\Maidata\MaidataParser;
 use App\Services\Maidata\MaidataSerializer;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -116,7 +117,9 @@ class ChartDifficultyService
      */
     public function updateCode(Chart $chart, ChartDifficulty $difficulty, string $code, ?int $userId = null): void
     {
-        $code = trim($code);
+        // Normalise before comparing so a CRLF payload that is otherwise
+        // identical to the stored code does not record a spurious revision.
+        $code = trim(MaidataLineEndings::normalize($code));
         $before = $difficulty->code;
 
         $difficulty->code = $code;
