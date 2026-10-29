@@ -9,7 +9,7 @@ namespace App\Services\Maidata;
  * keys that are new are appended to the header block, and keys whose value is
  * null or empty are removed. Chart data (`&inote_#`), per-difficulty keys, and
  * any other headers are left byte-for-byte untouched. The original UTF-8 BOM
- * and line-ending style are preserved.
+ * is preserved, and the output always uses LF line endings.
  */
 class MaidataSerializer
 {
@@ -27,7 +27,6 @@ class MaidataSerializer
             $contents = substr($contents, 3);
         }
 
-        $eol = str_contains($contents, "\r\n") ? "\r\n" : "\n";
         $lines = explode("\n", str_replace(["\r\n", "\r"], "\n", $contents));
 
         $output = [];
@@ -87,7 +86,7 @@ class MaidataSerializer
             array_splice($output, $insertAt, 0, $appended);
         }
 
-        $result = implode($eol, $output);
+        $result = implode("\n", $output);
 
         return $hasBom ? "\xEF\xBB\xBF".$result : $result;
     }
@@ -96,10 +95,10 @@ class MaidataSerializer
      * Replace the `&inote_#` chart body for the given index.
      *
      * Unlike {@see replaceHeaderValues()}, this supports multi-line chart code,
-     * which is written verbatim (normalised to the file's line endings). An
-     * existing body is replaced in place together with any continuation lines,
-     * and a missing index is appended to the header block. The original UTF-8
-     * BOM and line-ending style are preserved.
+     * which is written verbatim (normalised to LF line endings). An existing
+     * body is replaced in place together with any continuation lines, and a
+     * missing index is appended to the header block. The original UTF-8 BOM is
+     * preserved.
      */
     public function replaceChartCode(string $contents, string $index, string $code): string
     {
@@ -109,10 +108,9 @@ class MaidataSerializer
             $contents = substr($contents, 3);
         }
 
-        $eol = str_contains($contents, "\r\n") ? "\r\n" : "\n";
         $lines = explode("\n", str_replace(["\r\n", "\r"], "\n", $contents));
 
-        $body = implode($eol, explode("\n", str_replace(["\r\n", "\r"], "\n", $code)));
+        $body = implode("\n", explode("\n", str_replace(["\r\n", "\r"], "\n", $code)));
 
         $pattern = '/^&inote_'.preg_quote($index, '/').'=(.*)$/s';
 
@@ -150,7 +148,7 @@ class MaidataSerializer
             array_splice($output, $insertAt, 0, ["&inote_{$index}={$body}"]);
         }
 
-        $result = implode($eol, $output);
+        $result = implode("\n", $output);
 
         return $hasBom ? "\xEF\xBB\xBF".$result : $result;
     }
@@ -162,7 +160,7 @@ class MaidataSerializer
      * the matching `&lv_#`, `&des_#`, `&alias_#`, `&color_#`, and `&smsg_#`
      * headers, so the difficulty no longer appears in the file. Headers for
      * other indices and the level-wide keys are left untouched. The original
-     * UTF-8 BOM and line-ending style are preserved.
+     * UTF-8 BOM is preserved, and the output always uses LF line endings.
      */
     public function removeChart(string $contents, string $index): string
     {
@@ -172,7 +170,6 @@ class MaidataSerializer
             $contents = substr($contents, 3);
         }
 
-        $eol = str_contains($contents, "\r\n") ? "\r\n" : "\n";
         $lines = explode("\n", str_replace(["\r\n", "\r"], "\n", $contents));
 
         $pattern = '/^&[A-Za-z0-9]+_'.preg_quote($index, '/').'=/';
@@ -198,7 +195,7 @@ class MaidataSerializer
             $output[] = $line;
         }
 
-        $result = implode($eol, $output);
+        $result = implode("\n", $output);
 
         return $hasBom ? "\xEF\xBB\xBF".$result : $result;
     }
