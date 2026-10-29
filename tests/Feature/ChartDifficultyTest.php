@@ -140,6 +140,34 @@ test('a non-editor cannot update a difficulty code', function () {
     expect($difficulty->fresh()->code)->toBe('1,2,3,');
 });
 
+test('a code update reencodes a legacy CRLF maidata file to LF', function () {
+    Storage::fake('local');
+
+    $owner = User::factory()->create();
+    $chart = Chart::factory()->for($owner, 'uploader')->create([
+        'maidata_path' => 'charts/1/maidata.txt',
+    ]);
+    Storage::disk('local')->put('charts/1/maidata.txt', "&title=Song\r\n&inote_2=1,2,3,\r\n&lv_2=5\r\n");
+
+    $difficulty = ChartDifficulty::factory()->for($chart)->create([
+        'chart_index' => '2',
+        'code' => '1,2,3,',
+    ]);
+
+    $this->actingAs($owner)
+        ->patch(route('charts.difficulties.update', [$chart, $difficulty]), [
+            'code' => "4,5,6,\r\n7,8,9,",
+        ])
+        ->assertRedirect();
+
+    expect($difficulty->fresh()->code)->toBe("4,5,6,\n7,8,9,");
+
+    $maidata = Storage::disk('local')->get('charts/1/maidata.txt');
+
+    expect($maidata)->not->toContain("\r")
+        ->toContain("&inote_2=4,5,6,\n7,8,9,");
+});
+
 test('a difficulty from another chart is not found', function () {
     $chart = Chart::factory()->create();
     $difficulty = ChartDifficulty::factory()->for(Chart::factory())->create();
