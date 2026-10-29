@@ -76,15 +76,16 @@ test('it drops continuation lines when replacing a multi-line value', function (
         ->not->toContain('Title Line 2');
 });
 
-test('it preserves a byte order mark and line endings', function () {
+test('it preserves a byte order mark and normalises line endings to LF', function () {
     $contents = "\xEF\xBB\xBF&title=Old\r\n&artist=Artist\r\n&inote_1=1,2,3\r\n";
 
     $result = (new MaidataSerializer)->replaceHeaderValues($contents, ['title' => 'New']);
 
     expect($result)
         ->toStartWith("\xEF\xBB\xBF")
-        ->toContain("&title=New\r\n")
-        ->toContain("&artist=Artist\r\n");
+        ->toContain("&title=New\n")
+        ->toContain("&artist=Artist\n")
+        ->not->toContain("\r");
 });
 
 test('it replaces a multi-line chart body in place', function () {
@@ -123,16 +124,16 @@ test('it appends a chart body when the index is missing', function () {
         ->toBeLessThan(array_search('&inote_2=1,2,3,', $lines, true));
 });
 
-test('it preserves a byte order mark and line endings when replacing chart code', function () {
+test('it preserves a byte order mark and normalises line endings when replacing chart code', function () {
     $contents = "\xEF\xBB\xBF&title=Song\r\n&inote_2=1,2,3\r\n&lv_2=5\r\n";
 
     $result = (new MaidataSerializer)->replaceChartCode($contents, '2', "4,5,6,\r\n7,8,9,");
 
     expect($result)
         ->toStartWith("\xEF\xBB\xBF")
-        ->toContain("&inote_2=4,5,6,\r\n7,8,9,"
-        )
-        ->toContain("&lv_2=5\r\n");
+        ->toContain("&inote_2=4,5,6,\n7,8,9,")
+        ->toContain("&lv_2=5\n")
+        ->not->toContain("\r");
 });
 
 test('it removes every header for a chart index, including continuation lines', function () {
@@ -166,7 +167,7 @@ test('it removes every header for a chart index, including continuation lines', 
         ->toContain('&lv_3=9');
 });
 
-test('it preserves a byte order mark and line endings when removing a chart', function () {
+test('it preserves a byte order mark and normalises line endings when removing a chart', function () {
     $contents = "\xEF\xBB\xBF&title=Song\r\n&inote_2=1,2,3\r\n&lv_2=5\r\n&inote_3=4,5,6\r\n";
 
     $result = (new MaidataSerializer)->removeChart($contents, '2');
@@ -175,5 +176,6 @@ test('it preserves a byte order mark and line endings when removing a chart', fu
         ->toStartWith("\xEF\xBB\xBF")
         ->not->toContain('&inote_2=')
         ->not->toContain('&lv_2=')
-        ->toContain("&inote_3=4,5,6\r\n");
+        ->toContain("&inote_3=4,5,6\n")
+        ->not->toContain("\r");
 });
