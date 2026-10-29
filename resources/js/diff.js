@@ -14,11 +14,15 @@
  * Split a jsdiff chunk value into individual lines, dropping the single
  * trailing newline that terminates the chunk.
  *
+ * Line endings are normalised to `\n` first: stored code is LF-only, but a
+ * legacy revision may still contain CRLF, which would otherwise leave a stray
+ * `\r` at the end of every rendered line.
+ *
  * @param {string} value
  * @returns {string[]}
  */
 function splitLines(value) {
-    return value.replace(/\n$/, '').split('\n');
+    return value.replace(/\r\n?/g, '\n').replace(/\n$/, '').split('\n');
 }
 
 /**
