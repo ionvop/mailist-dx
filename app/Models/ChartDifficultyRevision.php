@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Services\Maidata\MaidataLineEndings;
 use Database\Factories\ChartDifficultyRevisionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -50,6 +52,19 @@ class ChartDifficultyRevision extends Model
             'is_original' => 'boolean',
             'created_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Normalise the snapshotted code to LF line endings on write.
+     *
+     * Revisions must match the difficulty's stored code byte-for-byte, so the
+     * same LF-only invariant is enforced here.
+     */
+    protected function code(): Attribute
+    {
+        return Attribute::set(
+            fn (string $value): string => MaidataLineEndings::normalize($value),
+        );
     }
 
     /**
