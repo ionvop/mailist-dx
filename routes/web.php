@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserRoleController;
 use App\Http\Controllers\Auth\EmailLoginController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LogoutController;
@@ -77,6 +78,9 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', LogoutController::class)->name('logout');
+
+    Route::get('/admin', [UserRoleController::class, 'index'])->name('admin.roles.index');
+    Route::post('/admin/roles', [UserRoleController::class, 'store'])->name('admin.roles.store');
 
     Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('settings.profile.update');
     Route::patch('/settings/notifications', [NotificationPreferencesController::class, 'update'])
