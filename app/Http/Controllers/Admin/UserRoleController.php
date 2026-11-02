@@ -17,7 +17,12 @@ class UserRoleController extends Controller
     {
         $this->ensureAdmin($request);
 
-        return view('pages.admin.roles');
+        $staffUsers = User::query()
+            ->whereIn('role', [UserRole::Approver->value, UserRole::Moderator->value])
+            ->orderBy('username')
+            ->get();
+
+        return view('pages.admin.roles', compact('staffUsers'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -28,7 +33,11 @@ class UserRoleController extends Controller
             'username' => ['required', 'string', 'exists:users,username'],
             'role' => [
                 'required',
-                Rule::in([UserRole::Approver->value, UserRole::Moderator->value]),
+                Rule::in([
+                    UserRole::Approver->value,
+                    UserRole::Moderator->value,
+                    UserRole::Member->value,
+                ]),
             ],
         ]);
 
