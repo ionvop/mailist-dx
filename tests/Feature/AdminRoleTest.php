@@ -46,6 +46,9 @@ test('the admin panel is unavailable when no admin email is configured', functio
 
 test('the configured admin can open the unlinked role panel', function () {
     $admin = User::factory()->create(['email' => 'admin@example.com']);
+    $approver = User::factory()->approver()->create();
+    $moderator = User::factory()->moderator()->create();
+    $member = User::factory()->create(['role' => UserRole::Member]);
 
     config(['admin.email' => 'admin@example.com']);
 
@@ -56,6 +59,11 @@ test('the configured admin can open the unlinked role panel', function () {
         ->assertSee('Username')
         ->assertSee('Approver')
         ->assertSee('Moderator');
+
+    $this->get(route('admin.roles.index'))
+        ->assertSee($approver->username)
+        ->assertSee($moderator->username)
+        ->assertDontSee($member->username);
 
     $this->get(route('home'))
         ->assertDontSee(route('admin.roles.index'));
@@ -97,7 +105,44 @@ test('the configured admin can switch a user between allowed roles', function ()
     expect($target->fresh()->role)->toBe(UserRole::Moderator);
 });
 
-test('the configured admin cannot assign member or an unknown role', function (string $role) {
+test('the configured admin can demote a staff user to member and the user leaves the list', function () {
+    $admin = User::factory()->create(['email' => 'admin@example.com']);
+    $target = User::factory()->moderator()->create();
+
+    config(['admin.email' => 'admin@example.com']);
+
+    $this->actingAs($admin)
+        ->post(route('admin.roles.store'), [
+            'username' => $target->username,
+            'role' => UserRole::Member->value,
+        ])
+        ->assertRedirect(route('admin.roles.index'));
+
+    expect($target->fresh()->role)->toBe(UserRole::Member);
+
+    $this->get(route('admin.roles.index'))
+        ->assertDontSee('aria-label="Role for '.$target->username.'"');
+});
+
+test('the configured admin can demote their own account and retain panel access', function () {
+    $admin = User::factory()->moderator()->create(['email' => 'admin@example.com']);
+
+    config(['admin.email' => 'admin@example.com']);
+
+    $this->actingAs($admin)
+        ->post(route('admin.roles.store'), [
+            'username' => $admin->username,
+            'role' => UserRole::Member->value,
+        ])
+        ->assertRedirect(route('admin.roles.index'));
+
+    expect($admin->fresh()->role)->toBe(UserRole::Member);
+
+    $this->get(route('admin.roles.index'))
+        ->assertOk();
+});
+
+test('the configured admin cannot assign an unknown role', function (string $role) {
     $admin = User::factory()->create(['email' => 'admin@example.com']);
     $target = User::factory()->moderator()->create();
 
@@ -112,7 +157,6 @@ test('the configured admin cannot assign member or an unknown role', function (s
 
     expect($target->fresh()->role)->toBe(UserRole::Moderator);
 })->with([
-    'member' => UserRole::Member->value,
     'unknown' => 'owner',
 ]);
 
