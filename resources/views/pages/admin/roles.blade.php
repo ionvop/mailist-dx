@@ -24,7 +24,7 @@
             <h2 class="text-lg font-semibold text-foreground">Current moderators and approvers</h2>
 
             <div class="overflow-x-auto rounded-lg border border-border">
-                <table class="w-full min-w-[36rem] divide-y divide-border text-left text-sm">
+                <table class="w-full min-w-xl divide-y divide-border text-left text-sm">
                     <thead class="bg-background-accent/40 text-xs uppercase text-foreground-accent">
                         <tr>
                             <th scope="col" class="px-4 py-3 font-medium">Username</th>
