@@ -50,7 +50,7 @@
                                             <option value="moderator" @selected($staffUser->role === \App\Enums\UserRole::Moderator)>Moderator</option>
                                             <option value="member">Member</option>
                                         </select>
-                                        <x-button type="submit" class="w-auto shrink-0">Save role</x-button>
+                                        <x-button type="submit" variant="secondary" class="w-auto shrink-0">Save role</x-button>
                                     </form>
                                 </td>
                             </tr>
